@@ -9,6 +9,9 @@ class ProductsDao {
   static const _columns =
       'id, description, barcode, price, departmentId, stock, vat, ageRefusal, expiryDate, caseBarcode, pluCode';
 
+  /// [_columns] qualified with the products alias, for joins.
+  static final _pColumns = _columns.split(', ').map((c) => 'p.$c').join(', ');
+
   /// Resolves a scanned code to one sellable row, in this order:
   /// main barcode, secondary barcode (with its own price), lottery, news.
   /// One query against `COLLATE NOCASE` indexes.
@@ -38,7 +41,7 @@ SELECT * FROM (
   Future<List<Map<String, Object?>>> search(String query, {int limit = 20}) {
     final q = query.trim();
     return _db.rawQuery('''
-SELECT p.$_columns, d.name AS departmentName
+SELECT $_pColumns, d.name AS departmentName
   FROM products p LEFT JOIN departments d ON d.id = p.departmentId
  WHERE p.barcode = ?1 COLLATE NOCASE OR p.pluCode = ?1 OR p.description LIKE ?2
  ORDER BY (p.barcode = ?1 COLLATE NOCASE) DESC, p.description

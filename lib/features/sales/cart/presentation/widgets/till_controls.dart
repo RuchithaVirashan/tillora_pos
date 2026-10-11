@@ -76,25 +76,37 @@ class QuickItemsGrid extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: () => onPick(item),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(item.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.2, color: c.quickItemInk)),
-                const SizedBox(height: 6),
-                Text(item.priceCents == 0 ? 'Open price' : rs(item.priceCents),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: c.quickItemSub,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    )),
-              ],
+          // Tile height depends on the window; scale the label down to fit
+          // rather than overflow on short tiles.
+          child: LayoutBuilder(
+            builder: (context, box) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: (box.maxWidth - 12).clamp(0, double.infinity),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(item.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.2, color: c.quickItemInk)),
+                        const SizedBox(height: 4),
+                        Text(item.priceCents == 0 ? 'Open price' : rs(item.priceCents),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: c.quickItemSub,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            )),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
