@@ -24,6 +24,7 @@ import '../../features/sales/transactions/presentation/screens/transactions_scre
 import '../../features/sales/void/domain/repositories/void_repository.dart';
 import '../../features/sales/void/presentation/screens/void_reason_screen.dart';
 import '../di/injector.dart';
+import 'module_routes.dart';
 import 'not_ported_screen.dart';
 import 'routes.dart';
 
@@ -44,10 +45,8 @@ GoRoute _dialog(String path, Widget Function(GoRouterState state) build, {List<R
 
 /// Screens designed in the canvas but not built yet.
 const _notPorted = <(String, String, String)>[
-  (Routes.productManagement, 'Product Management', 'ProductMgt.dc.html'),
   (Routes.suppliers, 'Suppliers', 'Suppliers.dc.html'),
   (Routes.staffActivity, 'Staff Activity', 'StaffActivity.dc.html'),
-  (Routes.quickReport, 'Quick Report', 'QuickReport.dc.html'),
   (Routes.backOffice, 'Back Office', 'BackOffice.dc.html'),
   (Routes.settings, 'Settings', 'Settings.dc.html'),
 ];
@@ -59,6 +58,10 @@ final appRouter = GoRouter(
     final session = getIt<SessionHolder>().value;
     final path = state.matchedLocation;
     if (path.startsWith(Routes.sales) && session?.logId == null) return Routes.loginFor(LoginModule.sales.slug);
+    if (session == null) {
+      if (path.startsWith(Routes.productManagement)) return Routes.loginFor(LoginModule.products.slug);
+      if (path.startsWith(Routes.quickReport)) return Routes.loginFor(LoginModule.reports.slug);
+    }
     return null;
   },
   routes: [
@@ -105,6 +108,8 @@ final appRouter = GoRouter(
         ),
       ],
     ),
+    ...productRoutes,
+    ...reportRoutes,
     for (final (path, title, design) in _notPorted)
       GoRoute(path: path, builder: (_, _) => NotPortedScreen(title: title, design: design)),
   ],

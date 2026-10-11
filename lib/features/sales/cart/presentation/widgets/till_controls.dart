@@ -87,7 +87,7 @@ class QuickItemsGrid extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.2, color: c.quickItemInk)),
                 const SizedBox(height: 6),
-                Text(rs(item.priceCents),
+                Text(item.priceCents == 0 ? 'Open price' : rs(item.priceCents),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

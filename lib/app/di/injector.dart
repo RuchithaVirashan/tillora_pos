@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' show Database;
 
 import '../../core/config/terminal_info.dart';
 import '../../core/platform/alert_sounds.dart';
@@ -8,6 +9,30 @@ import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_user.dart';
+import '../../features/product_management/adjust_stock/data/repositories/adjust_stock_repository_impl.dart';
+import '../../features/product_management/adjust_stock/domain/repositories/adjust_stock_repository.dart';
+import '../../features/product_management/adjust_stock/domain/usecases/adjust_stock_usecases.dart';
+import '../../features/product_management/non_barcode/data/repositories/non_barcode_repository_impl.dart';
+import '../../features/product_management/non_barcode/domain/repositories/non_barcode_repository.dart';
+import '../../features/product_management/non_barcode/domain/usecases/non_barcode_usecases.dart';
+import '../../features/product_management/payout_items/data/repositories/payout_items_repository_impl.dart';
+import '../../features/product_management/payout_items/domain/repositories/payout_items_repository.dart';
+import '../../features/product_management/payout_items/domain/usecases/payout_items_usecases.dart';
+import '../../features/product_management/price_change/data/repositories/price_change_repository_impl.dart';
+import '../../features/product_management/price_change/domain/repositories/price_change_repository.dart';
+import '../../features/product_management/price_change/domain/usecases/price_change_usecases.dart';
+import '../../features/product_management/weight_items/data/repositories/weight_items_repository_impl.dart';
+import '../../features/product_management/weight_items/domain/repositories/weight_items_repository.dart';
+import '../../features/product_management/weight_items/domain/usecases/weight_items_usecases.dart';
+import '../../features/reports/exceptions/data/repositories/exceptions_repository_impl.dart';
+import '../../features/reports/exceptions/domain/repositories/exceptions_repository.dart';
+import '../../features/reports/exceptions/domain/usecases/get_exceptions.dart';
+import '../../features/reports/expired_items/data/repositories/expired_items_repository_impl.dart';
+import '../../features/reports/expired_items/domain/repositories/expired_items_repository.dart';
+import '../../features/reports/expired_items/domain/usecases/get_expired_items.dart';
+import '../../features/reports/shift_report/data/repositories/shift_report_repository_impl.dart';
+import '../../features/reports/shift_report/domain/repositories/shift_report_repository.dart';
+import '../../features/reports/shift_report/domain/usecases/shift_report_usecases.dart';
 import '../../features/sales/cart/data/datasources/sales_local_data_source.dart';
 import '../../features/sales/cart/data/repositories/sales_repository_impl.dart';
 import '../../features/sales/cart/domain/repositories/sales_repository.dart';
@@ -50,6 +75,7 @@ import '../../infrastructure/database/app_database.dart';
 import '../../infrastructure/database/dao/pos_records_dao.dart';
 import '../../infrastructure/database/dao/products_dao.dart';
 import '../../infrastructure/database/dao/shift_dao.dart';
+import '../../infrastructure/database/dao/shift_report_dao.dart';
 import '../../infrastructure/database/dao/sys_config_dao.dart';
 import '../../infrastructure/hardware/audio_alert_sounds.dart';
 import '../../infrastructure/hardware/hardware_registry.dart';
@@ -72,7 +98,8 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton(() => ProductsDao(db))
     ..registerLazySingleton(() => ShiftDao(db))
     ..registerLazySingleton(() => PosRecordsDao(db))
-    ..registerLazySingleton(() => SysConfigDao(db));
+    ..registerLazySingleton(() => SysConfigDao(db))
+    ..registerLazySingleton(() => ShiftReportDao(db, getIt()));
 
   getIt.registerSingleton(TerminalInfoHolder(await _loadTerminalInfo(getIt<SysConfigDao>())));
 
@@ -108,7 +135,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => SearchProducts(getIt()))
     ..registerFactory(() => UpdatePrice(getIt()))
     ..registerFactory(() => SetExpiry(getIt()))
-    ..registerLazySingleton<ShiftRepository>(() => ShiftRepositoryImpl(db, getIt(), getIt()))
+    ..registerLazySingleton<ShiftRepository>(() => ShiftRepositoryImpl(getIt(), getIt()))
     ..registerFactory(() => EndShift(getIt()))
     ..registerLazySingleton<PayoutRepository>(() => PayoutRepositoryImpl(db))
     ..registerFactory(() => GetPayoutReasons(getIt()))
@@ -121,6 +148,46 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => SwapPayType(getIt()))
     ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt()))
     ..registerFactory(() => SetAutoPrint(getIt()));
+
+  _registerProductManagement(db);
+  _registerReports(db);
+}
+
+void _registerProductManagement(Database db) {
+  getIt
+    ..registerLazySingleton<NonBarcodeRepository>(() => NonBarcodeRepositoryImpl(db, getIt()))
+    ..registerFactory(() => GetNonBarcodeItems(getIt()))
+    ..registerFactory(() => GetNonBarcodeSetup(getIt()))
+    ..registerFactory(() => AddNonBarcodeItem(getIt()))
+    ..registerFactory(() => DeleteNonBarcodeItem(getIt()))
+    ..registerLazySingleton<WeightItemsRepository>(() => WeightItemsRepositoryImpl(db, getIt()))
+    ..registerFactory(() => GetWeightProducts(getIt()))
+    ..registerFactory(() => GetWeightDepartments(getIt()))
+    ..registerFactory(() => AddWeightProduct(getIt()))
+    ..registerLazySingleton<PayoutItemsRepository>(() => PayoutItemsRepositoryImpl(db))
+    ..registerFactory(() => GetPayoutItems(getIt()))
+    ..registerFactory(() => AddPayoutItem(getIt()))
+    ..registerFactory(() => DeletePayoutItem(getIt()))
+    ..registerLazySingleton<AdjustStockRepository>(() => AdjustStockRepositoryImpl(db))
+    ..registerFactory(() => FindStockItem(getIt()))
+    ..registerFactory(() => AdjustStock(getIt()))
+    ..registerLazySingleton<PriceChangeRepository>(() => PriceChangeRepositoryImpl(getIt()))
+    ..registerFactory(() => FindPricedProduct(getIt()))
+    ..registerFactory(() => ChangePrice(getIt()))
+    ..registerFactory(() => SetProductExpiry(getIt()));
+}
+
+void _registerReports(Database db) {
+  getIt
+    ..registerLazySingleton<ShiftReportRepository>(() => ShiftReportRepositoryImpl(getIt()))
+    ..registerFactory(() => GetLiveShifts(getIt()))
+    ..registerFactory(() => FindShifts(getIt()))
+    ..registerFactory(() => GetReportUsers(getIt()))
+    ..registerFactory(() => GetShiftReport(getIt()))
+    ..registerLazySingleton<ExceptionsRepository>(() => ExceptionsRepositoryImpl(db))
+    ..registerFactory(() => GetExceptions(getIt()))
+    ..registerLazySingleton<ExpiredItemsRepository>(() => ExpiredItemsRepositoryImpl(db))
+    ..registerFactory(() => GetExpiredItems(getIt()));
 }
 
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {

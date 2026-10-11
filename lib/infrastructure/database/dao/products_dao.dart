@@ -55,13 +55,18 @@ SELECT p.$_columns, d.name AS departmentName
     );
   }
 
-  Future<List<Map<String, Object?>>> quickItems({int limit = 40}) => _db.query(
-    'products',
-    columns: _columns.split(', '),
-    where: 'isQuickitem = 1',
-    orderBy: 'description',
-    limit: limit,
-  );
+  /// Quick item products, then non-barcode items (department keys).
+  /// A non-barcode item with price 0 is sold at a typed price.
+  Future<List<Map<String, Object?>>> quickItems({int limit = 40}) => _db.rawQuery('''
+SELECT * FROM (
+  SELECT $_columns, 'product' AS source, 0 AS rank FROM products WHERE isQuickitem = 1
+  UNION ALL
+  SELECT NULL, description, CAST(item_id AS TEXT), price, depid, NULL, vat, ageRefusal, NULL, NULL, NULL, 'manual', 1
+    FROM nonBarcodeItems WHERE item_id NOT IN (888888, 999999) AND depid != 0
+) ORDER BY rank, description LIMIT ?''', [limit]);
+
+  Future<List<Map<String, Object?>>> departments() =>
+      _db.query('departments', columns: ['id', 'name', 'vat', 'ageRefusal'], orderBy: 'name');
 
   /// Updates a price and keeps the previous one in `wasPrice`.
   Future<void> updatePrice(int productId, double newPrice) => _db.rawUpdate(
