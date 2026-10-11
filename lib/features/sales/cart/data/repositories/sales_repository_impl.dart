@@ -3,6 +3,7 @@ import '../../../../../core/errors/result.dart';
 import '../../../../../core/utils/db_date.dart';
 import '../../../../../core/utils/money.dart';
 import '../../../../../infrastructure/database/dao/pos_records_dao.dart';
+import '../../../../../infrastructure/database/dao/receipt_dao.dart';
 import '../../../../../infrastructure/hardware/hardware_registry.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
@@ -10,11 +11,12 @@ import '../../domain/repositories/sales_repository.dart';
 import '../datasources/sales_local_data_source.dart';
 
 class SalesRepositoryImpl implements SalesRepository {
-  SalesRepositoryImpl(this._local, this._hardware, this._records);
+  SalesRepositoryImpl(this._local, this._hardware, this._records, this._receipts);
 
   final SalesLocalDataSource _local;
   final HardwareRegistry _hardware;
   final PosRecordsDao _records;
+  final ReceiptDao _receipts;
 
   /// Department names change rarely; loaded once instead of per line.
   Map<int, String>? _departments;
@@ -73,6 +75,18 @@ class SalesRepositoryImpl implements SalesRepository {
       return const Ok(null);
     } catch (e) {
       return Err(HardwareFailure('Cash drawer did not open: $e'));
+    }
+  }
+
+  @override
+  Future<Result<void>> printReceipt(int transactionId, {bool reprint = false}) async {
+    try {
+      final receipt = await _receipts.forTransaction(transactionId);
+      if (receipt == null) return Err(ValidationFailure('Transaction $transactionId was not found'));
+      await _hardware.receiptPrinter.printReceipt(reprint ? receipt.asReprint() : receipt);
+      return const Ok(null);
+    } catch (e) {
+      return Err(HardwareFailure('The receipt did not print: $e'));
     }
   }
 

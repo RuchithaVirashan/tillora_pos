@@ -17,6 +17,9 @@ abstract interface class SalesRepository {
 
   Future<Result<void>> openCashDrawer();
 
+  /// Prints the receipt for a saved transaction; [reprint] marks it a copy.
+  Future<Result<void>> printReceipt(int transactionId, {bool reprint = false});
+
   /// Logs a refused age-restricted sale to `posRecords`.
   Future<Result<void>> recordAgeRefusal(SellableItem item, {required int logId});
 }

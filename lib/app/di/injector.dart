@@ -42,6 +42,7 @@ import '../../features/sales/cart/data/repositories/sales_repository_impl.dart';
 import '../../features/sales/cart/domain/repositories/sales_repository.dart';
 import '../../features/sales/cart/domain/usecases/complete_sale.dart';
 import '../../features/sales/cart/domain/usecases/get_quick_items.dart';
+import '../../features/sales/cart/domain/usecases/print_receipt.dart';
 import '../../features/sales/cart/domain/usecases/record_age_refusal.dart';
 import '../../features/sales/cart/domain/usecases/scan_item.dart';
 import '../../features/sales/cart/domain/usecases/weigh_item.dart';
@@ -84,6 +85,7 @@ import '../../features/suppliers/domain/usecases/supplier_usecases.dart';
 import '../../infrastructure/database/app_database.dart';
 import '../../infrastructure/database/dao/pos_records_dao.dart';
 import '../../infrastructure/database/dao/products_dao.dart';
+import '../../infrastructure/database/dao/receipt_dao.dart';
 import '../../infrastructure/database/dao/shift_dao.dart';
 import '../../infrastructure/database/dao/shift_report_dao.dart';
 import '../../infrastructure/database/dao/sys_config_dao.dart';
@@ -102,7 +104,9 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   // Shared
   getIt
     ..registerSingleton<AppDatabase>(database)
-    ..registerLazySingleton<HardwareRegistry>(HardwareRegistry.forCurrentPlatform)
+    ..registerLazySingleton<HardwareRegistry>(
+      () => HardwareRegistry.forCurrentPlatform(printerName: () => getIt<SysConfigDao>().get('posprinter')),
+    )
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerLazySingleton<CustomerDisplay>(() => PlatformInfo.isDesktop ? MultiWindowCustomerDisplay() : NoCustomerDisplay())
@@ -112,7 +116,8 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton(() => ShiftDao(db))
     ..registerLazySingleton(() => PosRecordsDao(db))
     ..registerLazySingleton(() => SysConfigDao(db))
-    ..registerLazySingleton(() => ShiftReportDao(db, getIt()));
+    ..registerLazySingleton(() => ShiftReportDao(db, getIt()))
+    ..registerLazySingleton(() => ReceiptDao(db, getIt()));
 
   getIt.registerSingleton(TerminalInfoHolder(await _loadTerminalInfo(getIt<SysConfigDao>())));
 
@@ -125,12 +130,13 @@ Future<void> configureDependencies({required AppDatabase database}) async {
 
   // Sales · cart
   getIt
-    ..registerLazySingleton<SalesRepository>(() => SalesRepositoryImpl(SalesLocalDataSource(db, getIt()), getIt(), getIt()))
+    ..registerLazySingleton<SalesRepository>(() => SalesRepositoryImpl(SalesLocalDataSource(db, getIt()), getIt(), getIt(), getIt()))
     ..registerFactory(() => ScanItem(getIt()))
     ..registerFactory(() => CompleteSale(getIt()))
     ..registerFactory(() => GetQuickItems(getIt()))
     ..registerFactory(() => RecordAgeRefusal(getIt()))
-    ..registerFactory(() => GetWeighedProducts(getIt()));
+    ..registerFactory(() => GetWeighedProducts(getIt()))
+    ..registerFactory(() => PrintReceipt(getIt()));
 
   // Sales · dialogs
   getIt

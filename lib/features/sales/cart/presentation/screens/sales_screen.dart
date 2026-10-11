@@ -20,6 +20,7 @@ import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
 import '../../domain/usecases/complete_sale.dart';
 import '../../domain/usecases/get_quick_items.dart';
+import '../../domain/usecases/print_receipt.dart';
 import '../../domain/usecases/record_age_refusal.dart';
 import '../../domain/usecases/scan_item.dart';
 import '../bloc/sales_cubit.dart';
@@ -44,6 +45,8 @@ class SalesScreen extends StatelessWidget {
         completeSale: getIt<CompleteSale>(),
         getQuickItems: getIt<GetQuickItems>(),
         sounds: getIt<AlertSounds>(),
+        printReceipt: getIt<PrintReceipt>(),
+        autoPrint: () => getIt<TerminalInfoHolder>().value.autoPrint,
         logId: session.logId ?? 0,
         maxQuantity: info.maxQuantity,
         ageCheckEnabled: info.ageCheckEnabled,
