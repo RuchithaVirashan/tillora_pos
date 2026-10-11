@@ -13,6 +13,7 @@ import '../../../../../core/utils/money.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/pos_button.dart';
 import '../../../../../core/widgets/pos_dialog.dart';
+import '../../../cart/domain/usecases/print_receipt.dart';
 import '../../domain/entities/shift_transaction.dart';
 import '../../domain/usecases/transactions_usecases.dart';
 
@@ -78,6 +79,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     setState(() => _swapping = false);
     showToast(context, 'Pay type changed to ${option.name}');
     _load();
+  }
+
+  Future<void> _print(ShiftTransaction tx) async {
+    final result = await getIt<PrintReceipt>()(tx.id, reprint: true);
+    if (!mounted) return;
+    switch (result) {
+      case Ok():
+        showToast(context, 'Receipt ${tx.id.toString().padLeft(6, '0')} sent to the printer');
+      case Err(:final failure):
+        showToast(context, failure.message, error: true);
+    }
   }
 
   @override
@@ -259,7 +271,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         label: 'Print Receipt',
                         height: 52,
                         style: PosButtonStyle.secondary,
-                        onPressed: () => showToast(context, 'Receipt printer is not set up yet'),
+                        onPressed: () => _print(tx),
                       ),
                     ),
                     const SizedBox(width: 8),

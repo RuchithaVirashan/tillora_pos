@@ -9,6 +9,7 @@ import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
 import '../../domain/usecases/complete_sale.dart';
 import '../../domain/usecases/get_quick_items.dart';
+import '../../domain/usecases/print_receipt.dart';
 import '../../domain/usecases/scan_item.dart';
 
 /// A one-off message for the screen to show (toast or dialog).
@@ -85,6 +86,8 @@ class SalesCubit extends Cubit<SalesState> {
     required this._completeSale,
     required this._getQuickItems,
     required this._sounds,
+    required this._printReceipt,
+    required this.autoPrint,
     required this.logId,
     required this.maxQuantity,
     required this.ageCheckEnabled,
@@ -94,6 +97,10 @@ class SalesCubit extends Cubit<SalesState> {
   final CompleteSale _completeSale;
   final GetQuickItems _getQuickItems;
   final AlertSounds _sounds;
+  final PrintReceipt _printReceipt;
+
+  /// Read on every sale, so turning Auto Print on or off applies at once.
+  final bool Function() autoPrint;
   final int logId;
   final int maxQuantity;
   final bool ageCheckEnabled;
@@ -329,11 +336,24 @@ class SalesCubit extends Cubit<SalesState> {
     switch (result) {
       case Ok(:final value):
         emit(state.copyWith(busy: false, lastTransactionId: () => value));
+        if (autoPrint()) await _print(value);
       case Err(:final failure):
         // Roll back the tender so the cashier can retry.
         emit(state.copyWith(busy: false, cart: cart));
         _notify(failure.message, error: true);
     }
+  }
+
+  /// Prints the receipt; a printer problem is reported, the sale stays saved.
+  Future<void> _print(int transactionId) async {
+    if (await _printReceipt(transactionId) case Err(:final failure)) _notify(failure.message, error: true);
+  }
+
+  /// Prints the receipt for the sale just completed again.
+  Future<void> reprintLast() async {
+    final id = state.lastTransactionId;
+    if (id == null) return _notify('No completed sale to print', error: true);
+    await _print(id);
   }
 
   void _notify(String message, {bool error = false}) =>
