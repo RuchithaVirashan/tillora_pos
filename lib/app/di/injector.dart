@@ -14,6 +14,18 @@ import '../../features/auth/data/datasources/recent_logins_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_user.dart';
+import '../../features/back_office/departments/data/repositories/department_repository_impl.dart';
+import '../../features/back_office/departments/domain/repositories/department_repository.dart';
+import '../../features/back_office/departments/domain/usecases/department_usecases.dart';
+import '../../features/back_office/payment_types/data/repositories/payment_type_admin_repository_impl.dart';
+import '../../features/back_office/payment_types/domain/repositories/payment_type_admin_repository.dart';
+import '../../features/back_office/payment_types/domain/usecases/payment_type_admin_usecases.dart';
+import '../../features/back_office/role_access/data/repositories/role_access_repository_impl.dart';
+import '../../features/back_office/role_access/domain/repositories/role_access_repository.dart';
+import '../../features/back_office/role_access/domain/usecases/role_access_usecases.dart';
+import '../../features/back_office/users/data/repositories/user_repository_impl.dart';
+import '../../features/back_office/users/domain/repositories/user_repository.dart';
+import '../../features/back_office/users/domain/usecases/user_usecases.dart';
 import '../../features/product_management/adjust_stock/data/repositories/adjust_stock_repository_impl.dart';
 import '../../features/product_management/adjust_stock/domain/repositories/adjust_stock_repository.dart';
 import '../../features/product_management/adjust_stock/domain/usecases/adjust_stock_usecases.dart';
@@ -176,6 +188,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
 
   _registerProductManagement(db);
   _registerReports(db);
+  _registerBackOffice(db);
 
   getIt
     ..registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db))
@@ -208,6 +221,28 @@ void _registerProductManagement(Database db) {
     ..registerFactory(() => FindPricedProduct(getIt()))
     ..registerFactory(() => ChangePrice(getIt()))
     ..registerFactory(() => SetProductExpiry(getIt()));
+}
+
+void _registerBackOffice(Database db) {
+  getIt
+    ..registerLazySingleton<DepartmentRepository>(() => DepartmentRepositoryImpl(db))
+    ..registerFactory(() => GetDepartments(getIt()))
+    ..registerFactory(() => SaveDepartment(getIt()))
+    ..registerFactory(() => DeleteDepartment(getIt()))
+    ..registerFactory(() => AddSubDepartment(getIt()))
+    ..registerFactory(() => DeleteSubDepartment(getIt()))
+    ..registerLazySingleton<UserRepository>(() => UserRepositoryImpl(db))
+    ..registerFactory(() => GetUsers(getIt()))
+    ..registerFactory(() => SaveUser(getIt()))
+    ..registerFactory(() => DeleteUser(getIt()))
+    ..registerLazySingleton<PaymentTypeAdminRepository>(() => PaymentTypeAdminRepositoryImpl(db))
+    ..registerFactory(() => GetManagedPaymentTypes(getIt()))
+    ..registerFactory(() => SavePaymentType(getIt()))
+    ..registerFactory(() => DeletePaymentType(getIt()))
+    ..registerLazySingleton<RoleAccessRepository>(() => RoleAccessRepositoryImpl(db))
+    ..registerFactory(() => GetAccessUsers(getIt()))
+    ..registerFactory(() => GetUserAccess(getIt()))
+    ..registerFactory(() => SaveUserAccess(getIt()));
 }
 
 void _registerReports(Database db) {

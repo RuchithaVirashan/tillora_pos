@@ -65,6 +65,9 @@ class AccessRights extends Equatable {
 
   String toJson() => jsonEncode([_flags]);
 
+  /// A copy with [changes] applied: '1' / '0' for switches, a number for counts.
+  AccessRights copyWith(Map<String, String> changes) => AccessRights({..._flags, ...changes});
+
   bool can(String flag) => _flags[flag] == '1';
 
   /// Daily limit for counted actions (no sale, void line, void sale).
