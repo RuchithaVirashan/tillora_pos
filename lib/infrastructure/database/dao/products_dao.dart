@@ -45,6 +45,16 @@ SELECT p.$_columns, d.name AS departmentName
  LIMIT ?3''', [q, '%$q%', limit]);
   }
 
+  /// Products sold by weight (`caseBarcode = 'weight'`), price per kg.
+  Future<List<Map<String, Object?>>> weighedProducts(String query, {int limit = 30}) {
+    final q = query.trim();
+    return _db.rawQuery(
+      "SELECT $_columns FROM products WHERE caseBarcode = 'weight' "
+      "AND (?1 = '' OR barcode = ?1 COLLATE NOCASE OR description LIKE ?2) ORDER BY description LIMIT ?3",
+      [q, '%$q%', limit],
+    );
+  }
+
   Future<List<Map<String, Object?>>> quickItems({int limit = 40}) => _db.query(
     'products',
     columns: _columns.split(', '),

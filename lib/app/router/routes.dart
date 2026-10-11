@@ -13,6 +13,11 @@ abstract final class Routes {
   static const noSale = '/sales/no-sale';
   static const priceCheck = '/sales/price-check';
   static const drawerFloat = '/sales/drawer-float';
+  static const discount = '/sales/discount';
+  static const payout = '/sales/payout';
+  static const weight = '/sales/weight';
+  static const moreFunctions = '/sales/more-functions';
+  static const cashLift = '/sales/more-functions/cash-lift';
   static const shiftEnd = '/sales/shift-end';
 
   // Product management

@@ -186,7 +186,7 @@ class SalesCubit extends Cubit<SalesState> {
       _notify('Low stock: ${outcome.item.description} will have ${outcome.stockLeft} left');
     }
     emit(state.copyWith(
-      cart: _workingCart.add(outcome.item, state.nextQuantity),
+      cart: _workingCart.add(outcome.item, outcome.item.source == ItemSource.weighed ? 1 : state.nextQuantity),
       nextQuantity: 1,
       lastTransactionId: () => null,
     ));
@@ -224,6 +224,44 @@ class SalesCubit extends Cubit<SalesState> {
     final base = state.saleComplete ? const Cart() : state.cart;
     emit(state.copyWith(cart: base.toggleRefund(), lastTransactionId: () => null));
   }
+
+  /// Why a discount cannot be given right now, or null when it can.
+  String? discountBlocker({required bool wholeSale}) {
+    final cart = state.cart;
+    if (state.saleComplete || cart.isEmpty) return 'Scan an item first';
+    if (cart.refund) return 'Discounts cannot be given on a refund';
+    if (cart.tenders.isNotEmpty) return 'The sale is already part-paid';
+    if (wholeSale) return null;
+    final line = cart.selectedLine;
+    if (line == null) return 'Select a line to discount';
+    if (line.item.source == ItemSource.discount) return 'Cannot add a discount on top of another discount';
+    if (line.item.source == ItemSource.payout) return 'Payout lines cannot be discounted';
+    return null;
+  }
+
+  void applyDiscount(int percent, {required bool wholeSale}) {
+    if (discountBlocker(wholeSale: wholeSale) case final reason?) return _notify(reason, error: true);
+    if (percent <= 0 || percent > 100) return _notify('Enter a discount between 1 and 100%', error: true);
+    final cart = state.cart;
+    emit(state.copyWith(cart: wholeSale ? cart.applySaleDiscount(percent) : cart.applyItemDiscount(cart.selected, percent)));
+  }
+
+  /// Cash paid out of the drawer, rung up as a negative line.
+  void addPayout(String name, int cents) {
+    if (state.cart.refund) return _notify('Switch back to SALES to add a payout', error: true);
+    final item = SellableItem(
+      description: name,
+      barcode: '',
+      priceCents: -cents,
+      departmentId: 0,
+      departmentName: 'Payout',
+      source: ItemSource.payout,
+    );
+    emit(state.copyWith(cart: _workingCart.add(item, 1), lastTransactionId: () => null));
+  }
+
+  /// A weighed item; [item] already carries the weighed price.
+  void addWeighed(SellableItem item) => _accept(ScanOutcome(item: item));
 
   // ── Payment ───────────────────────────────────────────────────────────
 

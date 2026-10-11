@@ -8,6 +8,9 @@ abstract interface class SalesRepository {
 
   Future<Result<List<SellableItem>>> quickItems();
 
+  /// Products sold by weight; [SellableItem.priceCents] is the price per kg.
+  Future<Result<List<SellableItem>>> weighedProducts(String query);
+
   /// Writes the transaction, its lines and the sold-item log, and adjusts
   /// stock, all in one database transaction. Returns the transaction id.
   Future<Result<int>> saveSale(Cart cart, {required int logId});

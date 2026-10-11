@@ -53,7 +53,11 @@ class Cart extends Equatable {
   static const empty = Cart();
 
   bool get isEmpty => lines.isEmpty;
-  int get itemCount => lines.fold(0, (n, l) => n + l.quantity);
+  int get itemCount => lines.fold(0, (n, l) => l.item.source == ItemSource.discount ? n : n + l.quantity);
+
+  static const itemDiscountCode = '888888';
+  static const saleDiscountCode = '999999';
+  static const _itemDiscountPrefix = 'Item Discount ';
 
   /// Positive for a sale, negative for a refund.
   int get totalCents {
@@ -87,8 +91,11 @@ class Cart extends Equatable {
 
   Cart select(int index) => _copy(selected: index.clamp(-1, lines.length - 1));
 
+  /// Removes the line and the item discount attached to it.
   Cart removeAt(int index) {
-    final next = [...lines]..removeAt(index);
+    final next = [...lines];
+    if (_discountIndexFor(index) case final d?) next.removeAt(d);
+    next.removeAt(index);
     return _copy(lines: next, selected: next.isEmpty ? -1 : index.clamp(0, next.length - 1));
   }
 
@@ -98,6 +105,61 @@ class Cart extends Equatable {
     next[index] = next[index].withQuantity(quantity);
     return _copy(lines: next);
   }
+
+  /// Puts a percentage discount on the line at [index], directly below it,
+  /// replacing any discount already there.
+  Cart applyItemDiscount(int index, int percent) {
+    final line = lines[index];
+    final discount = CartLine(
+      quantity: 1,
+      item: SellableItem(
+        description: '$_itemDiscountPrefix${line.item.description}',
+        barcode: itemDiscountCode,
+        priceCents: -_percentOf(line.amountCents, percent),
+        departmentId: line.item.departmentId,
+        departmentName: line.item.departmentName,
+        source: ItemSource.discount,
+      ),
+    );
+    final next = [...lines];
+    if (_discountIndexFor(index) case final d?) {
+      next[d] = discount;
+    } else {
+      next.insert(index + 1, discount);
+    }
+    return _copy(lines: next, selected: index);
+  }
+
+  /// Puts a percentage discount on the whole sale, replacing an earlier one.
+  Cart applySaleDiscount(int percent) {
+    final rest = lines.where((l) => l.item.barcode != saleDiscountCode).toList();
+    final base = rest.fold(0, (s, l) => s + l.amountCents);
+    final discount = CartLine(
+      quantity: 1,
+      item: SellableItem(
+        description: 'Sale Discount $percent%',
+        barcode: saleDiscountCode,
+        priceCents: -_percentOf(base, percent),
+        departmentId: 0,
+        source: ItemSource.discount,
+      ),
+    );
+    return _copy(lines: [discount, ...rest], selected: 0);
+  }
+
+  /// Sale total before any sale discount, for the discount dialog.
+  int get saleBaseCents =>
+      lines.where((l) => l.item.barcode != saleDiscountCode).fold(0, (s, l) => s + l.amountCents);
+
+  int? _discountIndexFor(int index) {
+    final d = index + 1;
+    if (d >= lines.length) return null;
+    final item = lines[d].item;
+    final owner = '$_itemDiscountPrefix${lines[index].item.description}';
+    return item.barcode == itemDiscountCode && item.description == owner ? d : null;
+  }
+
+  static int _percentOf(int cents, int percent) => (cents * percent / 100).round();
 
   Cart withTender(Tender tender) => _copy(tenders: [...tenders, tender]);
 

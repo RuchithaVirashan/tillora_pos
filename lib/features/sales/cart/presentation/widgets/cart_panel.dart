@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/utils/money.dart';
 import '../../../../../core/widgets/amount_display.dart';
 import '../../domain/entities/cart.dart';
+import '../../domain/entities/sellable_item.dart';
 import '../bloc/sales_cubit.dart';
 
 String rs(int cents) => Money.lkr(Money.fromCents(cents));
@@ -193,6 +194,7 @@ class _CartTableState extends State<CartTable> {
   Widget _row(BuildContext context, AppColors c, CartLine line, int i, double priceWidth, double amountWidth) {
     final selected = i == widget.cart.selected;
     final sign = widget.cart.refund ? '−' : '';
+    final isDiscount = line.item.source == ItemSource.discount;
     const nums = [FontFeature.tabularFigures()];
     return Material(
       color: selected ? c.selection : Colors.transparent,
@@ -224,13 +226,13 @@ class _CartTableState extends State<CartTable> {
               ),
               SizedBox(
                 width: 44,
-                child: Text('${line.quantity}',
+                child: Text(isDiscount ? '' : '${line.quantity}',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: c.ink, fontFeatures: nums)),
               ),
               SizedBox(
                 width: priceWidth,
-                child: Text(rs(line.item.priceCents),
+                child: Text(isDiscount ? '' : rs(line.item.priceCents),
                     textAlign: TextAlign.right, style: TextStyle(fontSize: 15, color: c.inkSecondary, fontFeatures: nums)),
               ),
               SizedBox(

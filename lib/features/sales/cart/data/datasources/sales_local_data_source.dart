@@ -16,6 +16,8 @@ class SalesLocalDataSource {
 
   Future<List<Map<String, Object?>>> quickItems() => _products.quickItems();
 
+  Future<List<Map<String, Object?>>> weighedProducts(String query) => _products.weighedProducts(query);
+
   Future<Map<int, String>> departmentNames() async {
     final rows = await _db.query('departments', columns: ['id', 'name']);
     return {for (final r in rows) r['id'] as int: r['name'] as String};
@@ -49,11 +51,15 @@ class SalesLocalDataSource {
       for (final line in cart.lines) {
         final item = line.item;
         final amount = Money.fromCents(line.amountCents * sign);
+        // Discounts are stored with no quantity or unit price, only the amount.
+        final isDiscount = item.source == ItemSource.discount;
+        final quantity = isDiscount ? 0 : line.quantity;
+        final price = isDiscount ? 0.0 : Money.fromCents(item.priceCents);
         batch.insert('TransactionItems', {
           'transaction_id': transactionId,
           'item': item.description,
-          'quantity': line.quantity,
-          'price': Money.fromCents(item.priceCents),
+          'quantity': quantity,
+          'price': price,
           'amount': amount,
           'dep_id': item.departmentId,
           'vat': item.vat,
@@ -62,8 +68,8 @@ class SalesLocalDataSource {
         });
         batch.insert('SoldItems', {
           'TranId': transactionId,
-          'Price': Money.fromCents(item.priceCents),
-          'Qty': line.quantity,
+          'Price': price,
+          'Qty': quantity,
           'Total': amount,
           'logid': logId,
           'Description': item.description,

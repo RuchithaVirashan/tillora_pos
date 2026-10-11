@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../core/config/terminal_info.dart';
 import '../../core/platform/alert_sounds.dart';
+import '../../core/platform/system_tools.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
@@ -14,21 +15,34 @@ import '../../features/sales/cart/domain/usecases/complete_sale.dart';
 import '../../features/sales/cart/domain/usecases/get_quick_items.dart';
 import '../../features/sales/cart/domain/usecases/record_age_refusal.dart';
 import '../../features/sales/cart/domain/usecases/scan_item.dart';
+import '../../features/sales/cart/domain/usecases/weigh_item.dart';
+import '../../features/sales/cash_lift/data/repositories/cash_lift_repository_impl.dart';
+import '../../features/sales/cash_lift/domain/repositories/cash_lift_repository.dart';
+import '../../features/sales/cash_lift/domain/usecases/lift_cash.dart';
 import '../../features/sales/hold_recall/data/repositories/hold_repository_impl.dart';
 import '../../features/sales/hold_recall/domain/repositories/hold_repository.dart';
 import '../../features/sales/hold_recall/domain/usecases/hold_usecases.dart';
+import '../../features/sales/more_functions/data/repositories/till_settings_repository_impl.dart';
+import '../../features/sales/more_functions/domain/repositories/till_settings_repository.dart';
+import '../../features/sales/more_functions/domain/usecases/set_auto_print.dart';
 import '../../features/sales/no_sale/data/repositories/no_sale_repository_impl.dart';
 import '../../features/sales/no_sale/domain/repositories/no_sale_repository.dart';
 import '../../features/sales/no_sale/domain/usecases/no_sale_usecases.dart';
 import '../../features/sales/payment/data/repositories/payment_type_repository_impl.dart';
 import '../../features/sales/payment/domain/repositories/payment_type_repository.dart';
 import '../../features/sales/payment/domain/usecases/get_payment_types.dart';
+import '../../features/sales/payout/data/repositories/payout_repository_impl.dart';
+import '../../features/sales/payout/domain/repositories/payout_repository.dart';
+import '../../features/sales/payout/domain/usecases/get_payout_reasons.dart';
 import '../../features/sales/price_check/data/repositories/price_check_repository_impl.dart';
 import '../../features/sales/price_check/domain/repositories/price_check_repository.dart';
 import '../../features/sales/price_check/domain/usecases/price_check_usecases.dart';
 import '../../features/sales/shift_end/data/repositories/shift_repository_impl.dart';
 import '../../features/sales/shift_end/domain/repositories/shift_repository.dart';
 import '../../features/sales/shift_end/domain/usecases/end_shift.dart';
+import '../../features/sales/transactions/data/repositories/transactions_repository_impl.dart';
+import '../../features/sales/transactions/domain/repositories/transactions_repository.dart';
+import '../../features/sales/transactions/domain/usecases/transactions_usecases.dart';
 import '../../features/sales/void/data/repositories/void_repository_impl.dart';
 import '../../features/sales/void/domain/repositories/void_repository.dart';
 import '../../features/sales/void/domain/usecases/void_usecases.dart';
@@ -39,6 +53,7 @@ import '../../infrastructure/database/dao/shift_dao.dart';
 import '../../infrastructure/database/dao/sys_config_dao.dart';
 import '../../infrastructure/hardware/audio_alert_sounds.dart';
 import '../../infrastructure/hardware/hardware_registry.dart';
+import '../../infrastructure/hardware/os_system_tools.dart';
 
 final getIt = GetIt.instance;
 
@@ -52,6 +67,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerSingleton<AppDatabase>(database)
     ..registerLazySingleton<HardwareRegistry>(HardwareRegistry.forCurrentPlatform)
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
+    ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerSingleton<SessionHolder>(SessionHolder())
     ..registerLazySingleton(() => ProductsDao(db))
     ..registerLazySingleton(() => ShiftDao(db))
@@ -71,7 +87,8 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => ScanItem(getIt()))
     ..registerFactory(() => CompleteSale(getIt()))
     ..registerFactory(() => GetQuickItems(getIt()))
-    ..registerFactory(() => RecordAgeRefusal(getIt()));
+    ..registerFactory(() => RecordAgeRefusal(getIt()))
+    ..registerFactory(() => GetWeighedProducts(getIt()));
 
   // Sales · dialogs
   getIt
@@ -92,7 +109,18 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => UpdatePrice(getIt()))
     ..registerFactory(() => SetExpiry(getIt()))
     ..registerLazySingleton<ShiftRepository>(() => ShiftRepositoryImpl(db, getIt(), getIt()))
-    ..registerFactory(() => EndShift(getIt()));
+    ..registerFactory(() => EndShift(getIt()))
+    ..registerLazySingleton<PayoutRepository>(() => PayoutRepositoryImpl(db))
+    ..registerFactory(() => GetPayoutReasons(getIt()))
+    ..registerLazySingleton<CashLiftRepository>(() => CashLiftRepositoryImpl(db, getIt()))
+    ..registerFactory(() => LiftCash(getIt()))
+    ..registerLazySingleton<TransactionsRepository>(() => TransactionsRepositoryImpl(db))
+    ..registerFactory(() => GetShiftTransactions(getIt()))
+    ..registerFactory(() => GetTransactionLines(getIt()))
+    ..registerFactory(() => GetPayTypeOptions(getIt()))
+    ..registerFactory(() => SwapPayType(getIt()))
+    ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt()))
+    ..registerFactory(() => SetAutoPrint(getIt()));
 }
 
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {

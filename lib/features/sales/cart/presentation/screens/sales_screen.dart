@@ -11,9 +11,12 @@ import '../../../../../core/responsive/adaptive_layout.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
+import '../../../discount/domain/entities/discount_choice.dart';
 import '../../../hold_recall/domain/entities/held_sale.dart';
+import '../../../payout/domain/entities/payout_entry.dart';
 import '../../../void/domain/repositories/void_repository.dart';
 import '../../domain/entities/cart.dart';
+import '../../domain/entities/sellable_item.dart';
 import '../../domain/usecases/complete_sale.dart';
 import '../../domain/usecases/get_quick_items.dart';
 import '../../domain/usecases/record_age_refusal.dart';
@@ -121,10 +124,17 @@ class _SalesViewState extends State<_SalesView> {
       _open<bool>(Routes.noSale);
     },
     transactions: () => _open<void>(Routes.transactions),
-    menu: () => _toast('More Functions is not ported yet', error: false),
-    weight: () => _toast('Weight items are not ported yet', error: false),
-    discount: () => _toast('Discounts are not ported yet', error: false),
-    payout: () => _toast('Payout is not ported yet', error: false),
+    menu: () => _open<void>(Routes.moreFunctions),
+    weight: () async {
+      final item = await _open<SellableItem>(Routes.weight);
+      if (item != null) _cubit.addWeighed(item);
+    },
+    itemDiscount: () => _discount(wholeSale: false),
+    saleDiscount: () => _discount(wholeSale: true),
+    payout: () async {
+      final entry = await _open<PayoutEntry>(Routes.payout);
+      if (entry != null) _cubit.addPayout(entry.name, entry.amountCents);
+    },
     logout: () async {
       if (_inProgress &&
           !await confirm(context, title: 'Logout', message: 'The current sale will be cleared. Log out anyway?', destructive: true)) {
@@ -139,6 +149,12 @@ class _SalesViewState extends State<_SalesView> {
       if (cents != null && mounted) context.go(Routes.shiftEnd, extra: cents);
     },
   );
+
+  Future<void> _discount({required bool wholeSale}) async {
+    if (_cubit.discountBlocker(wholeSale: wholeSale) case final reason?) return _toast(reason);
+    final choice = await _open<DiscountChoice>(Routes.discount, extra: (_cart, wholeSale));
+    if (choice != null) _cubit.applyDiscount(choice.percent, wholeSale: choice.wholeSale);
+  }
 
   /// Keyboard-wedge scanners type the code and press Enter.
   KeyEventResult _onKey(FocusNode _, KeyEvent event) {
@@ -216,7 +232,7 @@ class _SalesViewState extends State<_SalesView> {
                     desktop: (_) => SalesFooter(
                       loggedInAt: widget.session.loggedInAt,
                       terminal: widget.info.terminalName,
-                      autoPrint: widget.info.autoPrint,
+                      autoPrint: getIt<TerminalInfoHolder>().value.autoPrint,
                       userName: widget.session.userName,
                       refund: refund,
                     ),

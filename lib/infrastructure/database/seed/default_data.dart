@@ -107,6 +107,18 @@ abstract final class DefaultData {
         'ageRefusal': dept == 8 ? 21 : 0,
       });
     }
+    // Sold by weight: price is per kg.
+    batch.insert('products', {
+      'description': 'Carrots',
+      'barcode': '4791111000116',
+      'price': 400.0,
+      'departmentId': 4,
+      'stock': 0,
+      'vat': 0.0,
+      'caseBarcode': 'weight',
+      'isQuickitem': 0,
+      'ageRefusal': 0,
+    });
   }
 
   static const _departments = [

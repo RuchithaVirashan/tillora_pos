@@ -126,8 +126,8 @@ class FunctionStrip extends StatelessWidget {
           for (final (i, w) in [
             k('Reset Qty', () => cubit.key(SalesCubit.keyResetQty)),
             k('Weight', actions.weight),
-            k('Prod%', actions.discount),
-            k('Sale%', actions.discount),
+            k('Prod%', actions.itemDiscount),
+            k('Sale%', actions.saleDiscount),
             k('PAYOUT', actions.payout),
           ].indexed) ...[
             if (i > 0) const SizedBox(width: _gap),

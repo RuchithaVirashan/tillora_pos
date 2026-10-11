@@ -15,7 +15,8 @@ class SalesActions {
     required this.logout,
     required this.endShift,
     required this.weight,
-    required this.discount,
+    required this.itemDiscount,
+    required this.saleDiscount,
     required this.payout,
   });
 
@@ -30,6 +31,7 @@ class SalesActions {
   final VoidCallback logout;
   final VoidCallback endShift;
   final VoidCallback weight;
-  final VoidCallback discount;
+  final VoidCallback itemDiscount;
+  final VoidCallback saleDiscount;
   final VoidCallback payout;
 }

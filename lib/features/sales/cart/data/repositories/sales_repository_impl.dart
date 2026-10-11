@@ -47,6 +47,17 @@ class SalesRepositoryImpl implements SalesRepository {
   }
 
   @override
+  Future<Result<List<SellableItem>>> weighedProducts(String query) async {
+    try {
+      final departments = await _departmentNames();
+      final rows = await _local.weighedProducts(query);
+      return Ok([for (final r in rows) _toItem({...r, 'source': 'product'}, departments)]);
+    } catch (e) {
+      return Err(DatabaseFailure('Could not load weighed products: $e'));
+    }
+  }
+
+  @override
   Future<Result<int>> saveSale(Cart cart, {required int logId}) async {
     try {
       return Ok(await _local.saveSale(cart, logId: logId, departments: await _departmentNames()));

@@ -1,8 +1,21 @@
 import 'package:equatable/equatable.dart';
 
-/// Where a scanned code was found. Lottery and news items have no stock row
-/// in `products`, so stock is only updated for [product].
-enum ItemSource { product, lottery, news, manual }
+/// Where a cart line came from. Stock is only updated for [product].
+enum ItemSource {
+  product,
+  lottery,
+  news,
+  manual,
+
+  /// Sold by weight; the line price is the weighed amount.
+  weighed,
+
+  /// Negative line for an item or sale discount; not counted as an item.
+  discount,
+
+  /// Negative line for cash paid out of the drawer.
+  payout,
+}
 
 /// Something that can go in the cart: a scanned product, quick item,
 /// lottery ticket, newspaper, or a manual/department entry.

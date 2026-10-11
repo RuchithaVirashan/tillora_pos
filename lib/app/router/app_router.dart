@@ -9,12 +9,18 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/sales/cart/domain/entities/cart.dart';
 import '../../features/sales/cart/presentation/screens/sales_screen.dart';
+import '../../features/sales/cart/presentation/screens/weight_screen.dart';
+import '../../features/sales/cash_lift/presentation/screens/cash_lift_screen.dart';
+import '../../features/sales/discount/presentation/screens/discount_screen.dart';
 import '../../features/sales/hold_recall/presentation/screens/hold_recall_screen.dart';
+import '../../features/sales/more_functions/presentation/screens/more_functions_screen.dart';
 import '../../features/sales/no_sale/presentation/screens/no_sale_screen.dart';
 import '../../features/sales/payment/presentation/screens/other_payment_screen.dart';
+import '../../features/sales/payout/presentation/screens/payout_screen.dart';
 import '../../features/sales/price_check/presentation/screens/price_check_screen.dart';
 import '../../features/sales/shift_end/presentation/screens/drawer_float_screen.dart';
 import '../../features/sales/shift_end/presentation/screens/shift_end_screen.dart';
+import '../../features/sales/transactions/presentation/screens/transactions_screen.dart';
 import '../../features/sales/void/domain/repositories/void_repository.dart';
 import '../../features/sales/void/presentation/screens/void_reason_screen.dart';
 import '../di/injector.dart';
@@ -30,8 +36,11 @@ String _moduleHome(LoginModule module) => switch (module) {
   LoginModule.settings => Routes.settings,
 };
 
-GoRoute _dialog(String path, Widget Function(GoRouterState state) build) =>
-    GoRoute(path: path, pageBuilder: (_, state) => DialogPage(key: state.pageKey, child: build(state)));
+GoRoute _dialog(String path, Widget Function(GoRouterState state) build, {List<RouteBase> routes = const []}) => GoRoute(
+  path: path,
+  pageBuilder: (_, state) => DialogPage(key: state.pageKey, child: build(state)),
+  routes: routes,
+);
 
 /// Screens designed in the canvas but not built yet.
 const _notPorted = <(String, String, String)>[
@@ -71,7 +80,14 @@ final appRouter = GoRouter(
         _dialog('price-check', (s) => PriceCheckScreen(initialQuery: s.extra as String? ?? '')),
         _dialog('other-payment', (s) => OtherPaymentScreen(cart: s.extra! as Cart)),
         _dialog('drawer-float', (_) => const DrawerFloatScreen()),
-        GoRoute(path: 'transactions', builder: (_, _) => const NotPortedScreen(title: 'Transactions', design: 'Transactions.dc.html')),
+        _dialog('transactions', (_) => const TransactionsScreen()),
+        _dialog('discount', (s) {
+          final (cart, wholeSale) = s.extra! as (Cart, bool);
+          return DiscountScreen(cart: cart, wholeSale: wholeSale);
+        }),
+        _dialog('payout', (_) => const PayoutScreen()),
+        _dialog('weight', (_) => const WeightScreen()),
+        _dialog('more-functions', (_) => const MoreFunctionsScreen(), routes: [_dialog('cash-lift', (_) => const CashLiftScreen())]),
         GoRoute(
           path: 'shift-end',
           pageBuilder: (context, state) => NoTransitionPage(
