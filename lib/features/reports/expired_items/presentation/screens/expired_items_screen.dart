@@ -4,11 +4,14 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/responsive/breakpoints.dart';
+import '../../../../../core/platform/report_output.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/module_scaffold.dart';
 import '../../../../../core/widgets/pos_button.dart';
+import '../../../../../core/widgets/report_export.dart';
+import '../../domain/repositories/expired_items_document.dart';
 import '../../domain/repositories/expired_items_repository.dart';
 import '../../domain/usecases/get_expired_items.dart';
 
@@ -108,7 +111,11 @@ class _ExpiredItemsScreenState extends State<ExpiredItemsScreen> {
                           label: 'Print Report',
                           height: 52,
                           style: PosButtonStyle.secondary,
-                          onPressed: () => showToast(context, 'Report printing and export are not set up yet'),
+                          onPressed: () {
+                            final rows = _rows;
+                            if (rows == null) return;
+                            printOrExportReport(context, expiredItemsDocument(items: rows, before: _before), getIt<ReportOutput>());
+                          },
                         ),
                       ],
                     ),

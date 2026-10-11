@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../reports/shift_summary.dart';
 import '../theme/app_theme.dart';
-import '../utils/money.dart';
+import '../reports/shift_summary_document.dart';
 
 /// Shift report as cards: cash flow, department, activity, hourly sale.
 /// [columns] is 1 on phones, 2 on tablets, 3 on desktop.
@@ -12,48 +12,15 @@ class ShiftSummarySections extends StatelessWidget {
   final ShiftSummary summary;
   final int columns;
 
-  static String _rs(int cents) => Money.lkr(Money.fromCents(cents));
-
-  static String _hour(int h) => '${h.toString().padLeft(2, '0')}:00';
-
   @override
   Widget build(BuildContext context) {
-    final s = summary;
-    final sections = <(String, List<(String, String)>, int)>[
-      (
-        'CASH FLOW',
-        [
-          ('Drawer float', _rs(s.drawerFloatCents)),
-          for (final e in s.salesByMethod.entries) ('${e.key} sales', _rs(e.value)),
-          ('Refunds', _rs(s.refundsCents)),
-          ('Cash lifts', _rs(s.cashLiftsCents)),
-          ('Expected in drawer', _rs(s.expectedInDrawerCents)),
-        ],
-        1,
-      ),
-      (
-        'DEPARTMENT',
-        s.salesByDepartment.isEmpty ? [('No sales', '')] : [for (final e in s.salesByDepartment.entries) (e.key, _rs(e.value))],
-        1,
-      ),
-      (
-        'ACTIVITY',
-        [
-          ('Transactions', '${s.transactionCount}'),
-          ('Total takings', _rs(s.totalCents)),
-          ('No sales', '${s.noSaleCount}'),
-          ('Void lines', '${s.voidLineCount}'),
-          ('Void sales', '${s.voidSaleCount}'),
-        ],
-        1,
-      ),
-      (
-        'HOURLY SALE',
-        s.salesByHour.isEmpty
-            ? [('No sales', '')]
-            : [for (final e in s.salesByHour.entries) ('${_hour(e.key)} – ${_hour(e.key + 1)}', _rs(e.value))],
-        columns > 1 ? 2 : 1,
-      ),
+    final sections = [
+      for (final section in shiftSummarySections(summary))
+        (
+          section.title,
+          [for (final (label, cell) in section.rows) (label, cell.text)],
+          section.title == 'HOURLY SALE' && columns > 1 ? 2 : 1,
+        ),
     ];
 
     return LayoutBuilder(

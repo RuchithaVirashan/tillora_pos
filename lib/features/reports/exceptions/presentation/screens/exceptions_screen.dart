@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/responsive/breakpoints.dart';
+import '../../../../../core/platform/report_output.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -11,9 +12,11 @@ import '../../../../../core/utils/money.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/module_scaffold.dart';
 import '../../../../../core/widgets/pos_button.dart';
+import '../../../../../core/widgets/report_export.dart';
 import '../../../shift_report/domain/repositories/shift_report_repository.dart';
 import '../../../shift_report/domain/usecases/shift_report_usecases.dart';
 import '../../domain/entities/exception_record.dart';
+import '../../domain/entities/exceptions_document.dart';
 import '../../domain/usecases/get_exceptions.dart';
 
 /// Exceptions.dc.html: voids, no sales, refunds and age refusals.
@@ -67,6 +70,23 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
       case Err(:final failure):
         showToast(context, failure.message, error: true);
     }
+  }
+
+  void _export() {
+    final rows = _rows;
+    if (rows == null) return showToast(context, 'Choose filters and tap Generate first', error: true);
+    final shift = _shifts.where((s) => s.logId == _logId).firstOrNull;
+    printOrExportReport(
+      context,
+      exceptionsDocument(
+        type: _type,
+        from: _from,
+        to: _to,
+        records: rows,
+        shift: shift == null ? null : '#${shift.logId} · ${shift.userName}',
+      ),
+      getIt<ReportOutput>(),
+    );
   }
 
   String _rs(int cents) => '${cents < 0 ? '−' : ''}${Money.lkr(Money.fromCents(cents.abs()))}';
@@ -172,7 +192,7 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                       label: 'Print Report',
                       height: 52,
                       style: PosButtonStyle.secondary,
-                      onPressed: () => showToast(context, 'Report printing and export are not set up yet'),
+                      onPressed: _export,
                     ),
                   ),
                 ],

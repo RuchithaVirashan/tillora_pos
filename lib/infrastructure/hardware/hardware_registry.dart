@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:printing/printing.dart';
 
 import '../../core/receipts/receipt.dart';
@@ -14,36 +16,27 @@ class HardwareRegistry {
   HardwareRegistry({required this.receiptPrinter});
 
   final ReceiptPrinter receiptPrinter;
-
-  /// [printerName] reads the configured receipt printer (sysConfig `posprinter`).
-  factory HardwareRegistry.forCurrentPlatform({Future<String?> Function()? printerName}) =>
-      HardwareRegistry(receiptPrinter: SystemReceiptPrinter(printerName ?? () async => null));
 }
 
-/// Prints through the operating system's print service (Windows printers,
-/// Android/iOS print dialog) as an 80 mm PDF.
-///
-/// Uses the configured printer when it is installed, else the default
-/// printer, else asks with the print dialog.
-class SystemReceiptPrinter implements ReceiptPrinter {
-  SystemReceiptPrinter(this._printerName);
+/// Sends PDFs to the till printer through the operating system's print
+/// service: the configured printer when installed, else the default
+/// printer, else the print dialog.
+class SystemPrinter {
+  SystemPrinter(this._printerName);
 
   final Future<String?> Function() _printerName;
 
-  @override
-  Future<void> printReceipt(Receipt receipt) async {
-    final bytes = await ReceiptPdf.build(receipt);
-    final name = 'Receipt ${receipt.number}';
-    final printer = await _pickPrinter();
+  Future<void> printPdf(Uint8List bytes, {required String name}) async {
+    final printer = await _pick();
     if (printer != null) {
       final ok = await Printing.directPrintPdf(printer: printer, name: name, onLayout: (_) async => bytes);
-      if (!ok) throw StateError('${printer.name} did not accept the receipt');
+      if (!ok) throw StateError('${printer.name} did not accept $name');
       return;
     }
     await Printing.layoutPdf(name: name, onLayout: (_) async => bytes);
   }
 
-  Future<Printer?> _pickPrinter() async {
+  Future<Printer?> _pick() async {
     final info = await Printing.info();
     if (!info.canListPrinters || !info.directPrint) return null;
     final printers = await Printing.listPrinters();
@@ -58,6 +51,17 @@ class SystemReceiptPrinter implements ReceiptPrinter {
     }
     return null;
   }
+}
+
+/// Prints receipts as 80 mm PDFs through [SystemPrinter].
+class SystemReceiptPrinter implements ReceiptPrinter {
+  SystemReceiptPrinter(this._printer);
+
+  final SystemPrinter _printer;
+
+  @override
+  Future<void> printReceipt(Receipt receipt) async =>
+      _printer.printPdf(await ReceiptPdf.build(receipt), name: 'Receipt ${receipt.number}');
 
   /// Opening the drawer needs raw ESC/POS output to the receipt printer,
   /// which the system print service cannot send; not wired yet.
