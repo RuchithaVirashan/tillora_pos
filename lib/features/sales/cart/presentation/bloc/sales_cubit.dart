@@ -289,8 +289,8 @@ class SalesCubit extends Cubit<SalesState> {
   /// CASH: typed amount if any, else the exact balance.
   Future<void> payCash() => pay(Tender.cash(_typedOrDue()));
 
-  /// CARD: typed amount for a part payment, else the exact balance.
-  /// A card can't take more than the balance (no cash back on card).
+  /// CARD: typed amount for a part payment, else the exact balance. As the
+  /// second payment it may be more than the balance; the excess is change.
   Future<void> payCard() => pay(Tender.card(_typedOrDue()));
 
   int _typedOrDue() {
@@ -302,7 +302,9 @@ class SalesCubit extends Cubit<SalesState> {
     final cart = state.cart;
     if (state.saleComplete || cart.isEmpty) return _notify('Scan an item first', error: true);
     if (tender.amountCents <= 0) return;
-    if (tender.method != Tender.cashMethod && tender.amountCents > cart.dueCents) {
+    // A first non-cash payment over the balance is not a part payment.
+    // On the second payment any excess is given back as cash change.
+    if (tender.method != Tender.cashMethod && cart.tenders.isEmpty && tender.amountCents > cart.dueCents) {
       return _notify(
         '${tender.method} cannot be more than the balance of ${Money.lkr(Money.fromCents(cart.dueCents))}',
         error: true,

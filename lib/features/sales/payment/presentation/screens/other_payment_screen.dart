@@ -36,12 +36,23 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
 
   /// Full payment always takes the exact balance; partial takes the typed
   /// amount, capped below the balance.
-  int get _payCents => _partial ? Money.toCents(double.tryParse(_amount) ?? 0) : _due;
+  /// Partial: the typed amount. Second payment: typed amount, else the
+  /// balance. Otherwise the balance.
+  int get _payCents {
+    final typed = Money.toCents(double.tryParse(_amount) ?? 0);
+    if (_partial) return typed;
+    if (_secondPayment && typed > 0) return typed;
+    return _due;
+  }
+
+  /// Cash given back when a second payment is more than the balance.
+  int get _changeCents => _secondPayment && _payCents > _due ? _payCents - _due : 0;
 
   /// The sale already has its first payment.
   bool get _secondPayment => widget.cart.tenders.isNotEmpty;
 
-  bool get _valid => _types != null && _types!.isNotEmpty && _payCents > 0 && (_partial ? _payCents < _due : true);
+  bool get _valid =>
+      _types != null && _types!.isNotEmpty && _payCents > 0 && (_partial ? _payCents < _due : _payCents >= _due);
 
   @override
   void initState() {
@@ -136,7 +147,9 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
                     }),
               title: Text('Partial Payment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: c.ink)),
               subtitle: Text(
-                _secondPayment ? 'Already part paid — this payment must complete the sale' : 'Pay part of the balance with this type',
+                _secondPayment
+                    ? 'Already part paid — this payment completes the sale. Type more than the balance to give change.'
+                    : 'Pay part of the balance with this type',
                 style: TextStyle(fontSize: 14, color: c.muted),
               ),
             ),
@@ -152,6 +165,10 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
                     ? 'A partial payment must be less than the balance.'
                     : _partial
                     ? 'Are you sure you want to complete the partial payment $amount in $name?'
+                    : _secondPayment && _payCents < _due
+                    ? 'This payment must be at least the balance of ${Money.lkr(Money.fromCents(_due))}.'
+                    : _changeCents > 0
+                    ? 'Are you sure you want to pay with $amount in $name? Give ${Money.lkr(Money.fromCents(_changeCents))} change in cash.'
                     : 'Are you sure you want to pay with $amount in $name?',
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.warningInk),
               ),
@@ -175,9 +192,9 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
           const SizedBox(height: 14),
           Expanded(
             child: IgnorePointer(
-              ignoring: !_partial,
+              ignoring: !_partial && !_secondPayment,
               child: Opacity(
-                opacity: _partial ? 1 : 0.45,
+                opacity: _partial || _secondPayment ? 1 : 0.45,
                 child: LayoutBuilder(
                   builder: (context, box) => NumericKeypad(
                     withDot: true,
