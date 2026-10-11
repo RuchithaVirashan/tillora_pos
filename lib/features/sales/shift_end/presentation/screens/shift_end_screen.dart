@@ -8,10 +8,13 @@ import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/widgets/report_export.dart';
 import '../../../../../core/widgets/shift_summary_sections.dart';
 import '../../../../../core/widgets/pos_button.dart';
 import '../../../../../core/widgets/pos_dialog.dart';
+import '../../../../../core/platform/report_output.dart';
 import '../../../../../core/reports/shift_summary.dart';
+import '../../../../../core/reports/shift_summary_document.dart';
 import '../../domain/usecases/end_shift.dart';
 
 /// ShiftEnd.dc.html, step 2. Closes the shift on open; [onDone] signs out.
@@ -98,6 +101,21 @@ class _ShiftEndScreenState extends State<ShiftEndScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  PosButton(
+                    label: 'Print',
+                    icon: Icons.print_outlined,
+                    height: 56,
+                    fontSize: 16,
+                    style: PosButtonStyle.secondary,
+                    onPressed: s == null
+                        ? null
+                        : () => printReport(
+                            context,
+                            shiftSummaryDocument(s, terminal: terminal, shiftId: getIt<SessionHolder>().value?.logId),
+                            getIt<ReportOutput>(),
+                          ),
+                  ),
+                  const SizedBox(width: 10),
                   PosButton(
                     label: 'OK',
                     height: 56,

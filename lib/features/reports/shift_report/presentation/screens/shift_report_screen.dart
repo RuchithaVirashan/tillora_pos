@@ -3,13 +3,17 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
+import '../../../../../core/config/terminal_info.dart';
+import '../../../../../core/platform/report_output.dart';
 import '../../../../../core/reports/shift_summary.dart';
+import '../../../../../core/reports/shift_summary_document.dart';
 import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/module_scaffold.dart';
 import '../../../../../core/widgets/pos_button.dart';
+import '../../../../../core/widgets/report_export.dart';
 import '../../../../../core/widgets/shift_summary_sections.dart';
 import '../../domain/repositories/shift_report_repository.dart';
 import '../../domain/usecases/shift_report_usecases.dart';
@@ -74,6 +78,13 @@ class _ShiftReportScreenState extends State<ShiftReportScreen> {
       case Err(:final failure):
         showToast(context, failure.message, error: true);
     }
+  }
+
+  void _export() {
+    final summary = _summary;
+    if (summary == null) return showToast(context, 'Please generate report first', error: true);
+    final terminal = getIt<TerminalInfoHolder>().value.terminalName;
+    printOrExportReport(context, shiftSummaryDocument(summary, terminal: terminal, shiftId: _logId), getIt<ReportOutput>());
   }
 
   void _switchTab(bool all) {
@@ -150,7 +161,7 @@ class _ShiftReportScreenState extends State<ShiftReportScreen> {
             label: 'Print Report',
             height: 52,
             style: PosButtonStyle.secondary,
-            onPressed: () => showToast(context, 'Report printing and export are not set up yet'),
+            onPressed: _export,
           ),
         ),
       ],

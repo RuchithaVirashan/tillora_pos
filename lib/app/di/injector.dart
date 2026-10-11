@@ -6,6 +6,7 @@ import '../../core/config/terminal_info.dart';
 import '../../core/platform/alert_sounds.dart';
 import '../../core/platform/customer_display.dart';
 import '../../core/platform/platform_info.dart';
+import '../../core/platform/report_output.dart';
 import '../../core/platform/system_tools.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
@@ -93,6 +94,7 @@ import '../../infrastructure/hardware/audio_alert_sounds.dart';
 import '../../infrastructure/hardware/hardware_registry.dart';
 import '../../infrastructure/hardware/multi_window_customer_display.dart';
 import '../../infrastructure/hardware/os_system_tools.dart';
+import '../../infrastructure/reports/file_report_output.dart';
 
 final getIt = GetIt.instance;
 
@@ -104,9 +106,10 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   // Shared
   getIt
     ..registerSingleton<AppDatabase>(database)
-    ..registerLazySingleton<HardwareRegistry>(
-      () => HardwareRegistry.forCurrentPlatform(printerName: () => getIt<SysConfigDao>().get('posprinter')),
-    )
+    // The till printer (sysConfig posprinter), shared by receipts and reports.
+    ..registerLazySingleton(() => SystemPrinter(() => getIt<SysConfigDao>().get('posprinter')))
+    ..registerLazySingleton(() => HardwareRegistry(receiptPrinter: SystemReceiptPrinter(getIt())))
+    ..registerLazySingleton<ReportOutput>(() => FileReportOutput(getIt()))
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerLazySingleton<CustomerDisplay>(() => PlatformInfo.isDesktop ? MultiWindowCustomerDisplay() : NoCustomerDisplay())
