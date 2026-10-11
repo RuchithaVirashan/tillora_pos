@@ -3,8 +3,6 @@ import 'package:equatable/equatable.dart';
 /// Where a cart line came from. Stock is only updated for [product].
 enum ItemSource {
   product,
-  lottery,
-  news,
   manual,
 
   /// Sold by weight; the line price is the weighed amount.
@@ -18,7 +16,7 @@ enum ItemSource {
 }
 
 /// Something that can go in the cart: a scanned product, quick item,
-/// lottery ticket, newspaper, or a manual/department entry.
+/// weighed item, or a manual/department entry.
 class SellableItem extends Equatable {
   const SellableItem({
     required this.description,

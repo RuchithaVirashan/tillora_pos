@@ -49,7 +49,6 @@ GoRoute _dialog(String path, Widget Function(GoRouterState state) build, {List<R
 
 /// Screens designed in the canvas but not built yet.
 const _notPorted = <(String, String, String)>[
-  (Routes.backOffice, 'Back Office', 'BackOffice.dc.html'),
   (Routes.settings, 'Settings', 'Settings.dc.html'),
 ];
 
@@ -63,6 +62,7 @@ final appRouter = GoRouter(
     if (session == null) {
       if (path.startsWith(Routes.productManagement)) return Routes.loginFor(LoginModule.products.slug);
       if (path.startsWith(Routes.quickReport)) return Routes.loginFor(LoginModule.reports.slug);
+      if (path.startsWith(Routes.backOffice)) return Routes.loginFor(LoginModule.backOffice.slug);
     }
     return null;
   },
@@ -115,6 +115,7 @@ final appRouter = GoRouter(
     GoRoute(path: Routes.staffActivity, builder: (context, _) => StaffActivityScreen(onBack: () => context.go(Routes.home))),
     ...productRoutes,
     ...reportRoutes,
+    ...backOfficeRoutes,
     for (final (path, title, design) in _notPorted)
       GoRoute(path: path, builder: (_, _) => NotPortedScreen(title: title, design: design)),
   ],

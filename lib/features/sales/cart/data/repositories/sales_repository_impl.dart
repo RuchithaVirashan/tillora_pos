@@ -121,8 +121,6 @@ class SalesRepositoryImpl implements SalesRepository {
       stock: (r['stock'] as num?)?.toInt(),
       expiryDate: DbDate.tryParse(r['expiryDate'] as String?),
       source: switch (r['source']) {
-        'lottery' => ItemSource.lottery,
-        'news' => ItemSource.news,
         'manual' => ItemSource.manual,
         _ => ItemSource.product,
       },

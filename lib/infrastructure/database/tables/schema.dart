@@ -295,40 +295,6 @@ CREATE TABLE IF NOT EXISTS sysMessage (
   tSync INTEGER DEFAULT 0
 )''',
     '''
-CREATE TABLE IF NOT EXISTS lottery (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  description TEXT NOT NULL,
-  barcode TEXT NOT NULL,
-  price REAL NOT NULL,
-  departmentId INTEGER NOT NULL,
-  subDeptId INTEGER DEFAULT NULL,
-  vat REAL NOT NULL,
-  ageRefusal INTEGER,
-  cloudSync INTEGER DEFAULT 0,
-  tSync INTEGER DEFAULT 0
-)''',
-    '''
-CREATE TABLE IF NOT EXISTS newsAndMagazines (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  description TEXT NOT NULL,
-  barcode TEXT NOT NULL,
-  price REAL NOT NULL,
-  departmentId INTEGER NOT NULL,
-  subDeptId INTEGER DEFAULT NULL,
-  stock INTEGER NOT NULL,
-  vat REAL NOT NULL,
-  type TEXT,
-  caseBarcode TEXT,
-  upc TEXT,
-  tax TEXT,
-  pluCode TEXT,
-  ageRefusal INTEGER,
-  cloudSync INTEGER DEFAULT 0,
-  prev_barcode TEXT DEFAULT NULL,
-  prev_price REAL DEFAULT NULL,
-  tSync INTEGER DEFAULT 0
-)''',
-    '''
 CREATE TABLE IF NOT EXISTS secondaryBarcode (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   prodId INTEGER NOT NULL,
@@ -402,13 +368,18 @@ CREATE TABLE IF NOT EXISTS supplierPromotionItems (
 )''',
   ];
 
+  /// Tables no longer used (lottery and newspapers are not sold in Sri
+  /// Lanka); dropped from existing databases when they open.
+  static const dropped = <String>[
+    'DROP TABLE IF EXISTS lottery',
+    'DROP TABLE IF EXISTS newsAndMagazines',
+  ];
+
   /// Indexes for barcode lookups and per-shift reports.
   static const indexes = <String>[
     'CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode COLLATE NOCASE)',
     'CREATE INDEX IF NOT EXISTS idx_products_quick ON products(isQuickitem)',
     'CREATE INDEX IF NOT EXISTS idx_secondary_barcode ON secondaryBarcode(barcode COLLATE NOCASE)',
-    'CREATE INDEX IF NOT EXISTS idx_lottery_barcode ON lottery(barcode COLLATE NOCASE)',
-    'CREATE INDEX IF NOT EXISTS idx_news_barcode ON newsAndMagazines(barcode COLLATE NOCASE)',
     'CREATE INDEX IF NOT EXISTS idx_txitems_tx ON TransactionItems(transaction_id)',
     'CREATE INDEX IF NOT EXISTS idx_tx_user ON Transactions(user_id)',
     'CREATE INDEX IF NOT EXISTS idx_sold_log ON SoldItems(logid)',

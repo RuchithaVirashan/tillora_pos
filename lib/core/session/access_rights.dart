@@ -37,7 +37,7 @@ class AccessRights extends Equatable {
     voidLine, voidLineCount, refund, cashLift, productDiscount, saleDiscount, priceUpdate,
     'swapPayTypeAccess', 'departmentManagerAccess', 'userManagerAccess',
     'paymentTypeManagerAccess', 'roleAccessManagerAccess', 'salesManagerAccess',
-    'stockManagerAccess', productManager, 'onlineLotteryAccess', 'newsPaperMagazineAccess',
+    'stockManagerAccess', productManager,
     'labelPrinterAccess', 'promotionManagerAccess', 'manageNonBarcodeProductsAccess',
     'addWeightProductsAccess', 'managePayoutProductAccess', 'adjustStockAccess', priceCheck,
     'liveShiftReportAccess', 'allShiftReportAccess', 'exceptionsAccess', 'quickLabelAccess',
@@ -64,6 +64,9 @@ class AccessRights extends Equatable {
   static const none = AccessRights({});
 
   String toJson() => jsonEncode([_flags]);
+
+  /// A copy with [changes] applied: '1' / '0' for switches, a number for counts.
+  AccessRights copyWith(Map<String, String> changes) => AccessRights({..._flags, ...changes});
 
   bool can(String flag) => _flags[flag] == '1';
 
