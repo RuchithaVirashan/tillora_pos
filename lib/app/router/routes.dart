@@ -16,6 +16,7 @@ abstract final class Routes {
   static const discount = '/sales/discount';
   static const payout = '/sales/payout';
   static const weight = '/sales/weight';
+  static const quickItems = '/sales/quick-items';
   static const moreFunctions = '/sales/more-functions';
   static const cashLift = '/sales/more-functions/cash-lift';
   static const shiftEnd = '/sales/shift-end';

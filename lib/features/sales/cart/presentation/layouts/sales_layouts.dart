@@ -47,7 +47,7 @@ class SalesDesktopLayout extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: narrow ? 240 : 300,
-                        child: QuickItemsGrid(items: state.quickItems, onPick: cubit.addQuickItem),
+                        child: QuickItemsGrid(items: state.quickItems, onPick: cubit.addQuickItem, onMore: actions.moreQuickItems),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -125,7 +125,7 @@ class SalesMobileLayout extends StatelessWidget {
               child: TabBarView(
                 children: [
                   TillKeypad(onKey: cubit.key),
-                  QuickItemsGrid(items: state.quickItems, onPick: cubit.addQuickItem, columns: 3, rows: 4),
+                  QuickItemsGrid(items: state.quickItems, onPick: cubit.addQuickItem, onMore: actions.moreQuickItems, columns: 3, rows: 4),
                   Column(
                     children: [
                       Expanded(child: ActionKeys(cart: state.cart, cubit: cubit, actions: actions)),

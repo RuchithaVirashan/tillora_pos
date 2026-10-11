@@ -131,6 +131,10 @@ class _SalesViewState extends State<_SalesView> {
     },
     itemDiscount: () => _discount(wholeSale: false),
     saleDiscount: () => _discount(wholeSale: true),
+    moreQuickItems: () async {
+      final item = await _open<SellableItem>(Routes.quickItems, extra: _cubit.state.quickItems);
+      if (item != null) _cubit.addQuickItem(item);
+    },
     payout: () async {
       final entry = await _open<PayoutEntry>(Routes.payout);
       if (entry != null) _cubit.addPayout(entry.name, entry.amountCents);
