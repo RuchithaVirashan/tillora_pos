@@ -3,10 +3,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/session/access_rights.dart';
 import '../../core/session/user_session.dart';
+import '../../features/back_office/barcode_products/presentation/screens/barcode_products_screen.dart';
 import '../../features/back_office/dashboard/presentation/screens/back_office_screen.dart';
 import '../../features/back_office/departments/presentation/screens/departments_screen.dart';
 import '../../features/back_office/payment_types/presentation/screens/payment_types_screen.dart';
 import '../../features/back_office/role_access/presentation/screens/role_access_screen.dart';
+import '../../features/back_office/stock_manager/presentation/screens/stock_manager_screen.dart';
 import '../../features/back_office/users/presentation/screens/users_screen.dart';
 import '../../features/product_management/adjust_stock/presentation/widgets/adjust_stock_panel.dart';
 import '../../features/product_management/hub/presentation/screens/product_management_screen.dart';
@@ -159,8 +161,6 @@ const _backOfficeGroups = <BackOfficeGroup>[
 /// Back Office screens not built yet, with the design each follows.
 const _backOfficeNotPorted = <(String, String, String)>[
   (Routes.salesManager, 'Sales Manager', 'BOSalesManager.dc.html'),
-  (Routes.stockManager, 'Stock Manager', 'BOStock.dc.html'),
-  (Routes.barcodeProducts, 'Product Manager', 'BOBarcodes.dc.html'),
   (Routes.labelPrinter, 'Label Printer', 'BOLabelPrinter.dc.html'),
   (Routes.promotions, 'Promotion Manager', 'BOPromotions.dc.html'),
   (Routes.boReports, 'Back Office Reports', 'BOReports.dc.html'),
@@ -175,6 +175,25 @@ final backOfficeRoutes = <RouteBase>[
   ),
   GoRoute(path: Routes.paymentTypes, builder: (context, _) => PaymentTypesScreen(onBack: () => context.go(Routes.backOffice))),
   GoRoute(path: Routes.roleAccess, builder: (context, _) => RoleAccessScreen(onBack: () => context.go(Routes.backOffice))),
+  GoRoute(
+    path: Routes.barcodeProducts,
+    builder: (context, state) {
+      // Opened from Stock Manager's Amend Product: go back there.
+      final editId = int.tryParse(state.uri.queryParameters['edit'] ?? '');
+      return BarcodeProductsScreen(
+        key: ValueKey(editId),
+        editId: editId,
+        onBack: () => context.go(editId == null ? Routes.backOffice : Routes.stockManager),
+      );
+    },
+  ),
+  GoRoute(
+    path: Routes.stockManager,
+    builder: (context, _) => StockManagerScreen(
+      onBack: () => context.go(Routes.backOffice),
+      onAmendProduct: (id) => context.go('${Routes.barcodeProducts}?edit=$id'),
+    ),
+  ),
   for (final (path, title, design) in _backOfficeNotPorted)
     GoRoute(path: path, builder: (_, _) => NotPortedScreen(title: title, design: design)),
 ];

@@ -14,6 +14,9 @@ import '../../features/auth/data/datasources/recent_logins_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_user.dart';
+import '../../features/back_office/barcode_products/data/repositories/barcode_product_repository_impl.dart';
+import '../../features/back_office/barcode_products/domain/repositories/barcode_product_repository.dart';
+import '../../features/back_office/barcode_products/domain/usecases/barcode_product_usecases.dart';
 import '../../features/back_office/departments/data/repositories/department_repository_impl.dart';
 import '../../features/back_office/departments/domain/repositories/department_repository.dart';
 import '../../features/back_office/departments/domain/usecases/department_usecases.dart';
@@ -23,6 +26,9 @@ import '../../features/back_office/payment_types/domain/usecases/payment_type_ad
 import '../../features/back_office/role_access/data/repositories/role_access_repository_impl.dart';
 import '../../features/back_office/role_access/domain/repositories/role_access_repository.dart';
 import '../../features/back_office/role_access/domain/usecases/role_access_usecases.dart';
+import '../../features/back_office/stock_manager/data/repositories/stock_manager_repository_impl.dart';
+import '../../features/back_office/stock_manager/domain/repositories/stock_manager_repository.dart';
+import '../../features/back_office/stock_manager/domain/usecases/stock_manager_usecases.dart';
 import '../../features/back_office/users/data/repositories/user_repository_impl.dart';
 import '../../features/back_office/users/domain/repositories/user_repository.dart';
 import '../../features/back_office/users/domain/usecases/user_usecases.dart';
@@ -242,7 +248,17 @@ void _registerBackOffice(Database db) {
     ..registerLazySingleton<RoleAccessRepository>(() => RoleAccessRepositoryImpl(db))
     ..registerFactory(() => GetAccessUsers(getIt()))
     ..registerFactory(() => GetUserAccess(getIt()))
-    ..registerFactory(() => SaveUserAccess(getIt()));
+    ..registerFactory(() => SaveUserAccess(getIt()))
+    ..registerLazySingleton<BarcodeProductRepository>(() => BarcodeProductRepositoryImpl(db))
+    ..registerFactory(() => GetBarcodeProducts(getIt()))
+    ..registerFactory(() => GetBarcodeProduct(getIt()))
+    ..registerFactory(() => SaveBarcodeProduct(getIt()))
+    ..registerFactory(() => DeleteBarcodeProduct(getIt()))
+    ..registerFactory(() => FindStockInProduct(getIt()))
+    ..registerFactory(() => ReceiveStock(getIt()))
+    ..registerLazySingleton<StockManagerRepository>(() => StockManagerRepositoryImpl(db))
+    ..registerFactory(() => GetStock(getIt()))
+    ..registerFactory(() => AdjustProductStock(getIt()));
 }
 
 void _registerReports(Database db) {
