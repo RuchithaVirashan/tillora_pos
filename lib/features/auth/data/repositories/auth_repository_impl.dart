@@ -6,11 +6,22 @@ import '../../../../core/session/user_session.dart';
 import '../../../../core/utils/db_date.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
+import '../datasources/recent_logins_store.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._local);
+  AuthRepositoryImpl(this._local, this._recent);
 
   final AuthLocalDataSource _local;
+  final RecentLoginsStore _recent;
+
+  @override
+  Future<List<String>> recentUserNames() async => _recent.read();
+
+  @override
+  Future<void> rememberUserName(String userName) => _recent.remember(userName);
+
+  @override
+  Future<void> forgetUserName(String userName) => _recent.forget(userName);
 
   @override
   Future<Result<UserSession>> authenticate({required String userName, required String password}) async {

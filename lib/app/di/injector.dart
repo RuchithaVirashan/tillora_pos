@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' show Database;
 
 import '../../core/config/terminal_info.dart';
@@ -6,6 +7,7 @@ import '../../core/platform/alert_sounds.dart';
 import '../../core/platform/system_tools.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
+import '../../features/auth/data/datasources/recent_logins_store.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_user.dart';
@@ -71,6 +73,12 @@ import '../../features/sales/transactions/domain/usecases/transactions_usecases.
 import '../../features/sales/void/data/repositories/void_repository_impl.dart';
 import '../../features/sales/void/domain/repositories/void_repository.dart';
 import '../../features/sales/void/domain/usecases/void_usecases.dart';
+import '../../features/staff_activity/data/repositories/staff_activity_repository_impl.dart';
+import '../../features/staff_activity/domain/repositories/staff_activity_repository.dart';
+import '../../features/staff_activity/domain/usecases/get_staff_activity.dart';
+import '../../features/suppliers/data/repositories/supplier_repository_impl.dart';
+import '../../features/suppliers/domain/repositories/supplier_repository.dart';
+import '../../features/suppliers/domain/usecases/supplier_usecases.dart';
 import '../../infrastructure/database/app_database.dart';
 import '../../infrastructure/database/dao/pos_records_dao.dart';
 import '../../infrastructure/database/dao/products_dao.dart';
@@ -95,6 +103,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerSingleton<SessionHolder>(SessionHolder())
+    ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
     ..registerLazySingleton(() => ProductsDao(db))
     ..registerLazySingleton(() => ShiftDao(db))
     ..registerLazySingleton(() => PosRecordsDao(db))
@@ -105,8 +114,10 @@ Future<void> configureDependencies({required AppDatabase database}) async {
 
   // Auth
   getIt
-    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(AuthLocalDataSource(db, getIt())))
-    ..registerFactory(() => LoginUser(getIt()));
+    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(AuthLocalDataSource(db, getIt()), RecentLoginsStore(getIt())))
+    ..registerFactory(() => LoginUser(getIt()))
+    ..registerFactory(() => GetRecentUserNames(getIt()))
+    ..registerFactory(() => ForgetUserName(getIt()));
 
   // Sales · cart
   getIt
@@ -151,6 +162,14 @@ Future<void> configureDependencies({required AppDatabase database}) async {
 
   _registerProductManagement(db);
   _registerReports(db);
+
+  getIt
+    ..registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db))
+    ..registerFactory(() => GetSuppliers(getIt()))
+    ..registerFactory(() => SaveSupplier(getIt()))
+    ..registerFactory(() => DeleteSupplier(getIt()))
+    ..registerLazySingleton<StaffActivityRepository>(() => StaffActivityRepositoryImpl(db))
+    ..registerFactory(() => GetStaffActivity(getIt()));
 }
 
 void _registerProductManagement(Database db) {

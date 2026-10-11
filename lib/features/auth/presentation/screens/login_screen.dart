@@ -21,7 +21,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => LoginCubit(getIt<LoginUser>(), getIt<SessionHolder>(), module),
+      create: (_) => LoginCubit(getIt<LoginUser>(), getIt<GetRecentUserNames>(), getIt<ForgetUserName>(), getIt<SessionHolder>(), module),
       child: BlocListener<LoginCubit, LoginState>(
         listenWhen: (a, b) => b.status == LoginStatus.success && a.status != b.status,
         listener: (context, _) => onSuccess(context, module),
