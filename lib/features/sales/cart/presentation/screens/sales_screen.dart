@@ -7,6 +7,7 @@ import '../../../../../app/di/injector.dart';
 import '../../../../../app/router/routes.dart';
 import '../../../../../core/config/terminal_info.dart';
 import '../../../../../core/platform/alert_sounds.dart';
+import '../../../../../core/platform/customer_display.dart';
 import '../../../../../core/responsive/adaptive_layout.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -74,10 +75,47 @@ class _SalesViewState extends State<_SalesView> {
   /// The sale on screen still needs finishing (not empty, not completed).
   bool get _inProgress => !_cart.isEmpty && !_cubit.state.saleComplete;
 
+  final _display = getIt<CustomerDisplay>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.info.customerDisplay && _display.isSupported && !_display.isOpen) {
+      _display.open().catchError((Object e) => debugPrint('Customer display did not open: $e'));
+    }
+    _display.show(_frame(const SalesState()));
+  }
+
   @override
   void dispose() {
+    // Leave the display on its welcome screen for the next customer.
+    _display.show(_frame(const SalesState()));
     _focus.dispose();
     super.dispose();
+  }
+
+  /// What the customer display shows for [state].
+  DisplayFrame _frame(SalesState state) {
+    final cart = state.cart;
+    final sign = cart.refund ? -1 : 1;
+    return DisplayFrame(
+      companyName: widget.info.companyName,
+      lines: [
+        for (final l in cart.lines)
+          DisplayLine(
+            name: l.item.description,
+            quantity: l.item.source == ItemSource.discount ? 0 : l.quantity,
+            priceCents: l.item.priceCents,
+            amountCents: l.amountCents * sign,
+          ),
+      ],
+      itemCount: cart.itemCount,
+      totalCents: cart.totalCents,
+      paidCents: cart.paidCents,
+      changeCents: cart.changeCents,
+      refund: cart.refund,
+      complete: state.saleComplete,
+    );
   }
 
   /// Opens a dialog route and gives the keyboard back to the till after.
@@ -198,6 +236,10 @@ class _SalesViewState extends State<_SalesView> {
     final c = context.colors;
     return MultiBlocListener(
       listeners: [
+        BlocListener<SalesCubit, SalesState>(
+          listenWhen: (a, b) => a.cart != b.cart || a.saleComplete != b.saleComplete,
+          listener: (context, s) => _display.show(_frame(s)),
+        ),
         BlocListener<SalesCubit, SalesState>(
           listenWhen: (a, b) => b.notice != null && a.notice != b.notice,
           listener: (context, s) => _toast(s.notice!.message, error: s.notice!.error),

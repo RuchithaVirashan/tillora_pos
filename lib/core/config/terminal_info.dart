@@ -10,6 +10,7 @@ class TerminalInfo extends Equatable {
     required this.autoPrint,
     required this.ageCheckEnabled,
     required this.maxQuantity,
+    this.customerDisplay = false,
   });
 
   final String companyName;
@@ -17,6 +18,9 @@ class TerminalInfo extends Equatable {
   final bool autoPrint;
   final bool ageCheckEnabled;
   final int maxQuantity;
+
+  /// Open the customer display with Sales.
+  final bool customerDisplay;
 
   static const fallback = TerminalInfo(
     companyName: 'Tillora',
@@ -26,8 +30,17 @@ class TerminalInfo extends Equatable {
     maxQuantity: 99,
   );
 
+  TerminalInfo copyWith({bool? autoPrint, bool? customerDisplay}) => TerminalInfo(
+    companyName: companyName,
+    terminalName: terminalName,
+    autoPrint: autoPrint ?? this.autoPrint,
+    ageCheckEnabled: ageCheckEnabled,
+    maxQuantity: maxQuantity,
+    customerDisplay: customerDisplay ?? this.customerDisplay,
+  );
+
   @override
-  List<Object?> get props => [companyName, terminalName, autoPrint, ageCheckEnabled, maxQuantity];
+  List<Object?> get props => [companyName, terminalName, autoPrint, ageCheckEnabled, maxQuantity, customerDisplay];
 }
 
 class TerminalInfoHolder extends ValueNotifier<TerminalInfo> {

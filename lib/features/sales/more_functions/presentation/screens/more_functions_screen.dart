@@ -5,6 +5,7 @@ import '../../../../../app/di/injector.dart';
 import '../../../../../app/router/routes.dart';
 import '../../../../../core/config/terminal_info.dart';
 import '../../../../../core/errors/result.dart';
+import '../../../../../core/platform/customer_display.dart';
 import '../../../../../core/platform/system_tools.dart';
 import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -22,6 +23,17 @@ class MoreFunctionsScreen extends StatefulWidget {
 
 class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
   bool _autoPrint = getIt<TerminalInfoHolder>().value.autoPrint;
+  bool _display = getIt<CustomerDisplay>().isOpen;
+  final _displaySupported = getIt<CustomerDisplay>().isSupported;
+
+  Future<void> _toggleDisplay() async {
+    if (!_displaySupported) return showToast(context, 'No customer display on this device', error: true);
+    final next = !_display;
+    final result = await getIt<SetCustomerDisplay>()(next);
+    if (!mounted) return;
+    if (result case Err(:final failure)) return showToast(context, failure.message, error: true);
+    setState(() => _display = next);
+  }
 
   Future<void> _toggleAutoPrint() async {
     final next = !_autoPrint;
@@ -63,6 +75,15 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
       _Fn('Reset Void Counts', 'Not ported yet', Icons.restart_alt_rounded, const Color(0xFFB4233C), const Color(0xFFFDECEE),
           () => _notPorted('Reset Void Counts')),
       _Fn('Training Mode', 'Not ported yet', Icons.school_outlined, const Color(0xFF5B3FB0), const Color(0xFFEFEAFB), () => _notPorted('Training Mode')),
+      _Fn(
+        'Customer Display',
+        !_displaySupported ? 'Not available on this device' : (_display ? 'On · second screen showing' : 'Off'),
+        Icons.connected_tv_outlined,
+        const Color(0xFF0B6E6E),
+        const Color(0xFFDFF3F3),
+        _toggleDisplay,
+        on: _display,
+      ),
     ];
 
     return PosDialog(
@@ -102,7 +123,7 @@ class _FnTile extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       button: true,
-      toggled: fn.name == 'Auto Print' ? fn.on : null,
+      toggled: fn.name == 'Auto Print' || fn.name == 'Customer Display' ? fn.on : null,
       child: Material(
         color: c.surface,
         shape: RoundedRectangleBorder(

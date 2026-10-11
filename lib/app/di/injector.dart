@@ -4,6 +4,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' show Database;
 
 import '../../core/config/terminal_info.dart';
 import '../../core/platform/alert_sounds.dart';
+import '../../core/platform/customer_display.dart';
+import '../../core/platform/platform_info.dart';
 import '../../core/platform/system_tools.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
@@ -87,6 +89,7 @@ import '../../infrastructure/database/dao/shift_report_dao.dart';
 import '../../infrastructure/database/dao/sys_config_dao.dart';
 import '../../infrastructure/hardware/audio_alert_sounds.dart';
 import '../../infrastructure/hardware/hardware_registry.dart';
+import '../../infrastructure/hardware/multi_window_customer_display.dart';
 import '../../infrastructure/hardware/os_system_tools.dart';
 
 final getIt = GetIt.instance;
@@ -102,6 +105,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<HardwareRegistry>(HardwareRegistry.forCurrentPlatform)
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
+    ..registerLazySingleton<CustomerDisplay>(() => PlatformInfo.isDesktop ? MultiWindowCustomerDisplay() : NoCustomerDisplay())
     ..registerSingleton<SessionHolder>(SessionHolder())
     ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
     ..registerLazySingleton(() => ProductsDao(db))
@@ -157,8 +161,9 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => GetTransactionLines(getIt()))
     ..registerFactory(() => GetPayTypeOptions(getIt()))
     ..registerFactory(() => SwapPayType(getIt()))
-    ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt()))
-    ..registerFactory(() => SetAutoPrint(getIt()));
+    ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt(), getIt()))
+    ..registerFactory(() => SetAutoPrint(getIt()))
+    ..registerFactory(() => SetCustomerDisplay(getIt()));
 
   _registerProductManagement(db);
   _registerReports(db);
@@ -211,7 +216,7 @@ void _registerReports(Database db) {
 
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
   const fallback = TerminalInfo.fallback;
-  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity']);
+  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay']);
   final company = await config.companyName();
   return TerminalInfo(
     companyName: company.isEmpty ? fallback.companyName : company,
@@ -219,5 +224,6 @@ Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
     autoPrint: values['AutoPrint']?.toUpperCase() == 'ON',
     ageCheckEnabled: (values['ageRefusal'] ?? 'Enabled') == 'Enabled',
     maxQuantity: int.tryParse(values['maximumQuantity'] ?? '') ?? fallback.maxQuantity,
+    customerDisplay: values['customerDisplay']?.toUpperCase() == 'ON',
   );
 }
