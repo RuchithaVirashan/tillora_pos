@@ -9,25 +9,43 @@ import '../../domain/usecases/login_user.dart';
 enum LoginStatus { idle, busy, success }
 
 class LoginState extends Equatable {
-  const LoginState({this.status = LoginStatus.idle, this.error, this.obscure = true});
+  const LoginState({this.status = LoginStatus.idle, this.error, this.obscure = true, this.recent = const []});
 
   final LoginStatus status;
   final String? error;
   final bool obscure;
 
-  LoginState copyWith({LoginStatus? status, String? error, bool? obscure}) =>
-      LoginState(status: status ?? this.status, error: error, obscure: obscure ?? this.obscure);
+  /// User names used on this device, most recent first.
+  final List<String> recent;
+
+  LoginState copyWith({LoginStatus? status, String? error, bool? obscure, List<String>? recent}) => LoginState(
+    status: status ?? this.status,
+    error: error,
+    obscure: obscure ?? this.obscure,
+    recent: recent ?? this.recent,
+  );
 
   @override
-  List<Object?> get props => [status, error, obscure];
+  List<Object?> get props => [status, error, obscure, recent];
 }
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit(this._login, this._session, this.module) : super(const LoginState());
+  LoginCubit(this._login, this._recent, this._forget, this._session, this.module) : super(const LoginState()) {
+    _recent().then((names) {
+      if (!isClosed) emit(state.copyWith(recent: names, error: state.error));
+    });
+  }
 
   final LoginUser _login;
+  final GetRecentUserNames _recent;
+  final ForgetUserName _forget;
   final SessionHolder _session;
   final LoginModule module;
+
+  Future<void> forget(String userName) async {
+    await _forget(userName);
+    emit(state.copyWith(recent: [...state.recent]..remove(userName), error: state.error));
+  }
 
   void toggleObscure() => emit(state.copyWith(obscure: !state.obscure, error: state.error));
 

@@ -215,6 +215,39 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 6),
             Text('Please fill the form to get started', style: TextStyle(fontSize: 15, color: c.muted)),
             const SizedBox(height: 22),
+            if (state.recent.isNotEmpty) ...[
+              _label('Recent', c),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final name in state.recent)
+                    InputChip(
+                      avatar: CircleAvatar(
+                        backgroundColor: c.primary,
+                        child: Text(
+                          name.length <= 2 ? name.toUpperCase() : name.substring(0, 2).toUpperCase(),
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+                        ),
+                      ),
+                      label: Text(name, style: TextStyle(fontWeight: FontWeight.w800, color: c.ink)),
+                      selected: _user.text == name,
+                      showCheckmark: false,
+                      selectedColor: c.selection,
+                      side: BorderSide(color: _user.text == name ? c.primary : c.line),
+                      tooltip: 'Log in as $name',
+                      deleteButtonTooltipMessage: 'Forget $name',
+                      onDeleted: () => context.read<LoginCubit>().forget(name),
+                      onPressed: () {
+                        setState(() => _user.text = name);
+                        _password.clear();
+                        _passwordFocus.requestFocus();
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 18),
+            ],
             _label('User Name', c),
             TextField(
               controller: _user,

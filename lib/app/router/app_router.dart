@@ -7,6 +7,8 @@ import '../../core/widgets/pos_dialog.dart';
 import '../../features/auth/domain/entities/login_module.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/staff_activity/presentation/screens/staff_activity_screen.dart';
+import '../../features/suppliers/presentation/screens/suppliers_screen.dart';
 import '../../features/sales/cart/domain/entities/cart.dart';
 import '../../features/sales/cart/domain/entities/sellable_item.dart';
 import '../../features/sales/cart/presentation/screens/sales_screen.dart';
@@ -47,8 +49,6 @@ GoRoute _dialog(String path, Widget Function(GoRouterState state) build, {List<R
 
 /// Screens designed in the canvas but not built yet.
 const _notPorted = <(String, String, String)>[
-  (Routes.suppliers, 'Suppliers', 'Suppliers.dc.html'),
-  (Routes.staffActivity, 'Staff Activity', 'StaffActivity.dc.html'),
   (Routes.backOffice, 'Back Office', 'BackOffice.dc.html'),
   (Routes.settings, 'Settings', 'Settings.dc.html'),
 ];
@@ -111,6 +111,8 @@ final appRouter = GoRouter(
         ),
       ],
     ),
+    GoRoute(path: Routes.suppliers, builder: (context, _) => SuppliersScreen(onBack: () => context.go(Routes.home))),
+    GoRoute(path: Routes.staffActivity, builder: (context, _) => StaffActivityScreen(onBack: () => context.go(Routes.home))),
     ...productRoutes,
     ...reportRoutes,
     for (final (path, title, design) in _notPorted)

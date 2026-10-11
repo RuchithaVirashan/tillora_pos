@@ -39,6 +39,23 @@ class LoginUser implements UseCase<UserSession, LoginParams> {
       ));
     }
 
-    return params.module == LoginModule.sales ? _repository.openShift(session) : Ok(session);
+    final result = params.module == LoginModule.sales ? await _repository.openShift(session) : Ok(session);
+    if (result.isSuccess) await _repository.rememberUserName(session.userName);
+    return result;
   }
+}
+
+/// Recently used user names on this device, for quick picks on login.
+class GetRecentUserNames {
+  const GetRecentUserNames(this._repository);
+  final AuthRepository _repository;
+
+  Future<List<String>> call() => _repository.recentUserNames();
+}
+
+class ForgetUserName {
+  const ForgetUserName(this._repository);
+  final AuthRepository _repository;
+
+  Future<void> call(String userName) => _repository.forgetUserName(userName);
 }

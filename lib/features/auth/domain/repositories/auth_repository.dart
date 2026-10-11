@@ -8,4 +8,11 @@ abstract interface class AuthRepository {
 
   /// Resumes the user's open shift or starts a new one.
   Future<Result<UserSession>> openShift(UserSession session);
+
+  /// User names that logged in on this device, most recent first.
+  Future<List<String>> recentUserNames();
+
+  Future<void> rememberUserName(String userName);
+
+  Future<void> forgetUserName(String userName);
 }
