@@ -22,7 +22,8 @@ class ShiftSummary extends Equatable {
   final DateTime endedAt;
   final int drawerFloatCents;
 
-  /// Net takings per payment type ('Cash', 'Card', 'PartPay', other names).
+  /// Net takings per payment type ('Cash', 'Card' or a payment type name).
+  /// Split payments are counted under each type they used.
   final Map<String, int> salesByMethod;
   final int refundsCents;
   final int cashLiftsCents;

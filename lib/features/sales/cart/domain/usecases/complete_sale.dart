@@ -11,7 +11,7 @@ class CompleteSaleParams {
   final int logId;
 }
 
-/// Saves a fully paid cart and opens the drawer when cash was taken.
+/// Saves a fully paid cart and opens the drawer when cash moves.
 class CompleteSale implements UseCase<int, CompleteSaleParams> {
   const CompleteSale(this._repository);
 
@@ -23,7 +23,9 @@ class CompleteSale implements UseCase<int, CompleteSaleParams> {
     if (!cart.isPaid) return const Err(ValidationFailure('The sale is not fully paid'));
 
     final saved = await _repository.saveSale(cart, logId: params.logId);
-    if (saved.isSuccess && cart.tenders.any((t) => t.method == Tender.cashMethod)) {
+    // Open for cash taken, and for change given back on a card or voucher
+    // overpayment.
+    if (saved.isSuccess && (cart.changeCents > 0 || cart.tenders.any((t) => t.method == Tender.cashMethod))) {
       // A drawer that fails to open must not undo a saved sale.
       await _repository.openCashDrawer();
     }

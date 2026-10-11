@@ -148,7 +148,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           child: cols([
                             Text(_receipt(t.id), style: body.copyWith(fontWeight: FontWeight.w800)),
                             Text(_time.format(t.at), style: body),
-                            Text(t.method, style: body),
+                            Text(t.methodLabel, overflow: TextOverflow.ellipsis, style: body),
                             Text(_rs(t.totalCents), style: body.copyWith(fontWeight: FontWeight.w800)),
                             _KindPill(refund: t.isRefund),
                           ]),
@@ -221,9 +221,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   children: [
                     Text('Pay type', style: TextStyle(color: c.muted, fontWeight: FontWeight.w700)),
                     const Spacer(),
-                    Text(tx.method, style: TextStyle(fontWeight: FontWeight.w800, color: c.ink)),
+                    Text(tx.isPartPay ? 'Part payment' : tx.method, style: TextStyle(fontWeight: FontWeight.w800, color: c.ink)),
                   ],
                 ),
+                // Split payments, overpayments and change: what came from where.
+                if (tx.payments.length > 1 || tx.changeCents != 0) ...[
+                  const SizedBox(height: 8),
+                  _PaymentBreakdown(tx: tx),
+                ],
                 if (_swapping) ...[
                   const SizedBox(height: 12),
                   Text('Swap type', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: c.inkSecondary)),
@@ -289,4 +294,47 @@ class _KindPill extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// "Card Rs 300.00 / Cash Rs 1,000.00 / Change −Rs 250.00".
+class _PaymentBreakdown extends StatelessWidget {
+  const _PaymentBreakdown({required this.tx});
+
+  final ShiftTransaction tx;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    String rs(int cents) => '${cents < 0 ? '−' : ''}${Money.lkr(Money.fromCents(cents.abs()))}';
+    Widget row(String label, String value, {bool strong = false, Color? ink}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: TextStyle(color: ink ?? c.inkSecondary, fontWeight: strong ? FontWeight.w800 : FontWeight.w600))),
+          Text(
+            value,
+            style: TextStyle(
+              color: ink ?? c.ink,
+              fontWeight: strong ? FontWeight.w800 : FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: c.line)),
+      child: Column(
+        children: [
+          for (final (i, p) in tx.payments.indexed)
+            row(tx.payments.length > 1 ? '${i == 0 ? '1st' : '2nd'} · ${p.method}' : p.method, rs(p.amountCents)),
+          if (tx.changeCents != 0) row(tx.isRefund ? 'Returned · Cash' : 'Change · Cash', rs(-tx.changeCents), ink: c.voidInk),
+          Divider(height: 12, color: c.line),
+          row('Total', rs(tx.totalCents), strong: true),
+        ],
+      ),
+    );
+  }
 }

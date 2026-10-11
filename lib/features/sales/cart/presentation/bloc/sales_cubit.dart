@@ -287,21 +287,37 @@ class SalesCubit extends Cubit<SalesState> {
   // ── Payment ───────────────────────────────────────────────────────────
 
   /// CASH: typed amount if any, else the exact balance.
-  Future<void> payCash() {
-    final typed = double.tryParse(state.entry);
-    final cents = typed != null && typed > 0 ? Money.toCents(typed) : state.cart.dueCents;
-    return pay(Tender.cash(cents));
-  }
+  Future<void> payCash() => pay(Tender.cash(_typedOrDue()));
 
-  /// CARD always takes the exact balance (no cash back on card).
-  Future<void> payCard() => pay(Tender.card(state.cart.dueCents));
+  /// CARD: typed amount for a part payment, else the exact balance. As the
+  /// second payment it may be more than the balance; the excess is change.
+  Future<void> payCard() => pay(Tender.card(_typedOrDue()));
+
+  int _typedOrDue() {
+    final typed = double.tryParse(state.entry);
+    return typed != null && typed > 0 ? Money.toCents(typed) : state.cart.dueCents;
+  }
 
   Future<void> pay(Tender tender) async {
     final cart = state.cart;
     if (state.saleComplete || cart.isEmpty) return _notify('Scan an item first', error: true);
     if (tender.amountCents <= 0) return;
-    if (tender.method != Tender.cashMethod && tender.amountCents > cart.dueCents) {
-      return _notify('Only cash can be more than the balance', error: true);
+    // A first non-cash payment over the balance is not a part payment.
+    // On the second payment any excess is given back as cash change.
+    if (tender.method != Tender.cashMethod && cart.tenders.isEmpty && tender.amountCents > cart.dueCents) {
+      return _notify(
+        '${tender.method} cannot be more than the balance of ${Money.lkr(Money.fromCents(cart.dueCents))}',
+        error: true,
+      );
+    }
+
+    // A sale takes at most two payments (Transactions has method1 and
+    // method2), so after a part payment the next one must finish it.
+    if (cart.tenders.isNotEmpty && tender.amountCents < cart.dueCents) {
+      return _notify(
+        'Part payment allows two payments. Pay the remaining ${Money.lkr(Money.fromCents(cart.dueCents))} to complete the sale',
+        error: true,
+      );
     }
 
     final paid = cart.withTender(tender);

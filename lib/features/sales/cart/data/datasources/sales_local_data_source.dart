@@ -28,20 +28,14 @@ class SalesLocalDataSource {
   Future<int> saveSale(Cart cart, {required int logId, required Map<int, String> departments}) {
     return _db.transaction((txn) async {
       final sign = cart.refund ? -1 : 1;
-      final tenders = cart.tenders;
-      final methods = tenders.map((t) => t.method).toSet();
-      final type = methods.length == 1 ? methods.first : 'PartPay';
+      final pay = _paymentColumns(cart.tenders);
 
       final transactionId = await txn.insert('Transactions', {
         'total_payable': Money.fromCents(cart.totalCents),
         'cus_paid_amount': Money.fromCents(cart.paidCents),
         'cus_balance': Money.fromCents(cart.changeCents),
         'transaction_date': DbDate.now(),
-        'type': type,
-        'method1': tenders.isNotEmpty ? Money.fromCents(tenders[0].amountCents).toStringAsFixed(2) : '0.0',
-        'method2': tenders.length > 1 ? Money.fromCents(tenders[1].amountCents).toStringAsFixed(2) : '0.0',
-        'method1Id': tenders.isNotEmpty ? tenders[0].typeId : null,
-        'method2Id': tenders.length > 1 ? tenders[1].typeId : null,
+        ...pay,
         // Holds the shift id; reports group transactions by it.
         'user_id': '$logId',
         'item_count': cart.itemCount,
@@ -86,5 +80,30 @@ class SalesLocalDataSource {
       await batch.commit(noResult: true);
       return transactionId;
     });
+  }
+
+  /// `type`, `method1/2` and `method1/2Id` for the tenders.
+  ///
+  /// A sale has at most two payments, one per slot. Ids: 0 cash, -1 card,
+  /// otherwise the payment type id. Two different types make `PartPay`.
+  static Map<String, Object?> _paymentColumns(List<Tender> tenders) {
+    assert(tenders.length <= 2, 'A sale takes at most two payments');
+    String amount(Tender? t) => t == null ? '0.0' : Money.fromCents(t.amountCents).toStringAsFixed(2);
+    int? id(Tender? t) => switch (t?.method) {
+      null => null,
+      Tender.cashMethod => 0,
+      Tender.cardMethod => -1,
+      _ => t!.typeId,
+    };
+    final first = tenders.elementAtOrNull(0);
+    final second = tenders.elementAtOrNull(1);
+    final methods = {for (final t in tenders) t.method};
+    return {
+      'type': methods.length > 1 ? 'PartPay' : (methods.firstOrNull ?? Tender.cashMethod),
+      'method1': amount(first),
+      'method2': amount(second),
+      'method1Id': id(first),
+      'method2Id': id(second),
+    };
   }
 }

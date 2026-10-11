@@ -3,6 +3,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../../../core/reports/shift_summary.dart';
 import '../../../core/utils/db_date.dart';
 import '../../../core/utils/money.dart';
+import 'payment_slots.dart';
 import 'pos_records_dao.dart';
 
 /// Shift report figures, shared by Shift End and the shift reports.
@@ -20,8 +21,8 @@ class ShiftReportDao {
       'LEFT JOIN userDetails u ON CAST(u.id AS TEXT) = l.Userid WHERE l.LogId = ?',
       [logId],
     )).firstOrNull;
-    final byMethod = await _db.rawQuery(
-      'SELECT type, SUM(total_payable) AS total, COUNT(*) AS n FROM Transactions WHERE user_id = ? GROUP BY type',
+    final payments = await _db.rawQuery(
+      'SELECT ${PaymentSlots.columns} FROM Transactions WHERE user_id = ?',
       [id],
     );
     final refunds = await _db.rawQuery(
@@ -41,19 +42,30 @@ class ShiftReportDao {
 
     int cents(Object? v) => Money.toCents((v as num?) ?? 0);
     final ended = shift?['ShiftEnd'] as String?;
+
+    // Takings per payment type: each sale split by its two payment slots,
+    // change taken off cash (see PaymentSlots).
+    final typeNames = await PaymentSlots(_db).typeNames();
+    final salesByMethod = <String, int>{};
+    for (final row in payments) {
+      for (final MapEntry(key: method, value: value) in PaymentSlots.net(row, typeNames).entries) {
+        salesByMethod[method] = (salesByMethod[method] ?? 0) + value;
+      }
+    }
+    salesByMethod.removeWhere((_, v) => v == 0);
     return ShiftSummary(
       userName: (shift?['userName'] as String?) ?? '',
       startedAt: DbDate.tryParse(shift?['ShiftStarted'] as String?) ?? DateTime.now(),
       endedAt: DbDate.tryParse(ended) ?? DateTime.now(),
       drawerFloatCents: cents(shift?['drawfloat']),
-      salesByMethod: {for (final r in byMethod) (r['type'] as String?) ?? 'Other': cents(r['total'])},
+      salesByMethod: salesByMethod,
       refundsCents: cents(refunds.first['total']),
       cashLiftsCents: cents(lifts.first['total']),
       salesByDepartment: {
         for (final r in byDept) ((r['type'] as String?)?.isNotEmpty ?? false) ? r['type'] as String : 'Other': cents(r['total']),
       },
       salesByHour: {for (final r in byHour) (r['hour'] as int?) ?? 0: cents(r['total'])},
-      transactionCount: byMethod.fold(0, (n, r) => n + (r['n'] as int)),
+      transactionCount: payments.length,
       noSaleCount: await _records.countForShift(PosRecordsDao.noSale, logId),
       voidLineCount: await _records.countForShift(PosRecordsDao.voidLine, logId),
       voidSaleCount: await _records.countForShift(PosRecordsDao.voidSale, logId),
