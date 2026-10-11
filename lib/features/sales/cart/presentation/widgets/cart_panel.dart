@@ -275,7 +275,16 @@ class TotalsCard extends StatelessWidget {
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c.muted),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('Items: ${cart.itemCount}'), Semantics(liveRegion: true, child: Text(status))],
+              children: [
+                Text('Items: ${cart.itemCount}'),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(status, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
