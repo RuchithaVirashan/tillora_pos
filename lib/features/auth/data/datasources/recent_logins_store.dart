@@ -8,7 +8,7 @@ class RecentLoginsStore {
   final SharedPreferences _prefs;
 
   static const _key = 'recentLoginUserNames';
-  static const max = 2;
+  static const max = 3;
 
   /// At most [max]; older lists may hold more, so trim on read too.
   List<String> read() => (_prefs.getStringList(_key) ?? const []).take(max).toList();
