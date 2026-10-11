@@ -7,3 +7,10 @@ class SetAutoPrint {
 
   Future<Result<void>> call(bool on) => _repository.setAutoPrint(on);
 }
+
+class SetCustomerDisplay {
+  const SetCustomerDisplay(this._repository);
+  final TillSettingsRepository _repository;
+
+  Future<Result<void>> call(bool on) => _repository.setCustomerDisplay(on);
+}
