@@ -8,7 +8,9 @@ import '../../features/auth/domain/entities/login_module.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/sales/cart/domain/entities/cart.dart';
+import '../../features/sales/cart/domain/entities/sellable_item.dart';
 import '../../features/sales/cart/presentation/screens/sales_screen.dart';
+import '../../features/sales/cart/presentation/screens/quick_items_screen.dart';
 import '../../features/sales/cart/presentation/screens/weight_screen.dart';
 import '../../features/sales/cash_lift/presentation/screens/cash_lift_screen.dart';
 import '../../features/sales/discount/presentation/screens/discount_screen.dart';
@@ -90,6 +92,7 @@ final appRouter = GoRouter(
         }),
         _dialog('payout', (_) => const PayoutScreen()),
         _dialog('weight', (_) => const WeightScreen()),
+        _dialog('quick-items', (s) => QuickItemsScreen(items: s.extra! as List<SellableItem>)),
         _dialog('more-functions', (_) => const MoreFunctionsScreen(), routes: [_dialog('cash-lift', (_) => const CashLiftScreen())]),
         GoRoute(
           path: 'shift-end',

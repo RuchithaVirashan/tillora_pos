@@ -58,13 +58,13 @@ SELECT $_pColumns, d.name AS departmentName
     );
   }
 
-  /// Quick item products, then non-barcode items (department keys).
+  /// Non-barcode items (department keys) first, then quick item products.
   /// A non-barcode item with price 0 is sold at a typed price.
-  Future<List<Map<String, Object?>>> quickItems({int limit = 40}) => _db.rawQuery('''
+  Future<List<Map<String, Object?>>> quickItems({int limit = 500}) => _db.rawQuery('''
 SELECT * FROM (
-  SELECT $_columns, 'product' AS source, 0 AS rank FROM products WHERE isQuickitem = 1
+  SELECT $_columns, 'product' AS source, 1 AS rank FROM products WHERE isQuickitem = 1
   UNION ALL
-  SELECT NULL, description, CAST(item_id AS TEXT), price, depid, NULL, vat, ageRefusal, NULL, NULL, NULL, 'manual', 1
+  SELECT NULL, description, CAST(item_id AS TEXT), price, depid, NULL, vat, ageRefusal, NULL, NULL, NULL, 'manual', 0
     FROM nonBarcodeItems WHERE item_id NOT IN (888888, 999999) AND depid != 0
 ) ORDER BY rank, description LIMIT ?''', [limit]);
 

@@ -18,6 +18,7 @@ class SalesActions {
     required this.itemDiscount,
     required this.saleDiscount,
     required this.payout,
+    required this.moreQuickItems,
   });
 
   final VoidCallback voidLine;
@@ -34,4 +35,5 @@ class SalesActions {
   final VoidCallback itemDiscount;
   final VoidCallback saleDiscount;
   final VoidCallback payout;
+  final VoidCallback moreQuickItems;
 }

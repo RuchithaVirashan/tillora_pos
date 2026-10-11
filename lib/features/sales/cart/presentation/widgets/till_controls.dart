@@ -39,12 +39,22 @@ class SpanGrid extends StatelessWidget {
   }
 }
 
-/// 2×5 quick item tiles; empty slots stay blank.
+/// Quick item tiles in a [columns] × [rows] grid, non-barcode items first.
+/// When there are more items than slots, the last row becomes a More tile
+/// that opens the full list.
 class QuickItemsGrid extends StatelessWidget {
-  const QuickItemsGrid({super.key, required this.items, required this.onPick, this.columns = 2, this.rows = 5});
+  const QuickItemsGrid({
+    super.key,
+    required this.items,
+    required this.onPick,
+    required this.onMore,
+    this.columns = 2,
+    this.rows = 5,
+  });
 
   final List<SellableItem> items;
   final ValueChanged<SellableItem> onPick;
+  final VoidCallback onMore;
   final int columns;
   final int rows;
 
@@ -61,61 +71,112 @@ class QuickItemsGrid extends StatelessWidget {
           border: Border.all(color: c.quickItemLine),
         ),
         child: Text(
-          'No quick items yet.\nMark products as quick items in Back Office.',
+          'No quick items yet.\nAdd non-barcode items in Product Management.',
           textAlign: TextAlign.center,
           style: TextStyle(color: c.quickItemSub, fontWeight: FontWeight.w700),
         ),
       );
     }
-    Widget tile(int i) {
-      if (i >= items.length) return const SizedBox.shrink();
-      final item = items[i];
-      return Material(
-        color: c.quickItem,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: c.quickItemLine)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => onPick(item),
-          // Tile height depends on the window; scale the label down to fit
-          // rather than overflow on short tiles.
-          child: LayoutBuilder(
-            builder: (context, box) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: SizedBox(
-                    width: (box.maxWidth - 12).clamp(0, double.infinity),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(item.description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.2, color: c.quickItemInk)),
-                        const SizedBox(height: 4),
-                        Text(item.priceCents == 0 ? 'Open price' : rs(item.priceCents),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: c.quickItemSub,
-                              fontFeatures: const [FontFeature.tabularFigures()],
-                            )),
-                      ],
-                    ),
+
+    final slots = columns * rows;
+    final hasMore = items.length > slots;
+    final itemRows = hasMore ? rows - 1 : rows;
+    Widget tile(int i) => i < items.length ? QuickItemTile(item: items[i], onTap: () => onPick(items[i])) : const SizedBox.shrink();
+
+    return SpanGrid(rows: [
+      for (var r = 0; r < itemRows; r++) [for (var col = 0; col < columns; col++) (1, tile(r * columns + col))],
+      if (hasMore) [(columns, _MoreTile(hidden: items.length - itemRows * columns, onTap: onMore))],
+    ]);
+  }
+}
+
+/// One quick item: name (up to two lines) and price. Scales down to fit
+/// short tiles instead of overflowing.
+class QuickItemTile extends StatelessWidget {
+  const QuickItemTile({super.key, required this.item, required this.onTap});
+
+  final SellableItem item;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.quickItem,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: c.quickItemLine)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: LayoutBuilder(
+          builder: (context, box) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: (box.maxWidth - 12).clamp(0, double.infinity),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(item.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, height: 1.2, color: c.quickItemInk)),
+                      const SizedBox(height: 4),
+                      Text(item.priceCents == 0 ? 'Open price' : rs(item.priceCents),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: c.quickItemSub,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          )),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
+}
 
-    return SpanGrid(rows: [
-      for (var r = 0; r < rows; r++) [for (var col = 0; col < columns; col++) (1, tile(r * columns + col))],
-    ]);
+class _MoreTile extends StatelessWidget {
+  const _MoreTile({required this.hidden, required this.onTap});
+
+  /// How many items are not shown in the grid.
+  final int hidden;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.keyFunction,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.apps_rounded, color: c.keyFunctionInk, size: 20),
+                const SizedBox(width: 8),
+                Text('MORE', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, letterSpacing: 1, color: c.keyFunctionInk)),
+                const SizedBox(width: 8),
+                Text('+$hidden items', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c.muted)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
