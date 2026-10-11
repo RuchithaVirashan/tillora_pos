@@ -3,6 +3,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../../../core/reports/shift_summary.dart';
 import '../../../core/utils/db_date.dart';
 import '../../../core/utils/money.dart';
+import 'payment_slots.dart';
 import 'pos_records_dao.dart';
 
 /// Shift report figures, shared by Shift End and the shift reports.
@@ -21,7 +22,7 @@ class ShiftReportDao {
       [logId],
     )).firstOrNull;
     final payments = await _db.rawQuery(
-      'SELECT type, total_payable, method1, method2, method1Id, method2Id, cus_balance FROM Transactions WHERE user_id = ?',
+      'SELECT ${PaymentSlots.columns} FROM Transactions WHERE user_id = ?',
       [id],
     );
     final refunds = await _db.rawQuery(
@@ -42,35 +43,16 @@ class ShiftReportDao {
     int cents(Object? v) => Money.toCents((v as num?) ?? 0);
     final ended = shift?['ShiftEnd'] as String?;
 
-    // Takings per payment type. A sale's two payment slots (method1/2;
-    // ids 0 cash, -1 card, else a payment type) are counted separately and
-    // any change comes off cash, so card or voucher overpayments and split
-    // payments land in the right place. Refunds and rows without slot ids
-    // count their total under their type.
-    final typeNames = {
-      for (final r in await _db.query('paymentType', columns: ['id', 'payment_name'])) r['id'] as int: r['payment_name'] as String,
-    };
-    String name(Object? methodId) => switch (methodId) {
-      0 => 'Cash',
-      -1 => 'Card',
-      final int typeId => typeNames[typeId] ?? 'Other',
-      _ => 'Other',
-    };
+    // Takings per payment type: each sale split by its two payment slots,
+    // change taken off cash (see PaymentSlots).
+    final typeNames = await PaymentSlots(_db).typeNames();
     final salesByMethod = <String, int>{};
-    void add(String method, int value) {
-      if (value != 0) salesByMethod[method] = (salesByMethod[method] ?? 0) + value;
-    }
-
-    for (final r in payments) {
-      final total = cents(r['total_payable']);
-      if (total < 0 || r['method1Id'] == null) {
-        add((r['type'] as String?) ?? 'Other', total);
-        continue;
+    for (final row in payments) {
+      for (final MapEntry(key: method, value: value) in PaymentSlots.net(row, typeNames).entries) {
+        salesByMethod[method] = (salesByMethod[method] ?? 0) + value;
       }
-      add(name(r['method1Id']), cents(double.tryParse('${r['method1']}')));
-      if (r['method2Id'] != null) add(name(r['method2Id']), cents(double.tryParse('${r['method2']}')));
-      add('Cash', -cents(r['cus_balance']));
     }
+    salesByMethod.removeWhere((_, v) => v == 0);
     return ShiftSummary(
       userName: (shift?['userName'] as String?) ?? '',
       startedAt: DbDate.tryParse(shift?['ShiftStarted'] as String?) ?? DateTime.now(),

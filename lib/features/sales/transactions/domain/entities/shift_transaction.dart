@@ -1,13 +1,17 @@
 import 'package:equatable/equatable.dart';
 
+/// One payment towards a transaction: the method and the amount handed over.
+typedef PaymentPart = ({String method, int amountCents});
+
 class ShiftTransaction extends Equatable {
   const ShiftTransaction({
     required this.id,
     required this.at,
     required this.method,
-    required this.methodId,
     required this.totalCents,
     required this.itemCount,
+    this.payments = const [],
+    this.changeCents = 0,
   });
 
   final int id;
@@ -15,15 +19,23 @@ class ShiftTransaction extends Equatable {
 
   /// 'Cash', 'Card', 'PartPay' or a payment type name.
   final String method;
-  final int? methodId;
   final int totalCents;
   final int itemCount;
+
+  /// The one or two payments, in the order they were taken.
+  final List<PaymentPart> payments;
+
+  /// Given back in cash.
+  final int changeCents;
 
   bool get isRefund => totalCents < 0;
   bool get isPartPay => method == 'PartPay';
 
+  /// "Card + Cash" for a split payment, else the payment type.
+  String get methodLabel => isPartPay && payments.isNotEmpty ? payments.map((p) => p.method).join(' + ') : method;
+
   @override
-  List<Object?> get props => [id, method, totalCents];
+  List<Object?> get props => [id, method, totalCents, payments, changeCents];
 }
 
 class TransactionLine extends Equatable {

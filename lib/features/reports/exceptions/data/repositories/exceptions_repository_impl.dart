@@ -6,6 +6,7 @@ import '../../../../../core/errors/failures.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/utils/db_date.dart';
 import '../../../../../core/utils/money.dart';
+import '../../../../../infrastructure/database/dao/payment_slots.dart';
 import '../../domain/entities/exception_record.dart';
 import '../../domain/repositories/exceptions_repository.dart';
 
@@ -52,13 +53,15 @@ class ExceptionsRepositoryImpl implements ExceptionsRepository {
 
   Future<List<ExceptionRecord>> _refunds(DateTime from, DateTime to, int? logId) async {
     final rows = await _db.rawQuery(
-      'SELECT t.id, t.transaction_date, t.total_payable, t.type, u.userName FROM Transactions t '
+      'SELECT t.id, t.transaction_date, t.total_payable, t.type, t.method1, t.method2, t.method1Id, t.method2Id, t.cus_balance, u.userName '
+      'FROM Transactions t '
       '${_userJoin.replaceAll('{log}', 'CAST(t.user_id AS INTEGER)')} '
       'WHERE t.total_payable < 0 AND t.transaction_date >= ? AND t.transaction_date < ? ${logId == null ? '' : 'AND t.user_id = ?'} '
       'ORDER BY t.id DESC LIMIT 500',
       [DbDate.format(from), DbDate.format(to), if (logId != null) '$logId'],
     );
     if (rows.isEmpty) return const [];
+    final typeNames = await PaymentSlots(_db).typeNames();
     final ids = [for (final r in rows) r['id'] as int];
     final lines = await _db.rawQuery(
       'SELECT transaction_id, item, quantity, price, amount FROM TransactionItems '
@@ -80,7 +83,7 @@ class ExceptionsRepositoryImpl implements ExceptionsRepository {
           id: r['id'] as int,
           at: DbDate.tryParse(r['transaction_date'] as String?) ?? DateTime.now(),
           userName: (r['userName'] as String?) ?? '',
-          reason: 'Refund · ${r['type'] ?? ''}',
+          reason: 'Refund · ${PaymentSlots.payments(r, typeNames).map((p) => p.$1).join(' + ')}',
           amountCents: Money.toCents(r['total_payable'] as num),
           items: byTx[r['id']] ?? const [],
         ),
