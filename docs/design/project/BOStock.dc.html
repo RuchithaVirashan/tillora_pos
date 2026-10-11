@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stock manager</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="BackOffice.dc.html" aria-label="Back to Back Office" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">BACK OFFICE · INVENTORY CONTROL</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Stock Manager</h1></div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 10px">
+<input type="search" aria-label="Barcode / PLU code / Description" placeholder="Barcode / PLU code / Description" style="flex-grow: 1; height: 50px; box-sizing: border-box; border-radius: 13px; border: 1px solid #DCE2EA; background: #FFFFFF; padding: 0 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D">
+<button type="button" style="height: 50px; padding: 0 22px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Find</button>
+<select aria-label="Category" style="height: 50px; width: 220px; border-radius: 13px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #FFFFFF"><option>Select Category</option></select>
+</div>
+<div style="flex-grow: 1; min-height: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 60px 160px 1fr 80px 120px 140px 110px 130px; gap: 10px; padding: 12px 20px; background: #F7F9FB; border-bottom: 1px solid #E3E8EF; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #667085"><span>ID</span><span>BARCODE</span><span>DESCRIPTION</span><span style="text-align: right">STOCK</span><span>CATEGORY</span><span>SUB CATEGORY</span><span style="text-align: right">PRICE</span><span style="text-align: right">TOTAL</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<button type="button" onClick="{{r.pick}}" style="{{r.style}}"><span style="font-size: 14px; color: #475467; text-align: left">{{r.id}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #475467; text-align: left">{{r.code}}</span><span style="font-size: 15px; font-weight: 700; text-align: left">{{r.name}}</span><span style="{{r.stockStyle}}">{{r.stock}}</span><span style="font-size: 14px; color: #475467; text-align: left">{{r.cat}}</span><span style="font-size: 14px; color: #475467; text-align: left">{{r.sub}}</span><span style="font-size: 14px; text-align: right; font-variant-numeric: tabular-nums">{{r.price}}</span><span style="font-size: 15px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums">{{r.total}}</span></button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="font-size: 15px; font-weight: 800">GROSS TOTAL: <span style="color: #163A6B; font-variant-numeric: tabular-nums">{{gross}}</span></span>
+<span style="margin-left: 16px; font-size: 14px; color: #667085">{{hint}}</span>
+<button type="button" style="margin-left: auto; height: 50px; padding: 0 20px; border-radius: 14px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Clear</button>
+<a href="BOAddBarcode.dc.html" style="height: 50px; padding: 0 20px; border-radius: 14px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800; display: flex; align-items: center">Amend Product</a>
+<button type="button" onClick="{{openAdjust}}" style="height: 50px; padding: 0 22px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Adjust Stock</button>
+</div>
+</main>
+<sc-if value="{{adjusting}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(15,27,45,0.55); display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Stock Adjustment" style="width: 620px; box-sizing: border-box; border-radius: 24px; background: #FFFFFF; padding: 26px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 22px; font-weight: 800">Stock Adjustment</h2><button type="button" aria-label="Close" onClick="{{closeAdjust}}" style="width: 42px; height: 42px; border-radius: 11px; border: 0; background: #EEF1F5; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Barcode<input type="text" value="{{selCode}}" readonly style="height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 12px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Description<input type="text" value="{{selName}}" readonly style="height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 700; color: #344054">Reason</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px"><sc-for list="{{reasons}}" as="x" hint-placeholder-count="4"><button type="button" onClick="{{x.pick}}" style="{{x.style}}">{{x.name}}</button></sc-for></div></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="border-radius: 14px; background: #F6F8FB; padding: 12px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 700; color: #667085">Current Stock</span><span style="font-size: 22px; font-weight: 800">{{cur}}</span></div>
+<div style="border-radius: 14px; border: 2px solid #163A6B; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 700; color: #667085">New Qty</span><span style="display: flex; align-items: center; justify-content: space-between"><button type="button" aria-label="Decrease" onClick="{{minus}}" style="width: 32px; height: 32px; border-radius: 8px; border: 0; background: #EEF1F5; font-size: 18px; font-weight: 800">−</button><span style="font-size: 22px; font-weight: 800">{{delta}}</span><button type="button" aria-label="Increase" onClick="{{plus}}" style="width: 32px; height: 32px; border-radius: 8px; border: 0; background: #EEF1F5; font-size: 18px; font-weight: 800">+</button></span></div>
+<div style="border-radius: 14px; background: #163A6B; color: #FFFFFF; padding: 12px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 700; color: #C7D4E6">New Stock</span><span style="font-size: 22px; font-weight: 800">{{next}}</span></div>
+</div>
+<button type="button" onClick="{{closeAdjust}}" style="height: 54px; border-radius: 14px; border: 0; background: #0B8A5F; color: #FFFFFF; font-size: 16px; font-weight: 800">Adjust Stock</button>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { sel: 2, adjusting: false, delta: 24, reason: 0 }; }
+renderVals() {
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const data = [
+['1', '4791111000017', 'Fresh Milk 1L', 42, 'Dairy', 'Milk', 480], ['2', '4791111000024', 'Sliced Bread 450g', 18, 'Bakery', 'Bread', 180],
+['3', '4791111000031', 'Eggs x10', 6, 'Dairy', 'Eggs', 550], ['4', '4791111000048', 'Water 500ml', 96, 'Drinks', 'Water', 100],
+['5', '4791111000055', 'Fish Bun', 3, 'Bakery', 'Buns', 80], ['6', '4791111000079', 'Samba Rice 5kg', 12, 'Grocery', 'Rice', 1450],
+['7', '4791111000086', 'Dhal 1kg', 9, 'Grocery', 'Dhal', 390]
+];
+const rows = data.map((d, i) => ({
+id: d[0], code: d[1], name: d[2], stock: String(d[3]), cat: d[4], sub: d[5], price: f(d[6]), total: f(d[3] * d[6]),
+pick: () => this.setState({ sel: i, delta: 0 }),
+stockStyle: 'font-size: 15px; font-weight: 800; text-align: right; color: ' + (d[3] < 10 ? '#A12A21' : '#0F1B2D'),
+style: 'display: grid; grid-template-columns: 60px 160px 1fr 80px 120px 140px 110px 130px; gap: 10px; align-items: center; min-height: 52px; padding: 0 20px; border: 0; border-bottom: 1px solid #EEF1F5; color: #0F1B2D; background: ' + (i === s.sel ? '#EDF3FC; box-shadow: inset 4px 0 0 #F5A524' : '#FFFFFF')
+}));
+const reasons = ['[Delivery]', '[Count]', '[Damaged]', '[Expired]'].map((name, i) => ({
+name, pick: () => this.setState({ reason: i }),
+style: 'height: 44px; border-radius: 11px; font-size: 13px; font-weight: 800; ' + (i === s.reason ? 'border: 2px solid #163A6B; background: #EDF3FC; color: #163A6B' : 'border: 1px solid #E3E8EF; background: #F7F9FB; color: #344054')
+}));
+const d = data[s.sel];
+return {
+rows, reasons, adjusting: s.adjusting,
+gross: f(data.reduce((a, x) => a + x[3] * x[6], 0)),
+hint: 'Selected: ' + d[2],
+selCode: d[1], selName: d[2], cur: String(d[3]), delta: (s.delta > 0 ? '+' : '') + s.delta, next: String(Math.max(0, d[3] + s.delta)),
+openAdjust: () => this.setState({ adjusting: true }), closeAdjust: () => this.setState({ adjusting: false }),
+minus: () => this.setState({ delta: s.delta - 1 }), plus: () => this.setState({ delta: s.delta + 1 })
+};
+}
+}
+</script>
+</body>
+</html>

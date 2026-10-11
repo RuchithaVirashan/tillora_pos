@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="Main.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<h1 style="margin: 0; font-size: 22px; font-weight: 800">Settings</h1>
+</div>
+<span style="font-size: 13px; font-weight: 600; color: #AFC0D8">Admin · Tillora POS 2.2.10 · Local mode</span>
+</header>
+<main style="flex-grow: 1; box-sizing: border-box; padding: 30px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="11">
+<a href="{{t.href}}" style="border-radius: 20px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #0F1B2D">
+<span style="{{t.chip}}"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{t.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{t.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 18px; font-weight: 800">{{t.name}}</span><span style="font-size: 13px; color: #667085">{{t.desc}}</span></span>
+</a>
+</sc-for>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const list = [
+['Setup Organization', 'Company name, address, VAT number', 'SetOrganization.dc.html', '#2952A3', '#E8EEFB', 'M3 21h18M5 21V7l7-4 7 4v14M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1'],
+['Second Screen', 'Adverts, font, resolution, split', 'SetSecondScreen.dc.html', '#0B6E6E', '#DFF3F3', 'M2 4h20v12H2zM8 20h8M12 16v4'],
+['Inventory', 'Stock reset', 'SetInventory.dc.html', '#0B7A55', '#E3F5EE', 'M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8'],
+['Receipt', 'Logo, header and footer', 'SetReceipt.dc.html', '#9A5B00', '#FFF3DC', 'M6 2h12v20l-3-2-3 2-3-2-3 2zM9 7h6M9 11h6M9 15h4'],
+['User Profile', 'Manage users', 'BOUsers.dc.html', '#5B3FB0', '#EFEAFB', 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M4 21a8 8 0 0 1 16 0'],
+['Role Management', 'User access control', 'BORoleAccess.dc.html', '#B4233C', '#FDECEE', 'M4 11h16v10H4zM8 11V7a4 4 0 0 1 8 0v4'],
+['POS Record Messages', 'Reasons for voids, no sale, payouts', 'SetPOSMessages.dc.html', '#2952A3', '#E8EEFB', 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'],
+['System Configuration', 'Currency, printers, options', 'SetSystemConfig.dc.html', '#3B4A60', '#EEF1F5', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1'],
+['Backup & Restore', 'Backup or restore the local database', 'SetBackup.dc.html', '#0B7A55', '#E3F5EE', 'M12 3v12M7 10l5 5 5-5M5 21h14'],
+['Update Local Database', 'Database maintenance and fixes', 'SetDatabase.dc.html', '#9A5B00', '#FFF3DC', 'M4 5c0-1.7 3.6-3 8-3s8 1.3 8 3v14c0 1.7-3.6 3-8 3s-8-1.3-8-3zM4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'],
+['Extract Product Data', 'Export products to CSV', 'SetExtract.dc.html', '#0B6E6E', '#DFF3F3', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 18v-6M9 15l3 3 3-3']
+];
+const tiles = list.map(([name, desc, href, ink, bg, icon]) => ({ name, desc, href, ink, icon, chip: 'width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: ' + bg }));
+return { tiles };
+}
+}
+</script>
+</body>
+</html>

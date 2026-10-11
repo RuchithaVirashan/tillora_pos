@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Label printer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="BackOffice.dc.html" aria-label="Back to Back Office" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">BACK OFFICE · INVENTORY CONTROL</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Label Printer</h1></div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 12px; align-items: flex-end; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px">
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; font-weight: 700; color: #667085">Select Type</span>
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #EEF1F5"><sc-for list="{{types}}" as="t" hint-placeholder-count="2"><button type="button" onClick="{{t.pick}}" style="{{t.style}}">{{t.name}}</button></sc-for></div></div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Select Category<select style="height: 46px; width: 200px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Dairy</option></select></label>
+<label style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Product Code / PLU Code<input type="text" placeholder="Product Code / PLU Code" style="height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #0F1B2D"></label>
+<button type="button" style="height: 46px; padding: 0 22px; border-radius: 12px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Add</button>
+</div>
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<h2 style="margin: 0 0 4px; font-size: 16px; font-weight: 800">Category Products</h2>
+<sc-for list="{{products}}" as="p" hint-placeholder-count="6"><button type="button" onClick="{{p.add}}" style="height: 52px; border-radius: 12px; border: 1px solid #EEF1F5; background: #FFFFFF; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; color: #0F1B2D"><span style="display: flex; flex-direction: column; gap: 1px; text-align: left"><span style="font-size: 14px; font-weight: 700">{{p.name}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #667085">{{p.code}}</span></span><span style="font-size: 13px; font-weight: 800; color: #163A6B">{{p.price}} · Add</span></button></sc-for>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 800">Selected Items</h2><button type="button" onClick="{{clearAll}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 13px; font-weight: 800">Clear All</button></div>
+<sc-if value="{{none}}" hint-placeholder-val="{{ false }}"><div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #667085">No items to print</div></sc-if>
+<sc-for list="{{picked}}" as="p" hint-placeholder-count="3"><div style="height: 52px; border-radius: 12px; background: #F6F8FB; padding: 0 14px; display: flex; align-items: center; justify-content: space-between"><span style="font-size: 14px; font-weight: 700">{{p.name}}</span><span style="display: flex; align-items: center; gap: 8px"><span style="font-size: 13px; font-weight: 800; color: #475467">× {{p.count}}</span><button type="button" aria-label="Remove" onClick="{{p.remove}}" style="width: 34px; height: 34px; border-radius: 9px; border: 0; background: #FDECEA; color: #A12A21; font-size: 16px; font-weight: 800">×</button></span></div></sc-for>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 10px">
+<button type="button" onClick="{{clearAll}}" style="height: 52px; padding: 0 22px; border-radius: 14px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Clear</button>
+<button type="button" onClick="{{confirm}}" style="height: 52px; padding: 0 22px; border-radius: 14px; border: 1px solid #C7D3E2; background: #EAF0FA; color: #163A6B; font-size: 15px; font-weight: 800">Print In QL</button>
+<button type="button" onClick="{{confirm}}" style="height: 52px; padding: 0 28px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Print</button>
+</div>
+</main>
+<sc-if value="{{confirming}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(15,27,45,0.55); display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Confirm Printing" style="width: 440px; box-sizing: border-box; border-radius: 22px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 800">Confirm Printing</h2>
+<span style="font-size: 15px; color: #475467">Print {{labelCount}} labels for {{itemCount}} items?</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button type="button" onClick="{{close}}" style="height: 50px; border-radius: 13px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Cancel</button><button type="button" onClick="{{close}}" style="height: 50px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Continue</button></div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { type: 0, counts: { 0: 6, 2: 10 }, confirming: false }; }
+renderVals() {
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const types = ['Barcode label', 'Weight label'].map((name, i) => ({ name, pick: () => this.setState({ type: i }), style: 'height: 38px; padding: 0 14px; border-radius: 9px; border: 0; font-size: 13px; font-weight: 800; ' + (i === s.type ? 'background: #FFFFFF; color: #163A6B; box-shadow: 0 1px 3px rgba(16,24,40,0.15)' : 'background: transparent; color: #475467') }));
+const data = [['Fresh Milk 1L', '4791111000017', 480], ['Curd 1L', '4791111000093', 650], ['Eggs x10', '4791111000031', 550], ['Yoghurt 80g', '4791111000110', 70], ['Butter 200g', '4791111000127', 890], ['Cheese slices', '4791111000134', 1150]];
+const add = (i) => { const c = Object.assign({}, s.counts); c[i] = (c[i] || 0) + 1; this.setState({ counts: c }); };
+const products = data.map(([name, code, price], i) => ({ name, code, price: f(price), add: () => add(i) }));
+const keys = Object.keys(s.counts).filter((k) => s.counts[k] > 0);
+const picked = keys.map((k) => ({ name: data[k][0], count: String(s.counts[k]), remove: () => { const c = Object.assign({}, s.counts); delete c[k]; this.setState({ counts: c }); } }));
+return {
+types, products, picked, none: picked.length === 0, confirming: s.confirming,
+labelCount: String(keys.reduce((a, k) => a + s.counts[k], 0)), itemCount: String(keys.length),
+clearAll: () => this.setState({ counts: {} }), confirm: () => this.setState({ confirming: true }), close: () => this.setState({ confirming: false })
+};
+}
+}
+</script>
+</body>
+</html>

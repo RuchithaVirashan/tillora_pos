@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Price change</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="ProductMgt.dc.html" aria-label="Back to Product Management" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">PRODUCT MANAGEMENT</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Price Change</h1></div>
+</header>
+<main style="flex-grow: 1; display: flex; justify-content: center; padding: 30px">
+<div style="width: 820px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; gap: 10px">
+<input type="search" aria-label="Search Barcode" value="4791111000017" placeholder="Search Barcode" style="flex-grow: 1; height: 58px; box-sizing: border-box; border-radius: 14px; border: 2px solid #163A6B; background: #FFFFFF; padding: 0 16px; font-family: 'JetBrains Mono', monospace; font-size: 17px; color: #0F1B2D">
+<button type="button" style="height: 58px; padding: 0 26px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 16px; font-weight: 800">Find</button>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 20px; padding: 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Item Barcode<input type="text" value="4791111000017" readonly style="height: 48px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Item Description<input type="text" value="Fresh Milk 1L" readonly style="height: 48px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<div style="border-radius: 16px; background: #F6F8FB; padding: 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #667085">Current Price</span><span style="font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums">Rs 480.00</span></div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">New Price<input type="text" value="Rs 495.00" readonly style="height: 74px; box-sizing: border-box; border-radius: 16px; border: 2px solid #163A6B; background: #FFFFFF; padding: 0 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: #0F1B2D"></label>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<button type="button" style="height: 56px; border-radius: 15px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Confirm Expiration</button>
+<button type="button" style="height: 56px; border-radius: 15px; border: 1px solid #F5C9C4; background: #FDECEA; color: #A12A21; font-size: 15px; font-weight: 800">Mark as Expired</button>
+<button type="button" onClick="{{update}}" style="height: 56px; border-radius: 15px; border: 0; background: #0B8A5F; color: #FFFFFF; font-size: 15px; font-weight: 800">Update</button>
+</div>
+</div>
+</main>
+<sc-if value="{{prompt}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(15,27,45,0.55); display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Price updated" style="width: 460px; box-sizing: border-box; border-radius: 22px; background: #FFFFFF; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 13px; font-weight: 800; letter-spacing: 0.1em; color: #0B6B4A">SUCCESS</span>
+<span style="font-size: 16px; color: #344054">Price updated successfully. Do you want to print the label?</span>
+<span style="font-size: 13px; font-weight: 700; color: #344054">Select Label Type</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="height: 48px; border-radius: 12px; border: 2px solid #163A6B; background: #EDF3FC; color: #163A6B; font-size: 15px; font-weight: 800">QL</button>
+<button type="button" style="height: 48px; border-radius: 12px; border: 1px solid #E3E8EF; background: #F7F9FB; color: #344054; font-size: 15px; font-weight: 800">Receipt</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{close}}" style="height: 50px; border-radius: 13px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Cancel</button>
+<button type="button" onClick="{{close}}" style="height: 50px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Print</button>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { prompt: false }; }
+renderVals() { return { prompt: this.state.prompt, update: () => this.setState({ prompt: true }), close: () => this.setState({ prompt: false }) }; }
+}
+</script>
+</body>
+</html>

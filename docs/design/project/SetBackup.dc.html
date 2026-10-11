@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Backup and restore</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="Settings.dc.html" aria-label="Back to Settings" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">SETTINGS</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Backup &amp; Restore</h1></div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 24px 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<section style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 22px; padding: 26px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 48px; height: 48px; border-radius: 14px; background: #E3F5EE; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B7A55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg></span><h2 style="margin: 0; font-size: 20px; font-weight: 800">Backup local database</h2></div>
+<span style="font-size: 13px; font-weight: 700; color: #344054">Select backup destination</span>
+<button type="button" onClick="{{pickDir}}" style="{{dirStyle}}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px">{{dirText}}</span></button>
+<sc-if value="{{done}}" hint-placeholder-val="{{ false }}"><div style="border-radius: 14px; background: #E3F5EE; color: #0B6B4A; padding: 12px 16px; font-size: 14px; font-weight: 800">Database backup completed successfully</div></sc-if>
+<button type="button" onClick="{{backup}}" style="margin-top: auto; height: 56px; border-radius: 15px; border: 0; background: #0B8A5F; color: #FFFFFF; font-size: 16px; font-weight: 800">Backup</button>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 22px; padding: 26px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 48px; height: 48px; border-radius: 14px; background: #E8EEFB; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2952A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"></path><path d="M7 14l5-5 5 5"></path><path d="M5 3h14"></path></svg></span><h2 style="margin: 0; font-size: 20px; font-weight: 800">Restore local database</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px"><sc-for list="{{sources}}" as="x" hint-placeholder-count="3"><button type="button" onClick="{{x.pick}}" style="{{x.style}}">{{x.name}}</button></sc-for></div>
+<sc-if value="{{isCsv}}" hint-placeholder-val="{{ false }}"><label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Select Table<select style="height: 48px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Please Select Table</option><option>Products</option><option>Departments</option><option>Non-barcode items</option></select></label></sc-if>
+<span style="font-size: 13px; font-weight: 700; color: #344054">{{fileLabel}}</span>
+<div style="flex-grow: 1; min-height: 140px; border-radius: 16px; border: 2px dashed #C3CCD8; background: #F7F9FB; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #475467"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg><span style="font-size: 15px; font-weight: 800; color: #0F1B2D">{{fileHint}}</span></div>
+<div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px"><button type="button" style="height: 54px; border-radius: 14px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Cancel</button><button type="button" style="height: 54px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">{{action}}</button></div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { src: 1, dir: false, done: false }; }
+renderVals() {
+const s = this.state;
+const list = [['From CSV', 'Excel/CSV File', 'Click here to select Excel/CSV file', 'Upload file'], ['From Backup', 'Backup File', 'Click here to select backup file', 'Restore'], ['From External', 'SQL Backup File', 'Click here to select SQL backup file', 'Restore']];
+const sources = list.map(([name], i) => ({ name, pick: () => this.setState({ src: i }), style: 'height: 48px; border-radius: 12px; font-size: 14px; font-weight: 800; ' + (i === s.src ? 'border: 2px solid #163A6B; background: #EDF3FC; color: #163A6B' : 'border: 1px solid #E3E8EF; background: #F7F9FB; color: #344054') }));
+const d = list[s.src];
+return {
+sources, isCsv: s.src === 0, fileLabel: d[1], fileHint: d[2], action: d[3], done: s.done,
+dirText: s.dir ? '[E:\\Tillora\\backups]' : 'Please select a directory to backup',
+dirStyle: 'height: 58px; border-radius: 14px; padding: 0 16px; display: flex; align-items: center; gap: 12px; text-align: left; color: #0F1B2D; background: #F7F9FB; ' + (s.dir ? 'border: 2px solid #163A6B' : 'border: 1px dashed #C3CCD8'),
+pickDir: () => this.setState({ dir: true }), backup: () => this.setState({ done: s.dir })
+};
+}
+}
+</script>
+</body>
+</html>

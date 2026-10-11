@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second display</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #0D2547; font-family: 'Plus Jakarta Sans', sans-serif; color: #FFFFFF; display: flex">
+
+<section style="width: 60%; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 48px; height: 48px; border-radius: 13px; background: #F5A524; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0D2547" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 9h-13z"></path><path d="M8 7V5a4 4 0 0 1 8 0v2"></path></svg></div>
+<span style="font-size: 26px; font-weight: 800">[Company name]</span>
+</div>
+<div style="flex-grow: 1; border-radius: 26px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.28); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #AFC0D8">
+<svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#AFC0D8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-9 9"></path></svg>
+<span style="font-size: 20px; font-weight: 700">[Advertisement image]</span>
+<span style="font-size: 14px">Rotates every [8] sec · Settings › Second Screen › Advertisement</span>
+</div>
+<div style="display: flex; gap: 8px; justify-content: center">
+<span style="width: 28px; height: 6px; border-radius: 3px; background: #F5A524"></span>
+<span style="width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3)"></span>
+<span style="width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3)"></span>
+</div>
+</section>
+
+<section style="flex-grow: 1; box-sizing: border-box; padding: 36px 34px; background: #F6F8FB; color: #0F1B2D; display: flex; flex-direction: column; gap: 16px; border-radius: 32px 0 0 32px">
+<div style="border-radius: 20px; background: #FFFFFF; border: 1px solid #E3E8EF; overflow: hidden; flex-grow: 1; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 1fr 50px 100px 110px; gap: 8px; padding: 14px 18px; background: #F7F9FB; border-bottom: 1px solid #E3E8EF; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: #667085"><span>DESCRIPTION</span><span style="text-align: center">QTY</span><span style="text-align: right">PRICE</span><span style="text-align: right">AMOUNT</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 1fr 50px 100px 110px; gap: 8px; align-items: center; min-height: 58px; padding: 0 18px; border-bottom: 1px solid #EEF1F5; font-variant-numeric: tabular-nums">
+<span style="font-size: 17px; font-weight: 700">{{r.name}}</span><span style="text-align: center; font-size: 16px">{{r.qty}}</span><span style="text-align: right; font-size: 15px; color: #475467">{{r.price}}</span><span style="text-align: right; font-size: 16px; font-weight: 800">{{r.amount}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #667085; padding: 0 4px"><span>Items: 5</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="border-radius: 16px; background: #163A6B; color: #FFFFFF; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: #C7D4E6">TOTAL</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">Rs 2,080.00</span></div>
+<div style="border-radius: 16px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: #667085">PAID</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">Rs 2,500.00</span></div>
+<div style="border-radius: 16px; background: #0B8A5F; color: #FFFFFF; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: #D7F3E7">CHANGE</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums">Rs 420.00</span></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const rows = [['Fresh Milk 1L', 1, 480], ['Sliced Bread 450g', 1, 180], ['Eggs x10', 2, 550], ['Ambul Bananas 1kg', 1, 320]]
+.map(([name, qty, price]) => ({ name, qty: String(qty), price: f(price), amount: f(qty * price) }));
+return { rows };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Adjust misfired</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="BackOffice.dc.html" aria-label="Back to Back Office" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">MANAGE SALES</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Adjust Misfired</h1></div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; gap: 12px; align-items: flex-end; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Start Date<input type="text" value="[11/10/2026 00:00]" readonly style="height: 46px; width: 190px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">End Date<input type="text" value="[11/10/2026 23:59]" readonly style="height: 46px; width: 190px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Shift<select style="height: 46px; width: 260px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #0F1B2D; background: #F7F9FB"><option>[42, 11 Oct 09:00, 11 Oct 18:00]</option></select></label>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; font-weight: 700; color: #667085">Payment Type</span>
+<div style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #EEF1F5"><sc-for list="{{pays}}" as="p" hint-placeholder-count="5"><button type="button" onClick="{{p.pick}}" style="{{p.style}}">{{p.name}}</button></sc-for></div></div>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; border-radius: 14px; background: #E8EEFB; padding: 12px 18px">
+<span style="font-size: 15px; font-weight: 700; color: #163A6B">Total for Selected Time Period:</span>
+<span style="font-size: 20px; font-weight: 800; color: #163A6B; font-variant-numeric: tabular-nums">{{periodTotal}}</span>
+</div>
+<div style="flex-grow: 1; min-height: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 44px 80px 1fr 70px 120px 130px 140px; gap: 12px; padding: 12px 20px; background: #F7F9FB; border-bottom: 1px solid #E3E8EF; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: #667085"><span></span><span>ID</span><span>DESCRIPTION</span><span style="text-align: center">QTY</span><span style="text-align: right">PRICE</span><span style="text-align: right">AMOUNT</span><span>PAYMENT TYPE</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<button type="button" role="checkbox" aria-checked="{{r.aria}}" onClick="{{r.flip}}" style="{{r.style}}">
+<span style="{{r.box}}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+<span style="font-size: 14px; color: #475467; text-align: left">{{r.id}}</span><span style="font-size: 15px; font-weight: 700; text-align: left">{{r.name}}</span><span style="font-size: 15px; text-align: center">{{r.qty}}</span><span style="font-size: 14px; color: #475467; text-align: right; font-variant-numeric: tabular-nums">{{r.price}}</span><span style="font-size: 15px; font-weight: 800; text-align: right; font-variant-numeric: tabular-nums">{{r.amount}}</span><span style="font-size: 14px; color: #475467; text-align: left">{{r.pay}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="font-size: 15px; font-weight: 700">Sale Total: <span style="font-variant-numeric: tabular-nums">{{saleTotal}}</span></span>
+<span style="font-size: 15px; font-weight: 700; color: #163A6B">Selected Total: <span style="font-variant-numeric: tabular-nums">{{selTotal}}</span></span>
+<button type="button" style="margin-left: auto; height: 50px; padding: 0 22px; border-radius: 14px; border: 1px solid #F5C9C4; background: #FDECEA; color: #A12A21; font-size: 15px; font-weight: 800">Delete</button>
+<button type="button" style="height: 50px; padding: 0 26px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Alter</button>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { pay: 0, picked: [false, true, false, false, false, false] }; }
+renderVals() {
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const payNames = ['All', 'Cash', 'Card', 'PartPay', 'Other'];
+const pays = payNames.map((name, i) => ({
+name, pick: () => this.setState({ pay: i }),
+style: 'height: 38px; padding: 0 12px; border-radius: 9px; border: 0; font-size: 13px; font-weight: 800; ' + (i === s.pay ? 'background: #FFFFFF; color: #163A6B; box-shadow: 0 1px 3px rgba(16,24,40,0.15)' : 'background: transparent; color: #475467')
+}));
+const data = [['1021', 'Fresh Milk 1L', 2, 480, 'Card'], ['1022', 'Samba Rice 5kg', 1, 1450, 'Card'], ['1023', 'Eggs x10', 1, 550, 'Cash'], ['1024', 'Coffee', 2, 250, 'Card'], ['1025', 'Dhal 1kg', 1, 390, 'PartPay'], ['1026', 'Biscuits', 3, 220, 'Other']];
+const shown = data.map((d, i) => ({ d, i })).filter(({ d }) => s.pay === 0 || d[4] === payNames[s.pay]);
+const rows = shown.map(({ d, i }) => {
+const on = s.picked[i];
+return {
+id: d[0], name: d[1], qty: String(d[2]), price: f(d[3]), amount: f(d[2] * d[3]), pay: d[4], aria: on ? 'true' : 'false',
+flip: () => { const p = s.picked.slice(); p[i] = !p[i]; this.setState({ picked: p }); },
+box: 'width: 22px; height: 22px; border-radius: 6px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; ' + (on ? 'background: #163A6B' : 'background: #FFFFFF; border: 2px solid #C3CCD8'),
+style: 'display: grid; grid-template-columns: 44px 80px 1fr 70px 120px 130px 140px; gap: 12px; align-items: center; min-height: 54px; padding: 0 20px; border: 0; border-bottom: 1px solid #EEF1F5; color: #0F1B2D; background: ' + (on ? '#EDF3FC' : '#FFFFFF')
+};
+});
+const sum = (list) => list.reduce((a, d) => a + d[2] * d[3], 0);
+return {
+pays, rows,
+periodTotal: f(sum(data)), saleTotal: f(sum(shown.map((x) => x.d))),
+selTotal: f(sum(data.filter((_, i) => s.picked[i])))
+};
+}
+}
+</script>
+</body>
+</html>

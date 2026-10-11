@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cash lift</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #1A2436; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Cash Lift" style="width: 520px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 30px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6)">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="width: 52px; height: 52px; border-radius: 15px; background: #E3F5EE; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B7A55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg></span>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800">Cash Lift</h1>
+</div>
+<a href="MoreFunctions.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; background: #EEF1F5; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
+</div>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 700; color: #667085">Cash Lift Amount
+<input type="text" value="{{amountText}}" readonly style="height: 72px; box-sizing: border-box; border-radius: 18px; border: 2px solid #163A6B; background: #FFFFFF; padding: 0 18px; text-align: right; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 800; color: #0F1B2D"></label>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="12"><button type="button" onClick="{{k.press}}" style="{{k.style}}">{{k.label}}</button></sc-for>
+</div>
+<span style="font-size: 14px; font-weight: 600; color: #475467; text-align: center">Are you sure you want to lift {{amountText}} from cash?</span>
+<div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px">
+<button type="button" onClick="{{reset}}" style="height: 58px; border-radius: 16px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 16px; font-weight: 800">Reset</button>
+<a href="Sales.dc.html" style="height: 58px; border-radius: 16px; background: #0B8A5F; color: #FFFFFF; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center">OK</a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { amt: '20000' }; }
+renderVals() {
+const s = this.state;
+const keys = ['7','8','9','4','5','6','1','2','3','00','0','DEL'].map((l) => ({
+label: l, press: () => this.setState({ amt: l === 'DEL' ? s.amt.slice(0, -1) : (s.amt + l).slice(0, 8) }),
+style: 'height: 62px; border-radius: 14px; font-weight: 700; ' + (l === 'DEL' ? 'border: 0; background: #E7EBF1; color: #273449; font-size: 15px; font-weight: 800' : 'border: 1px solid #DCE2EA; background: #FFFFFF; color: #0F1B2D; font-size: 22px')
+}));
+const v = parseInt(s.amt || '0', 10);
+return { keys, amountText: 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','), reset: () => this.setState({ amt: '' }) };
+}
+}
+</script>
+</body>
+</html>

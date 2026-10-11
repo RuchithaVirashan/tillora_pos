@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shift report</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="QuickReport.dc.html" aria-label="Back to Quick Report" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<h1 style="margin: 0; font-size: 22px; font-weight: 800">{{title}}</h1>
+</div>
+<div role="tablist" aria-label="Report" style="display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.08)">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{t.aria}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.name}}</button></sc-for>
+</div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; gap: 12px; align-items: flex-end; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px">
+<sc-if value="{{isAll}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Start Date<input type="text" value="[01/10/2026]" readonly style="height: 46px; width: 160px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">End Date<input type="text" value="[11/10/2026]" readonly style="height: 46px; width: 160px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">User<select style="height: 46px; width: 190px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Please select user</option></select></label>
+</div>
+</sc-if>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Shift<select style="height: 46px; width: 230px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Please select Shift</option></select></label>
+<button type="button" onClick="{{generate}}" style="margin-left: auto; height: 46px; padding: 0 22px; border-radius: 12px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Generate Report</button>
+<button type="button" onClick="{{openExport}}" style="height: 46px; padding: 0 18px; border-radius: 12px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Print Report</button>
+</div>
+<sc-if value="{{exporting}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 10px; border-radius: 14px; background: #E8EEFB; padding: 12px 16px">
+<span style="font-size: 14px; font-weight: 800; color: #163A6B; margin-right: 8px">Select Export Format</span>
+<button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">PDF</button>
+<button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">Excel</button>
+<button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">Both PDF &amp; Excel</button>
+<button type="button" onClick="{{closeExport}}" style="margin-left: auto; height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: transparent; color: #344054; font-size: 13px; font-weight: 800">Cancel</button>
+</div>
+</sc-if>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="flex-grow: 1; border-radius: 18px; border: 1px dashed #C3CCD8; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #667085">Please generate report first</div>
+</sc-if>
+<sc-if value="{{generated}}" hint-placeholder-val="{{ true }}">
+<div style="flex-grow: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-content: start">
+<sc-for list="{{sections}}" as="sec" hint-placeholder-count="5">
+<div style="{{sec.box}}">
+<h2 style="margin: 0 0 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; color: #667085">{{sec.title}}</h2>
+<sc-for list="{{sec.rows}}" as="r" hint-placeholder-count="4"><div style="display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #EEF1F5; font-size: 14px"><span>{{r.label}}</span><span style="font-weight: 700; font-variant-numeric: tabular-nums">{{r.value}}</span></div></sc-for>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { tab: 1, generated: true, exporting: false }; }
+renderVals() {
+const s = this.state;
+const names = ['Live Shift Report', 'All Shift Report'];
+const tabs = names.map((name, i) => ({
+name, aria: i === s.tab ? 'true' : 'false', pick: () => this.setState({ tab: i, generated: false }),
+style: 'height: 42px; padding: 0 16px; border-radius: 10px; border: 0; font-size: 14px; font-weight: 800; ' + (i === s.tab ? 'background: #FFFFFF; color: #0D2547' : 'background: transparent; color: #C7D4E6')
+}));
+const z = '[Rs 0.00]';
+const data = [
+['CASH FLOW', [['Drawer float', z], ['Cash sales', z], ['Card sales', z], ['Other payments', z], ['Refunds', z], ['Cash lifts', z]], 1],
+['DEPARTMENT', [['Grocery', z], ['Dairy', z], ['Bakery', z], ['Produce', z], ['Drinks', z]], 1],
+['VAT', [['VAT 18% — net', z], ['VAT 18% — tax', z], ['VAT exempt', z]], 1],
+['HOURLY SALE', [['09:00 – 10:00', z], ['10:00 – 11:00', z], ['11:00 – 12:00', z]], 2],
+['PAYOUT', [['[Staff tea]', z], ['Total payouts', z]], 1]
+];
+const sections = data.map(([title, rows, span]) => ({
+title, rows: rows.map(([label, value]) => ({ label, value })),
+box: 'grid-column: span ' + span + '; border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 16px 18px; display: flex; flex-direction: column'
+}));
+return {
+tabs, sections, title: names[s.tab], isAll: s.tab === 1,
+generated: s.generated, empty: !s.generated, exporting: s.exporting,
+generate: () => this.setState({ generated: true }),
+openExport: () => this.setState({ exporting: true }), closeExport: () => this.setState({ exporting: false })
+};
+}
+}
+</script>
+</body>
+</html>

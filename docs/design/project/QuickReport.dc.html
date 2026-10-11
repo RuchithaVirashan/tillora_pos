@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quick report</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="Main.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<h1 style="margin: 0; font-size: 22px; font-weight: 800">Quick Report</h1>
+</header>
+<main style="flex-grow: 1; box-sizing: border-box; padding: 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 20px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+<a href="{{t.href}}" style="border-radius: 22px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 28px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #0F1B2D; box-shadow: 0 1px 2px rgba(16,24,40,0.05)">
+<span style="{{t.chip}}"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="{{t.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{t.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 26px; font-weight: 800">{{t.name}}</span><span style="font-size: 15px; color: #667085">{{t.desc}}</span></span>
+</a>
+</sc-for>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const list = [
+['Live Shift Report', 'The shift that is open now', 'ShiftReport.dc.html', '#0B7A55', '#E3F5EE', 'M12 6v6l4 2M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20'],
+['All Shift Report', 'Any past shift by date, user and shift', 'ShiftReport.dc.html', '#2952A3', '#E8EEFB', 'M4 20V10M10 20V4M16 20v-7M22 20H2'],
+['Exceptions', 'Voids, no sales, refunds and age refusals', 'Exceptions.dc.html', '#B4233C', '#FDECEE', 'M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'],
+['Expired Items', 'Products past their expiry date', 'ExpiredItems.dc.html', '#9A5B00', '#FFF3DC', 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20M12 7v5l3 2']
+];
+const tiles = list.map(([name, desc, href, ink, bg, icon]) => ({
+name, desc, href, ink, icon,
+chip: 'width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: ' + bg
+}));
+return { tiles };
+}
+}
+</script>
+</body>
+</html>

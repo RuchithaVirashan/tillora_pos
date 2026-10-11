@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sales screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; overflow: hidden; width: 1440px; height: 900px; box-sizing: border-box; background: {{c.bg}}; font-family: 'Plus Jakarta Sans', sans-serif; color: {{c.ink}}; display: flex; flex-direction: column">
+
+<header style="{{headStyle}}">
+<div style="display: flex; align-items: center; gap: 12px; width: 380px; white-space: nowrap">
+<div style="width: 34px; height: 34px; border-radius: 10px; background: #F5A524; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D2547" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 9h-13z"></path><path d="M8 7V5a4 4 0 0 1 8 0v2"></path></svg></div>
+<span style="font-size: 18px; font-weight: 800">Tillora</span>
+<span style="font-size: 14px; font-weight: 500; color: {{c.headMuted}}">[Company name]</span>
+</div>
+<span style="{{modePill}}"><span style="{{modeDot}}"></span>{{modeText}}</span>
+<nav aria-label="Sales actions" style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; width: 480px; flex-shrink: 0">
+<a href="Transactions.dc.html" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; white-space: nowrap; flex-shrink: 0; text-decoration: none"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><rect x="2" y="9" width="20" height="9" rx="2"></rect><path d="M6 14h12v8H6z"></path></svg>Transactions</a>
+<a href="NoSale.dc.html" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; white-space: nowrap; flex-shrink: 0; text-decoration: none"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="12" width="20" height="8" rx="2"></rect><path d="M6 12V5h12v7"></path><path d="M10 16h4"></path></svg>No Sale</a>
+<a href="Main.dc.html" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; white-space: nowrap; flex-shrink: 0; text-decoration: none"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>Logout</a>
+<a href="DrawerFloat.dc.html" style="height: 44px; padding: 0 12px; border-radius: 12px; background: #C0362C; color: #FFFFFF; font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 7px; white-space: nowrap; flex-shrink: 0; text-decoration: none"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"></path><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path></svg>End Shift</a>
+</nav>
+</header>
+
+<sc-if value="{{refund}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 18px; background: #C0362C; color: #FFFFFF; font-size: 15px; font-weight: 700">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg>Refund mode — scanned items are refunded. Tap SALES to go back.</div>
+</sc-if>
+
+<div style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 14px; display: flex; gap: 14px">
+
+<section style="width: 560px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; gap: 10px; align-items: flex-end; background: {{c.surface}}; border: 1px solid {{c.line}}; border-radius: 16px; padding: 12px; box-shadow: {{c.shadow}}">
+<label style="width: 84px; display: flex; flex-direction: column; gap: 5px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: {{c.muted}}">QTY
+<input type="text" value="{{qtyLabel}}" readonly style="height: 50px; box-sizing: border-box; border-radius: 12px; border: 1px solid {{c.line}}; background: {{c.inputBg}}; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; text-align: center; color: {{c.ink}}"></label>
+<label style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: {{c.muted}}">BARCODE
+<input type="text" value="{{entry}}" placeholder="Scan or type a barcode" readonly style="height: 50px; box-sizing: border-box; border-radius: 12px; border: 2px solid {{c.primary}}; background: {{c.inputBg}}; padding: 0 14px; font-family: 'JetBrains Mono', monospace; font-size: 19px; color: {{c.ink}}"></label>
+<a href="PriceCheck.dc.html" aria-label="Search products" style="width: 56px; height: 50px; border-radius: 12px; background: {{c.primary}}; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></a>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; background: {{c.surface}}; border: 1px solid {{c.line}}; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: {{c.shadow}}">
+<div style="display: grid; grid-template-columns: 1fr 44px 104px 118px; gap: 8px; padding: 12px 18px; background: {{c.tableHead}}; border-bottom: 1px solid {{c.line}}; color: {{c.tableHeadInk}}; font-size: 11px; font-weight: 800; letter-spacing: 0.1em">
+<span>ITEM</span><span style="text-align: center">QTY</span><span style="text-align: right">PRICE</span><span style="text-align: right">AMOUNT</span>
+</div>
+<div style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<button type="button" onClick="{{r.pick}}" style="{{r.style}}">
+<span style="display: flex; flex-direction: column; gap: 2px; text-align: left"><span style="font-size: 16px; font-weight: 700">{{r.name}}</span><span style="font-size: 12px; color: {{c.muted}}">{{r.dept}}</span></span>
+<span style="text-align: center; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums">{{r.qty}}</span>
+<span style="text-align: right; font-size: 15px; color: {{c.ink2}}; font-variant-numeric: tabular-nums">{{r.price}}</span>
+<span style="text-align: right; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums">{{r.amount}}</span>
+</button>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: {{c.muted}}">
+<span style="font-size: 17px; font-weight: 800; color: {{c.ink}}">Sale Cleared</span>
+<span style="font-size: 14px">Scan an item or tap a quick item</span>
+</div>
+</sc-if>
+</div>
+<a href="#" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; background: {{c.promoBg}}; color: {{c.promoInk}}; font-size: 14px; font-weight: 700; text-decoration: none">
+<span style="display: flex; align-items: center; gap: 8px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"></path><path d="M7 7h.01"></path></svg>You have [2] Applicable Promotions!</span>
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em">VIEW</span></a>
+</div>
+
+<div style="background: {{c.surface}}; border: 1px solid {{c.line}}; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: {{c.shadow}}">
+<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: {{c.muted}}"><span>Items: {{count}}</span><span>{{statusText}}</span></div>
+<div style="display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px">
+<div style="border-radius: 14px; background: {{c.surface2}}; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: {{c.muted}}">TOTAL</span><span style="{{totalStyle}}">{{total}}</span></div>
+<div style="border-radius: 14px; background: {{c.surface2}}; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: {{c.muted}}">PAID</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 6px">{{paid}}</span></div>
+<div style="{{changeBox}}"><span style="font-size: 11px; font-weight: 800; letter-spacing: 0.1em">CHANGE</span><span style="font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 6px">{{change}}</span></div>
+</div>
+</div>
+</section>
+
+<section style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="flex-grow: 1; min-height: 0; display: flex; gap: 12px">
+<div style="width: 300px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{quick}}" as="q" hint-placeholder-count="10">
+<button type="button" onClick="{{q.press}}" style="{{q.style}}">
+<span style="font-size: 14px; font-weight: 800; line-height: 1.2; text-align: center">{{q.name}}</span>
+<span style="font-size: 13px; font-weight: 600; color: {{c.quickSub}}; font-variant-numeric: tabular-nums">{{q.priceLabel}}</span>
+</button>
+</sc-for>
+</div>
+
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 52px; flex-shrink: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{fnKeys}}" as="k" hint-placeholder-count="5">
+<sc-if value="{{k.isLink}}" hint-placeholder-val="{{ false }}"><a href="{{k.href}}" style="{{k.style}}">{{k.label}}</a></sc-if>
+<sc-if value="{{k.isBtn}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{k.press}}" style="{{k.style}}">{{k.label}}</button></sc-if>
+</sc-for>
+</div>
+<div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{pad}}" as="k" hint-placeholder-count="15">
+<button type="button" onClick="{{k.press}}" style="{{k.style}}">{{k.label}}</button>
+</sc-for>
+</div>
+</div>
+
+</div>
+
+<div style="height: 196px; flex-shrink: 0; display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid {{c.line}}">
+<div style="flex-grow: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{actions}}" as="p" hint-placeholder-count="6">
+<sc-if value="{{p.isLink}}" hint-placeholder-val="{{ false }}"><a href="{{p.href}}" style="{{p.style}}">{{p.label}}</a></sc-if>
+<sc-if value="{{p.isBtn}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{p.press}}" style="{{p.style}}">{{p.label}}</button></sc-if>
+</sc-for>
+</div>
+<div style="width: 420px; flex-shrink: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{money}}" as="p" hint-placeholder-count="5">
+<sc-if value="{{p.isLink}}" hint-placeholder-val="{{ false }}"><a href="{{p.href}}" style="{{p.style}}">{{p.label}}</a></sc-if>
+<sc-if value="{{p.isBtn}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{p.press}}" style="{{p.style}}">{{p.label}}</button></sc-if>
+</sc-for>
+</div>
+</div>
+</section>
+</div>
+
+<footer style="{{footStyle}}">
+<span>LOG IN TIME: [09:00]</span>
+<span>TERMINAL: [POS-01]</span>
+<span>AUTO PRINT: ON</span>
+<span>TIME: [10:42]</span>
+<span>USER: [STAFF NAME]</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) {
+super(p);
+this.state = {
+lines: [
+{ name: 'Fresh Milk 1L', dept: 'Dairy', qty: 1, price: 480 },
+{ name: 'Sliced Bread 450g', dept: 'Bakery', qty: 1, price: 180 },
+{ name: 'Eggs x10', dept: 'Dairy', qty: 2, price: 550 },
+{ name: 'Ambul Bananas 1kg', dept: 'Produce', qty: 1, price: 320 }
+],
+sel: 3, entry: '', qtyNext: 1, paid: 0, dept: 0, refund: false
+};
+}
+total() { return this.state.lines.reduce((s, l) => s + l.qty * l.price, 0); }
+done() { const t = this.total(); return t > 0 && this.state.paid >= t - 0.0001; }
+addItem(name, price, dept) {
+const fresh = this.done();
+const lines = fresh ? [] : this.state.lines.slice();
+lines.push({ name, dept: dept || 'Quick item', qty: this.state.qtyNext, price });
+this.setState({ lines, sel: lines.length - 1, qtyNext: 1, entry: '', paid: fresh ? 0 : this.state.paid });
+}
+tender(v) { if (this.total() > 0 && !this.done()) this.setState({ paid: Math.round((this.state.paid + v) * 100) / 100 }); }
+key(k) {
+const s = this.state;
+if (/^[0-9]$/.test(k) || k === '00' || k === '.') return this.setState({ entry: (s.entry + k).slice(0, 13) });
+if (k === 'DEL') return this.setState({ entry: s.entry.slice(0, -1) });
+if (k === 'X') { const n = parseInt(s.entry, 10); return this.setState({ qtyNext: n > 0 ? n : 1, entry: '' }); }
+if (k === 'Reset Qty') return this.setState({ qtyNext: 1 });
+if (k === 'ENTER') {
+const v = parseFloat(s.entry);
+if (s.entry.length >= 8) return this.addItem('Item ' + s.entry, 100, 'Barcode');
+if (v > 0) { this.setState({ entry: '' }); return this.tender(v); }
+}
+}
+renderVals() {
+const dark = (this.props.theme ?? 'light') === 'dark';
+const c = dark ? {
+bg: '#0A101C', surface: '#111A2A', surface2: '#162134', line: '#22304A', ink: '#E6EBF2', ink2: '#C3CDDA', muted: '#8D99AB',
+head: '#060B14', headMuted: '#8D99AB', primary: '#2F6FD6', total: '#8FB8FF', sel: '#1A2A45', rowLine: '#1B2638',
+keyNum: '#18233A', keyNumInk: '#E6EBF2', keyFn: '#212E47', keyFnInk: '#C9D2DF', keyLine: '#26344F',
+quick: '#142645', quickInk: '#CFE0FF', quickSub: '#8FAAD6', quickLine: '#22406E',
+voidBg: '#351819', voidInk: '#FF9B90', voidLine: '#5A2A2A', holdBg: '#33260F', holdInk: '#F8C46A', holdLine: '#57401A',
+promoBg: '#33260F', promoInk: '#F8C46A', inputBg: '#0D1524', deptInk: '#C3CDDA', deptOn: '#F5A524', deptOnInk: '#0D2547',
+tableHead: '#162134', tableHeadInk: '#8D99AB', shadow: 'none', keyShadow: 'inset 0 -2px 0 rgba(0,0,0,0.3)', otherInk: '#8FB8FF'
+} : {
+bg: '#EEF1F5', surface: '#FFFFFF', surface2: '#F6F8FB', line: '#E1E6ED', ink: '#0F1B2D', ink2: '#344054', muted: '#667085',
+head: '#0D2547', headMuted: '#AFC0D8', primary: '#163A6B', total: '#163A6B', sel: '#EDF3FC', rowLine: '#EEF1F5',
+keyNum: '#FFFFFF', keyNumInk: '#0F1B2D', keyFn: '#E7EBF1', keyFnInk: '#273449', keyLine: '#DCE2EA',
+quick: '#EAF0FA', quickInk: '#163A6B', quickSub: '#46638F', quickLine: '#D3DEEE',
+voidBg: '#FDECEA', voidInk: '#A12A21', voidLine: '#F5C9C4', holdBg: '#FFF4DE', holdInk: '#8A5300', holdLine: '#F3DDB0',
+promoBg: '#FFF4DE', promoInk: '#8A5300', inputBg: '#F7F9FB', deptInk: '#344054', deptOn: '#163A6B', deptOnInk: '#FFFFFF',
+tableHead: '#F7F9FB', tableHeadInk: '#667085', shadow: '0 1px 2px rgba(16,24,40,0.06)', keyShadow: 'inset 0 -2px 0 rgba(16,24,40,0.06)', otherInk: '#163A6B'
+};
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const t = this.total();
+const done = this.done();
+const font = "font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; text-decoration: none; ";
+const rows = s.lines.map((l, i) => ({
+name: l.name, dept: l.dept, qty: String(l.qty), price: f(l.price), amount: (s.refund ? '−' : '') + f(l.qty * l.price),
+pick: () => this.setState({ sel: i }),
+style: font + 'display: grid; grid-template-columns: 1fr 44px 104px 118px; gap: 8px; align-items: center; min-height: 58px; padding: 0 18px; border: 0; border-bottom: 1px solid ' + c.rowLine + '; color: ' + c.ink + '; background: ' + (i === s.sel ? c.sel + '; box-shadow: inset 4px 0 0 #F5A524' : 'transparent')
+}));
+const depts = ['Grocery', 'Dairy', 'Bakery', 'Produce', 'Drinks', 'Lottery', 'MORE'].map((n, i) => ({
+name: n, pick: () => this.setState({ dept: i }),
+style: font + 'height: 46px; border-radius: 11px; border: 0; font-size: 14px; font-weight: 800; ' + (i === s.dept ? 'background: ' + c.deptOn + '; color: ' + c.deptOnInk : 'background: transparent; color: ' + c.deptInk)
+}));
+const qStyle = font + 'border-radius: 14px; border: 1px solid ' + c.quickLine + '; background: ' + c.quick + '; color: ' + c.quickInk + '; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px';
+const quick = [['Carrier Bag', 10], ['Plain Tea', 100], ['Coffee', 250], ['Newspaper', 120], ['Lottery Ticket', 40], ['Milk Packet', 150], ['Fish Bun', 80], ['Water 500ml', 100], ['Biscuits', 220]]
+.map(([n, p]) => ({ name: n, priceLabel: f(p), style: qStyle, press: () => this.addItem(n, p) }));
+quick.push({ name: 'MORE', priceLabel: 'Quick items', style: qStyle, press: () => {} });
+const base = font + 'border-radius: 14px; font-size: 30px; font-weight: 700; box-shadow: ' + c.keyShadow + '; display: flex; align-items: center; justify-content: center; ';
+const kind = {
+num: base + 'border: 1px solid ' + c.keyLine + '; background: ' + c.keyNum + '; color: ' + c.keyNumInk,
+fn: base + 'font-size: 15px; font-weight: 800; border: 0; background: ' + c.keyFn + '; color: ' + c.keyFnInk,
+go: base + 'font-size: 18px; font-weight: 800; border: 0; background: ' + c.primary + '; color: #FFFFFF',
+enter: base + 'grid-row: span 2; font-size: 20px; font-weight: 800; letter-spacing: 0.04em; border: 0; background: ' + c.primary + '; color: #FFFFFF; box-shadow: 0 10px 20px -10px rgba(22,58,107,0.8)',
+strip: base + 'font-size: 14px; font-weight: 800; border: 0; background: ' + c.keyFn + '; color: ' + c.keyFnInk
+};
+const padKeys = [['7','num'],['8','num'],['9','num'],['DEL','fn'],['4','num'],['5','num'],['6','num'],['X','fn'],['1','num'],['2','num'],['3','num'],['ENTER','enter'],['.','num'],['0','num'],['00','num']];
+const pad = padKeys.map(([l, k]) => ({ label: l, style: kind[k], press: () => this.key(l) }));
+const fnList = [['Reset Qty'], ['Weight'], ['Prod%', 'Discount.dc.html'], ['Sale%', 'Discount.dc.html'], ['PAYOUT', 'Payout.dc.html']];
+const fnKeys = fnList.map(([l, href]) => ({ label: l, style: kind.strip, press: () => this.key(l), href: href || '#', isLink: !!href, isBtn: !href }));
+const pb = font + 'border-radius: 14px; font-size: 14px; font-weight: 800; line-height: 1.2; white-space: pre-line; display: flex; align-items: center; justify-content: center; text-align: center; ';
+const pk = {
+note: pb + 'font-size: 18px; border: 1px solid ' + (dark ? '#1C4A3E' : '#C5E8D7') + '; background: ' + (dark ? '#0F2E27' : '#E6F5EE') + '; color: ' + (dark ? '#7FE0B5' : '#0B6B4A'),
+menu: pb + 'grid-column: span 2; border: 0; background: ' + c.keyFn + '; color: ' + c.keyFnInk,
+cash: pb + 'font-size: 18px; border: 0; background: #0B8A5F; color: #FFFFFF; box-shadow: 0 10px 20px -10px rgba(11,138,95,0.8)',
+card: pb + 'font-size: 18px; border: 0; background: ' + c.primary + '; color: #FFFFFF',
+other: pb + 'border: 2px solid ' + c.otherInk + '; background: transparent; color: ' + c.otherInk,
+void: pb + 'border: 1px solid ' + c.voidLine + '; background: ' + c.voidBg + '; color: ' + c.voidInk,
+hold: pb + 'border: 1px solid ' + c.holdLine + '; background: ' + c.holdBg + '; color: ' + c.holdInk,
+neutral: pb + 'border: 0; background: ' + c.keyFn + '; color: ' + c.keyFnInk,
+refund: pb + (s.refund ? 'border: 0; background: #163A6B; color: #FFFFFF' : 'border: 2px solid ' + c.voidInk + '; background: transparent; color: ' + c.voidInk)
+};
+const payKeys = [
+['Rs 500', 'note', () => this.tender(500)], ['Rs 1,000', 'note', () => this.tender(1000)], ['OTHER\nPAYMENT', 'other', null, 'OtherPayment.dc.html'],
+[s.refund ? 'REFUND\nCASH' : 'CASH', 'cash', () => this.tender(Math.max(0, t - s.paid))], ['CARD', 'card', () => this.tender(Math.max(0, t - s.paid))], ['HOLD', 'hold', null, 'HoldRecall.dc.html'],
+['VOID\nLINE', 'void', null, 'VoidReason.dc.html'], ['VOID\nSALE', 'void', null, 'VoidReason.dc.html'], ['PRICE\nCHECK', 'neutral', null, 'PriceCheck.dc.html'],
+[s.refund ? 'SALES' : 'REFUND', 'refund', () => this.setState({ refund: !s.refund, paid: 0 })], ['MENU', 'neutral', null, 'MoreFunctions.dc.html']
+];
+const mk = (list) => list.map(([l, k, fn, href]) => ({ label: l, style: pk[k], press: fn || (() => {}), href: href || '#', isLink: !!href, isBtn: !href }));
+const notes = mk([payKeys[0], payKeys[1]]);
+const payMain = mk([payKeys[2], payKeys[3], payKeys[4]]);
+const actions = mk([payKeys[6], payKeys[8], payKeys[5], payKeys[7], payKeys[9], payKeys[10]]);
+const pay = [];
+const span = (o, n) => Object.assign({}, o, { style: o.style + '; grid-column: span ' + n });
+const money = [span(notes[0], 1), span(notes[1], 1), span(payMain[0], 2), span(payMain[1], 2), span(payMain[2], 2)];
+const head = s.refund ? '#7E1F18' : c.head;
+return {
+c, rows, depts, quick, pad, pay, notes, payMain, actions, money, fnKeys, refund: s.refund,
+headStyle: 'height: 64px; flex-shrink: 0; box-sizing: border-box; padding: 0 14px 0 18px; background: ' + head + '; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between; gap: 12px',
+footStyle: 'height: 34px; flex-shrink: 0; box-sizing: border-box; padding: 0 18px; background: ' + head + '; color: ' + c.headMuted + '; display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; font-variant-numeric: tabular-nums',
+modeText: s.refund ? 'REFUND' : 'SALES',
+modePill: 'height: 34px; padding: 0 16px; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; background: ' + (s.refund ? '#C0362C' : 'rgba(255,255,255,0.08)'),
+modeDot: 'width: 8px; height: 8px; border-radius: 50%; background: ' + (s.refund ? '#FFFFFF' : '#34C38F'),
+empty: s.lines.length === 0, entry: s.entry, qtyLabel: '×' + s.qtyNext,
+count: String(s.lines.reduce((n, l) => n + l.qty, 0)),
+total: (s.refund ? '−' : '') + f(t), paid: f(s.paid), change: f(done ? s.paid - t : 0),
+totalStyle: 'font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: ' + (s.refund ? c.voidInk : c.total),
+statusText: done ? (s.refund ? 'Refund complete' : 'Sale complete — hand over change') : (s.paid > 0 ? 'Balance due ' + f(t - s.paid) : (s.refund ? 'Refund in progress' : 'Sale in progress')),
+changeBox: 'border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; ' + (done ? 'background: #0B8A5F; color: #FFFFFF' : 'background: ' + c.surface2 + '; color: ' + c.muted)
+};
+}
+}
+</script>
+</body>
+</html>

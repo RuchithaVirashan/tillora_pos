@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Extract products</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="Settings.dc.html" aria-label="Back to Settings" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">SETTINGS · EXTRACT PRODUCT DATA</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Extract Products to CSV</h1></div>
+</header>
+<main style="flex-grow: 1; display: flex; align-items: center; justify-content: center">
+<div style="width: 640px; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 22px; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<span style="font-size: 15px; color: #475467">Pick a SQLite database file and save its product table as a CSV file.</span>
+<span style="font-size: 13px; font-weight: 700; color: #344054">SQLite Database File</span>
+<button type="button" onClick="{{pick}}" style="{{boxStyle}}"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path></svg><span style="{{fileStyle}}">{{fileText}}</span></button>
+<sc-if value="{{done}}" hint-placeholder-val="{{ false }}"><div style="border-radius: 14px; background: #E3F5EE; color: #0B6B4A; padding: 12px 16px; font-size: 14px; font-weight: 700">CSV file saved at <span style="font-family: 'JetBrains Mono', monospace">[C:\Tillora\exports\products.csv]</span></div></sc-if>
+<button type="button" onClick="{{extract}}" style="{{extractStyle}}">Extract</button>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { file: false, done: false }; }
+renderVals() {
+const s = this.state;
+return {
+done: s.done,
+fileText: s.file ? '[tillora_backup.db]' : 'Click here to select SQLite database file',
+fileStyle: 'font-size: 15px; font-weight: 800; color: #0F1B2D; ' + (s.file ? "font-family: 'JetBrains Mono', monospace" : ''),
+boxStyle: 'height: 170px; border-radius: 16px; background: #F7F9FB; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; ' + (s.file ? 'border: 2px solid #163A6B' : 'border: 2px dashed #C3CCD8'),
+extractStyle: 'height: 56px; border-radius: 15px; border: 0; font-size: 16px; font-weight: 800; ' + (s.file ? 'background: #163A6B; color: #FFFFFF' : 'background: #E3E8EF; color: #667085'),
+pick: () => this.setState({ file: true, done: false }), extract: () => this.setState({ done: s.file })
+};
+}
+}
+</script>
+</body>
+</html>

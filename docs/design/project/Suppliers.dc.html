@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Suppliers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="Main.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<h1 style="margin: 0; font-size: 22px; font-weight: 800">Suppliers</h1>
+</div>
+<button type="button" onClick="{{startAdd}}" style="height: 44px; padding: 0 18px; border-radius: 12px; border: 0; background: #F5A524; color: #0D2547; font-size: 14px; font-weight: 800">Add New Supplier</button>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 24px 28px; display: flex; gap: 20px">
+<div style="width: 420px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<button type="button" onClick="{{r.pick}}" style="{{r.card}}"><span style="width: 44px; height: 44px; border-radius: 12px; background: #DFF3F3; color: #0B6E6E; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center">{{r.ini}}</span><span style="display: flex; flex-direction: column; gap: 2px; text-align: left"><span style="font-size: 16px; font-weight: 800; color: #0F1B2D">{{r.name}}</span><span style="font-size: 13px; color: #667085">{{r.city}}</span></span></button>
+</sc-for>
+</div>
+<section style="flex-grow: 1; min-width: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 20px; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<sc-if value="{{viewing}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+<div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 20px; font-weight: 800">Supplier Details</h2><span style="display: flex; gap: 8px"><button type="button" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 14px; font-weight: 800">Edit</button><button type="button" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #F5C9C4; background: #FDECEA; color: #A12A21; font-size: 14px; font-weight: 800">Delete</button></span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{details}}" as="d" hint-placeholder-count="5"><div style="border-radius: 14px; background: #F6F8FB; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #667085">{{d.label}}</span><span style="font-size: 15px; font-weight: 700">{{d.value}}</span></div></sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{adding}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px; flex-grow: 1">
+<h2 style="margin: 0; font-size: 20px; font-weight: 800">Add New Supplier Details</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{form}}" as="f" hint-placeholder-count="7"><label style="{{f.wrap}}">{{f.label}}<input type="text" placeholder="{{f.hint}}" style="height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label></sc-for>
+</div>
+<div style="margin-top: auto; display: flex; justify-content: flex-end; gap: 10px"><button type="button" onClick="{{cancelAdd}}" style="height: 52px; padding: 0 22px; border-radius: 14px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Cancel</button><button type="button" style="height: 52px; padding: 0 26px; border-radius: 14px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Add Supplier</button></div>
+</div>
+</sc-if>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { sel: 0, adding: false }; }
+renderVals() {
+const s = this.state;
+const data = [['[Dairy supplier]', 'DS', '[Colombo]'], ['[Bakery supplier]', 'BS', '[Kandy]'], ['[Grocery wholesaler]', 'GW', '[Gampaha]'], ['[Drinks distributor]', 'DD', '[Negombo]']];
+const rows = data.map(([name, ini, city], i) => ({
+name, ini: '[' + ini + ']', city, pick: () => this.setState({ sel: i, adding: false }),
+card: 'border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: #FFFFFF; ' + (i === s.sel && !s.adding ? 'border: 2px solid #163A6B' : 'border: 1px solid #E3E8EF')
+}));
+const d = data[s.sel];
+const details = [['Name', d[0]], ['Address', '[No.], [Street, Road, Town]'], ['District', d[2]], ['Country', 'Sri Lanka'], ['Mobile Number', '[+94 7X XXX XXXX]'], ['Email', '[supplier@example.lk]']].map(([label, value]) => ({ label, value }));
+const form = [['Name', 'Name', 2], ['No', 'No', 1], ['Street, Road, Town', 'Street, Road, Town', 1], ['Country', 'Please select country', 1], ['District', 'Please select address district', 1], ['Mobile Number', '+94', 1], ['Email', 'Email', 1]].map(([label, hint, span]) => ({
+label, hint, wrap: 'display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054; grid-column: span ' + span
+}));
+return { rows, details, form, viewing: !s.adding, adding: s.adding, startAdd: () => this.setState({ adding: true }), cancelAdd: () => this.setState({ adding: false }) };
+}
+}
+</script>
+</body>
+</html>

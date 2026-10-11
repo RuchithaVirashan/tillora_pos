@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second screen configuration</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="Settings.dc.html" aria-label="Back to Settings" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">SETTINGS</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Second Screen Configuration</h1></div>
+</div>
+<a href="CustomerDisplay.dc.html" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.08); color: #FFFFFF; font-size: 14px; font-weight: 700; display: flex; align-items: center">Open second display</a>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; gap: 20px">
+<nav aria-label="Second screen" style="width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="5"><button type="button" onClick="{{n.pick}}" style="{{n.style}}">{{n.name}}</button></sc-for>
+</nav>
+<section style="flex-grow: 1; min-width: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 20px; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 800">{{title}}</h2>
+
+<sc-if value="{{p.check}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 10px"><span style="font-size: 13px; font-weight: 700; color: #344054">Second Display Name</span>
+<div style="display: flex; align-items: center; justify-content: space-between; border-radius: 14px; border: 2px solid #163A6B; background: #EDF3FC; padding: 14px 18px"><span style="font-size: 15px; font-weight: 800; color: #163A6B">[DISPLAY2 · 1920 × 1080]</span><span style="height: 26px; padding: 0 10px; border-radius: 999px; background: #E3F5EE; color: #0B6B4A; font-size: 12px; font-weight: 800; display: flex; align-items: center">Connected</span></div>
+<span style="font-size: 13px; color: #667085">If none is listed: No Secondary Display Found.</span></div>
+</sc-if>
+
+<sc-if value="{{p.advert}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{ads}}" as="a" hint-placeholder-count="4"><button type="button" aria-pressed="{{a.aria}}" onClick="{{a.flip}}" style="{{a.card}}"><span style="font-size: 12px; font-weight: 700; color: #667085">{{a.name}}</span><sc-if value="{{a.on}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 8px; right: 8px; height: 22px; padding: 0 8px; border-radius: 999px; background: #163A6B; color: #FFFFFF; font-size: 11px; font-weight: 800; display: flex; align-items: center">Selected</span></sc-if></button></sc-for>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054; width: 260px">Image Duration<span style="display: flex; align-items: center; gap: 8px"><input type="text" value="8" style="width: 120px; height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"><span style="font-size: 14px; color: #475467">sec</span></span></label>
+<div style="display: flex; gap: 10px"><button type="button" style="height: 48px; padding: 0 18px; border-radius: 12px; border: 0; background: #0B8A5F; color: #FFFFFF; font-size: 14px; font-weight: 800">Add New</button><button type="button" style="height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid #F5C9C4; background: #FDECEA; color: #A12A21; font-size: 14px; font-weight: 800">Delete</button><button type="button" style="height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 14px; font-weight: 800">Update</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{p.font}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px; width: 520px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Font Family<select style="height: 48px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Plus Jakarta Sans</option><option>Ubuntu</option><option>Work Sans</option><option>Vollkorn</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Font Size<input type="text" value="20" style="height: 48px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<span style="font-size: 13px; font-weight: 700; color: #344054">Font Preview</span>
+<div style="border-radius: 14px; background: #0D2547; color: #FFFFFF; padding: 18px; font-size: 20px; font-weight: 700">Total Rs 2,080.00</div>
+<button type="button" style="height: 50px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Save</button>
+</div>
+</sc-if>
+
+<sc-if value="{{p.res}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px; width: 520px"><span style="font-size: 13px; font-weight: 700; color: #344054">Secondary Screen Resolution</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Width<input type="text" value="1920" style="height: 48px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: #344054">Height<input type="text" value="1080" style="height: 48px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+</div>
+<button type="button" style="height: 50px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Save</button></div>
+</sc-if>
+
+<sc-if value="{{p.split}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px"><span style="font-size: 13px; font-weight: 700; color: #344054">Select Display Split Ratio</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{splits}}" as="x" hint-placeholder-count="3"><button type="button" onClick="{{x.pick}}" style="{{x.card}}"><span style="display: flex; gap: 4px; height: 60px; width: 100%"><span style="{{x.a}}"></span><span style="{{x.b}}"></span></span><span style="font-size: 16px; font-weight: 800; color: #0F1B2D">{{x.name}}</span></button></sc-for>
+</div>
+<span style="font-size: 13px; color: #667085">Left = advertisement, right = basket and totals.</span>
+<button type="button" style="align-self: flex-start; height: 50px; padding: 0 28px; border-radius: 13px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Save</button></div>
+</sc-if>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { sel: 1, ads: [true, false, false, false], split: 1 }; }
+renderVals() {
+const s = this.state;
+const menu = [['Check Display', 'check'], ['Advertisement', 'advert'], ['Font Configuration', 'font'], ['Resolution Configuration', 'res'], ['Display Split Ratio', 'split']];
+const nav = menu.map(([name], i) => ({ name, pick: () => this.setState({ sel: i }), style: 'height: 54px; border-radius: 13px; padding: 0 16px; text-align: left; font-size: 15px; font-weight: 700; ' + (i === s.sel ? 'border: 2px solid #163A6B; background: #EDF3FC; color: #163A6B' : 'border: 1px solid #E3E8EF; background: #FFFFFF; color: #344054') }));
+const k = menu[s.sel][1];
+const ads = ['[Advert image 1]', '[Advert image 2]', '[Advert image 3]', '[Advert image 4]'].map((name, i) => ({
+name, on: s.ads[i], aria: s.ads[i] ? 'true' : 'false', flip: () => { const a = s.ads.slice(); a[i] = !a[i]; this.setState({ ads: a }); },
+card: 'position: relative; height: 130px; border-radius: 14px; background: #EEF1F5; display: flex; align-items: center; justify-content: center; ' + (s.ads[i] ? 'border: 2px solid #163A6B' : 'border: 1px solid #E3E8EF')
+}));
+const splits = [['50/50', 1, 1], ['40/60', 2, 3], ['30/70', 3, 7]].map(([name, a, b], i) => ({
+name, pick: () => this.setState({ split: i }),
+a: 'flex-grow: ' + a + '; border-radius: 6px; background: #0D2547', b: 'flex-grow: ' + b + '; border-radius: 6px; background: #DCE2EA',
+card: 'border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; background: #FFFFFF; ' + (i === s.split ? 'border: 2px solid #163A6B' : 'border: 1px solid #E3E8EF')
+}));
+return { nav, ads, splits, title: menu[s.sel][0], p: { check: k === 'check', advert: k === 'advert', font: k === 'font', res: k === 'res', split: k === 'split' } };
+}
+}
+</script>
+</body>
+</html>

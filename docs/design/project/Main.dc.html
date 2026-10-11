@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tillora Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 32px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 38px; height: 38px; border-radius: 11px; background: #F5A524; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D2547" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 9h-13z"></path><path d="M8 7V5a4 4 0 0 1 8 0v2"></path></svg></div>
+<span style="font-size: 21px; font-weight: 800">Tillora</span>
+<span style="margin-left: 8px; padding-left: 16px; border-left: 1px solid rgba(255,255,255,0.18); font-size: 14px; font-weight: 500; color: #AFC0D8">[Company name]</span>
+</div>
+<div style="display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 600; color: #AFC0D8; font-variant-numeric: tabular-nums">
+<span style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,0.08); color: #D8E2F0"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5A524" stroke-width="2.2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path></svg>Local database</span>
+<span>Terminal [POS-01]</span>
+<span>[11 Oct 2026 · 10:42]</span>
+</div>
+</header>
+
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 32px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 18px">
+<a href="Login.dc.html" style="grid-column: span 2; grid-row: span 2; position: relative; overflow: hidden; border-radius: 22px; background: #163A6B; color: #FFFFFF; padding: 34px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 14px 30px -14px rgba(13,37,71,0.6)">
+<svg aria-hidden="true" width="320" height="320" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.2" style="position: absolute; right: -60px; bottom: -70px"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M7 20h10"></path><path d="M12 16v4"></path></svg>
+<div style="width: 64px; height: 64px; border-radius: 18px; background: #F5A524; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0D2547" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M7 20h10"></path><path d="M12 16v4"></path><path d="M7 9h4"></path><path d="M7 12h7"></path></svg></div>
+<div style="display: flex; flex-direction: column; gap: 8px; position: relative"><span style="font-size: 48px; font-weight: 800; letter-spacing: -0.02em">Sales</span><span style="font-size: 17px; color: #C7D4E6">Log in to open the till</span></div>
+<span style="width: fit-content; height: 52px; padding: 0 22px; border-radius: 14px; background: #FFFFFF; color: #163A6B; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 10px; position: relative">Open Sales<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#163A6B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+</a>
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
+<a href="{{t.href}}" style="border-radius: 20px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #0F1B2D; box-shadow: 0 1px 2px rgba(16,24,40,0.05)">
+<span style="{{t.chip}}"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{t.ink}}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="{{t.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 19px; font-weight: 800">{{t.name}}</span><span style="font-size: 13px; color: #667085">{{t.desc}}</span></span>
+</a>
+</sc-for>
+</main>
+
+<footer style="height: 40px; flex-shrink: 0; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: #667085">
+<span>Tillora POS · v2.2.10</span>
+<span>Local mode · all data stored on this terminal</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const tint = { blue: ['#E8EEFB', '#2952A3'], green: ['#E3F5EE', '#0B7A55'], amber: ['#FFF3DC', '#9A5B00'], violet: ['#EFEAFB', '#5B3FB0'], teal: ['#DFF3F3', '#0B6E6E'], slate: ['#EEF1F5', '#3B4A60'] };
+const list = [
+['Product Management', 'Non-barcode, weight, payout, price change', 'ProductMgt.dc.html', 'blue', 'M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8M12 13v8'],
+['Suppliers', 'Supplier details', 'Suppliers.dc.html', 'teal', 'M1 7h13v10H1zM14 10h4l3 3v4h-7M6 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4M17 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4'],
+['Back Office', 'Management, inventory, promotions, reports', 'BackOffice.dc.html', 'violet', 'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z'],
+['Quick Report', 'Live shift, all shifts, exceptions', 'QuickReport.dc.html', 'green', 'M4 20V10M10 20V4M16 20v-7M22 20H2'],
+['Staff Activity', 'Who is on shift', 'StaffActivity.dc.html', 'amber', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M2.5 20a6.5 6.5 0 0 1 13 0M17 4.5a3.5 3.5 0 0 1 0 7M19 14.5a6 6 0 0 1 2.5 5.5'],
+['Settings', 'Admin only', 'Settings.dc.html', 'slate', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1']
+];
+const tiles = list.map(([name, desc, href, t, icon]) => ({
+name, desc, href, icon, ink: tint[t][1],
+chip: 'width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: ' + tint[t][0]
+}));
+return { tiles };
+}
+}
+</script>
+</body>
+</html>

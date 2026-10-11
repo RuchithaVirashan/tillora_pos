@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Database maintenance</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; gap: 14px">
+<a href="Settings.dc.html" aria-label="Back to Settings" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">SETTINGS · UPDATE LOCAL DATABASE</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">Database Maintenance</h1></div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: center; gap: 12px; border-radius: 16px; background: #FFF4DE; border: 1px solid #F3DDB0; padding: 14px 18px; color: #8A5300"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg><span style="font-size: 14px; font-weight: 700">Admin login required. Take a backup before running any fix.</span></div>
+<div style="flex-grow: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{tools}}" as="t" hint-placeholder-count="11">
+<a href="#" style="border-radius: 18px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: #0F1B2D">
+<span style="{{t.chip}}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{t.ink}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{t.icon}}"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 16px; font-weight: 800">{{t.name}}</span><span style="font-size: 12px; color: #667085">{{t.desc}}</span></span>
+</a>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+const check = 'M9 12l2 2 4-4M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20';
+const wrench = 'M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z';
+const plus = 'M12 5v14M5 12h14';
+const list = [
+['Database Check', 'Run a full health check', check, 'g'], ['Check Tables Availability', 'Confirm every table exists', check, 'g'],
+['Fix Transaction Mismatches', 'Match totals to items', wrench, 'a'], ['Fix Department 0 Items', 'Move items without a department', wrench, 'a'],
+['Fix Transaction Records', 'Repair broken sale records', wrench, 'a'], ['Fix Balance Mismatches', 'Correct paid and change values', wrench, 'a'],
+['Fix Transaction Items', 'Repair item lines', wrench, 'a'], ['Fix PartPay Method', 'Correct split payment types', wrench, 'a'],
+['Amount Adjustments', 'Adjust a sale amount', wrench, 'b'], ['Quick Misfired', 'Fast misfired card fix', wrench, 'b'],
+['Generate Transactions', 'Create test transactions', plus, 'r']
+];
+const tone = { g: ['#0B7A55', '#E3F5EE'], a: ['#9A5B00', '#FFF3DC'], b: ['#2952A3', '#E8EEFB'], r: ['#B4233C', '#FDECEE'] };
+const tools = list.map(([name, desc, icon, t]) => ({ name, desc, icon, ink: tone[t][0], chip: 'width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: ' + tone[t][1] }));
+return { tools };
+}
+}
+</script>
+</body>
+</html>

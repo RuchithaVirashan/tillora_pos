@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Back office reports</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F1F4F8; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; flex-direction: column">
+<header style="height: 72px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; background: #0D2547; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 14px">
+<a href="BackOffice.dc.html" aria-label="Back to Back Office" style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<div style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #AFC0D8; letter-spacing: 0.08em">BACK OFFICE · REPORT</span><h1 style="margin: 0; font-size: 22px; font-weight: 800">{{title}}</h1></div>
+</div>
+<div role="tablist" aria-label="Report" style="display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.08)">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{t.aria}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.name}}</button></sc-for>
+</div>
+</header>
+<main style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 22px 28px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; gap: 12px; align-items: flex-end; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; padding: 16px 18px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Start Date<input type="text" value="[01/10/2026]" readonly style="height: 46px; width: 150px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">End Date<input type="text" value="[11/10/2026]" readonly style="height: 46px; width: 150px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">Category<select style="height: 46px; width: 170px; border-radius: 12px; border: 1px solid #DCE2EA; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D; background: #F7F9FB"><option>Select Category</option></select></label>
+<label style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: #667085">{{searchLabel}}<input type="search" placeholder="{{searchHint}}" style="height: 46px; box-sizing: border-box; border-radius: 12px; border: 1px solid #DCE2EA; background: #F7F9FB; padding: 0 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #0F1B2D"></label>
+<button type="button" style="height: 46px; padding: 0 16px; border-radius: 12px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Find</button>
+<button type="button" style="height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: #163A6B; color: #FFFFFF; font-size: 15px; font-weight: 800">Generate</button>
+<button type="button" onClick="{{openExport}}" style="height: 46px; padding: 0 16px; border-radius: 12px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Print Report</button>
+</div>
+<sc-if value="{{exporting}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 10px; border-radius: 14px; background: #E8EEFB; padding: 12px 16px"><span style="font-size: 14px; font-weight: 800; color: #163A6B; margin-right: 8px">Select Export Format</span><button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">PDF</button><button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">Excel</button><button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #C7D3E2; background: #FFFFFF; color: #163A6B; font-size: 13px; font-weight: 800">Both PDF &amp; Excel</button><button type="button" onClick="{{closeExport}}" style="margin-left: auto; height: 40px; padding: 0 14px; border-radius: 10px; border: 0; background: transparent; color: #344054; font-size: 13px; font-weight: 800">Cancel</button></div>
+</sc-if>
+<sc-if value="{{isSale}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<div style="border-radius: 16px; background: #163A6B; color: #FFFFFF; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #C7D4E6">Total Sales</span><span style="font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">{{totalSales}}</span></div>
+<div style="border-radius: 16px; background: #FFFFFF; border: 1px solid #E3E8EF; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #667085">Total Cost</span><span style="font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums">[Rs 0.00]</span></div>
+<div style="border-radius: 16px; background: #E3F5EE; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #0B6B4A">Total Profit</span><span style="font-size: 24px; font-weight: 800; color: #0B6B4A; font-variant-numeric: tabular-nums">[Rs 0.00]</span></div>
+</div>
+</sc-if>
+<div style="flex-grow: 1; min-height: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column">
+<div style="{{headRow}}"><sc-for list="{{cols}}" as="c" hint-placeholder-count="7"><span style="{{c.style}}">{{c.name}}</span></sc-for></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5"><div style="{{rowStyle}}"><sc-for list="{{r}}" as="x" hint-placeholder-count="7"><span style="{{x.style}}">{{x.text}}</span></sc-for></div></sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { tab: 0, exporting: false }; }
+renderVals() {
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const names = ['Sale Report', 'Stock Movement Report', 'Stock Adjustment Report'];
+const tabs = ['Sale', 'Stock Movement', 'Stock Adjustment'].map((name, i) => ({ name, aria: i === s.tab ? 'true' : 'false', pick: () => this.setState({ tab: i }), style: 'height: 42px; padding: 0 14px; border-radius: 10px; border: 0; font-size: 14px; font-weight: 800; ' + (i === s.tab ? 'background: #FFFFFF; color: #0D2547' : 'background: transparent; color: #C7D4E6') }));
+const items = [['1', '4791111000017', 'Fresh Milk 1L', 'Dairy', 480], ['2', '4791111000024', 'Sliced Bread 450g', 'Bakery', 180], ['3', '4791111000031', 'Eggs x10', 'Dairy', 550], ['4', '4791111000048', 'Water 500ml', 'Drinks', 100], ['5', '4791111000079', 'Samba Rice 5kg', 'Grocery', 1450]];
+const sold = [38, 52, 21, 140, 9];
+const specs = [
+[[['ID', '60px', 'left'], ['BARCODE', '160px', 'left'], ['DESCRIPTION', '1fr', 'left'], ['CATEGORY', '120px', 'left'], ['QUANTITY SOLD', '130px', 'right'], ['UNIT PRICE', '120px', 'right'], ['TOTAL AMOUNT', '140px', 'right']],
+items.map((d, i) => [d[0], d[1], d[2], d[3], String(sold[i]), f(d[4]), f(d[4] * sold[i])])],
+[[['ID', '60px', 'left'], ['BARCODE', '160px', 'left'], ['DESCRIPTION', '1fr', 'left'], ['CATEGORY', '120px', 'left'], ['CURRENT STOCK', '130px', 'right'], ['STOCK SOLD', '120px', 'right'], ['PRICE', '120px', 'right']],
+items.map((d, i) => [d[0], d[1], d[2], d[3], String([42, 18, 6, 96, 12][i]), String(sold[i]), f(d[4])])],
+[[['ID', '50px', 'left'], ['BARCODE', '150px', 'left'], ['DESCRIPTION', '1fr', 'left'], ['ADJUSTMENT TYPE', '140px', 'left'], ['BEFORE', '80px', 'right'], ['AFTER', '80px', 'right'], ['QUANTITY', '90px', 'right'], ['ADJUSTED AT', '140px', 'left'], ['CATEGORY', '100px', 'left']],
+[['1', '4791111000031', 'Eggs x10', '[Delivery]', '6', '36', '+30', '[11/10 08:40]', 'Dairy'], ['2', '4791111000055', 'Fish Bun', '[Expired]', '8', '3', '−5', '[10/10 21:05]', 'Bakery'], ['3', '4791111000048', 'Water 500ml', '[Count]', '100', '96', '−4', '[10/10 18:30]', 'Drinks'], ['4', '4791111000017', 'Fresh Milk 1L', '[Damaged]', '44', '42', '−2', '[09/10 10:12]', 'Dairy']]]
+];
+const [colDefs, data] = specs[s.tab];
+const grid = colDefs.map((c) => c[1]).join(' ');
+const cols = colDefs.map(([name, w, align]) => ({ name, style: 'text-align: ' + align }));
+const rows = data.map((r) => r.map((text, j) => ({ text, style: 'font-size: 14px; text-align: ' + colDefs[j][2] + '; ' + (j === 2 ? 'font-weight: 700; font-size: 15px' : (j === 1 ? "font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #475467" : 'color: #344054')) })));
+return {
+tabs, cols, rows, title: names[s.tab], isSale: s.tab === 0, exporting: s.exporting,
+searchLabel: s.tab === 2 ? 'Barcode' : 'Barcode or Description', searchHint: s.tab === 2 ? 'Search Barcode' : 'Search Barcode or Enter Description',
+totalSales: f(items.reduce((a, d, i) => a + d[4] * sold[i], 0)),
+headRow: 'display: grid; grid-template-columns: ' + grid + '; gap: 10px; padding: 12px 20px; background: #F7F9FB; border-bottom: 1px solid #E3E8EF; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #667085',
+rowStyle: 'display: grid; grid-template-columns: ' + grid + '; gap: 10px; align-items: center; min-height: 52px; padding: 0 20px; border-bottom: 1px solid #EEF1F5; font-variant-numeric: tabular-nums',
+openExport: () => this.setState({ exporting: true }), closeExport: () => this.setState({ exporting: false })
+};
+}
+}
+</script>
+</body>
+</html>

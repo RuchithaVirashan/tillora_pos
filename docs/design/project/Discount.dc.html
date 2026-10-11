@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Discount</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #1A2436; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Discount" style="width: 860px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 30px; display: flex; gap: 26px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6)">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px">
+<div role="tablist" aria-label="Discount type" style="display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: #EEF1F5; width: fit-content">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{t.aria}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.name}}</button></sc-for>
+</div>
+<div style="border-radius: 16px; background: #F6F8FB; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 800">{{target}}</span><span style="font-size: 13px; color: #667085">{{targetSub}}</span></span>
+<span style="font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums">{{base}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="border-radius: 16px; border: 2px solid #163A6B; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #667085">Discount Value</span><span style="font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums">{{pct}}%</span></div>
+<div style="border-radius: 16px; background: #E3F5EE; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; color: #0B6B4A">Amount</span><span style="font-size: 28px; font-weight: 800; color: #0B6B4A; font-variant-numeric: tabular-nums">−{{off}}</span></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding: 0 4px"><span>New price</span><span style="font-variant-numeric: tabular-nums">{{after}}</span></div>
+<div style="margin-top: auto; display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px">
+<button type="button" onClick="{{reset}}" style="height: 58px; border-radius: 16px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 16px; font-weight: 800">Reset</button>
+<a href="Sales.dc.html" style="height: 58px; border-radius: 16px; background: #163A6B; color: #FFFFFF; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center">Apply discount</a>
+</div>
+</div>
+<div style="width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: flex-end"><a href="Sales.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; background: #EEF1F5; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{quick}}" as="q" hint-placeholder-count="4"><button type="button" onClick="{{q.press}}" style="height: 44px; border-radius: 11px; border: 1px solid #D3DEEE; background: #EAF0FA; color: #163A6B; font-size: 14px; font-weight: 800">{{q.label}}</button></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{keys}}" as="k" hint-placeholder-count="12"><button type="button" onClick="{{k.press}}" style="{{k.style}}">{{k.label}}</button></sc-for>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { tab: 0, pct: '10' }; }
+renderVals() {
+const s = this.state;
+const f = (v) => 'Rs ' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const names = ['Discount For Item', 'Discount For Sale'];
+const tabs = names.map((name, i) => ({
+name, aria: i === s.tab ? 'true' : 'false', pick: () => this.setState({ tab: i }),
+style: 'height: 42px; padding: 0 16px; border-radius: 10px; border: 0; font-size: 14px; font-weight: 800; ' + (i === s.tab ? 'background: #FFFFFF; color: #163A6B; box-shadow: 0 1px 3px rgba(16,24,40,0.15)' : 'background: transparent; color: #475467')
+}));
+const base = s.tab === 0 ? 1100 : 2080;
+const pct = Math.min(100, parseInt(s.pct || '0', 10));
+const off = Math.round(base * pct) / 100;
+const keys = ['7','8','9','4','5','6','1','2','3','.','0','DEL'].map((l) => ({
+label: l, press: () => this.setState({ pct: l === 'DEL' ? s.pct.slice(0, -1) : (s.pct + l).slice(0, 3) }),
+style: 'height: 60px; border-radius: 14px; font-weight: 700; ' + (l === 'DEL' ? 'border: 0; background: #E7EBF1; color: #273449; font-size: 15px; font-weight: 800' : 'border: 1px solid #DCE2EA; background: #FFFFFF; color: #0F1B2D; font-size: 22px')
+}));
+const quick = ['5', '10', '15', '20'].map((v) => ({ label: v + '%', press: () => this.setState({ pct: v }) }));
+return {
+tabs, keys, quick, pct: String(pct), off: f(off), base: f(base), after: f(base - off),
+target: s.tab === 0 ? 'Eggs x10 × 2' : 'Whole sale', targetSub: s.tab === 0 ? 'Selected line (Prod%)' : '5 items (Sale%)',
+reset: () => this.setState({ pct: '' })
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Void line or sale</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #1A2436; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Void" style="width: 640px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; padding: 30px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6)">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div role="tablist" aria-label="Void type" style="display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: #EEF1F5">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{t.aria}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.name}}</button></sc-for>
+</div>
+<a href="Sales.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; background: #EEF1F5; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; background: #FDECEA; border: 1px solid #F5C9C4; padding: 14px 18px">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 800; color: #A12A21">{{target}}</span><span style="font-size: 13px; color: #7E1F18">{{countLeft}}</span></span>
+<span style="font-size: 20px; font-weight: 800; color: #A12A21; font-variant-numeric: tabular-nums">{{amount}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 14px; font-weight: 700; color: #344054">Reason for {{tabName}}:</span>
+<div role="radiogroup" aria-label="Reason" style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{reasons}}" as="r" hint-placeholder-count="4"><button type="button" role="radio" aria-checked="{{r.aria}}" onClick="{{r.pick}}" style="{{r.style}}"><span style="{{r.dot}}"></span>{{r.name}}</button></sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px">
+<a href="Sales.dc.html" style="height: 58px; border-radius: 16px; border: 1px solid #DCE2EA; color: #344054; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center">Cancel</a>
+<a href="Sales.dc.html" style="{{confirmStyle}}">Confirm {{tabName}}</a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { tab: 0, sel: -1 }; }
+renderVals() {
+const s = this.state;
+const names = ['Void Line', 'Void Sale'];
+const tabs = names.map((name, i) => ({
+name, aria: i === s.tab ? 'true' : 'false', pick: () => this.setState({ tab: i, sel: -1 }),
+style: 'height: 42px; padding: 0 18px; border-radius: 10px; border: 0; font-size: 15px; font-weight: 800; ' + (i === s.tab ? 'background: #FFFFFF; color: #A12A21; box-shadow: 0 1px 3px rgba(16,24,40,0.15)' : 'background: transparent; color: #475467')
+}));
+const reasons = ['[Scanned in error]', '[Customer changed mind]', '[Wrong price]', '[Damaged item]'].map((name, i) => ({
+name, aria: i === s.sel ? 'true' : 'false', pick: () => this.setState({ sel: i }),
+dot: 'width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box; flex-shrink: 0; ' + (i === s.sel ? 'border: 6px solid #C0362C' : 'border: 2px solid #C3CCD8'),
+style: 'height: 54px; border-radius: 14px; padding: 0 16px; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 700; color: #0F1B2D; text-align: left; ' + (i === s.sel ? 'border: 2px solid #C0362C; background: #FDECEA' : 'border: 1px solid #E3E8EF; background: #FFFFFF')
+}));
+const line = s.tab === 0;
+return {
+tabs, reasons, tabName: names[s.tab],
+target: line ? 'Ambul Bananas 1kg × 1' : 'Whole sale · 5 items',
+amount: line ? 'Rs 320.00' : 'Rs 2,080.00',
+countLeft: line ? 'Void line count left: [8]' : 'Void sale count left: [2]',
+confirmStyle: 'height: 58px; border-radius: 16px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; ' + (s.sel >= 0 ? 'background: #C0362C; color: #FFFFFF' : 'background: #E3E8EF; color: #667085; pointer-events: none')
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hold and recall</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#163A6B;text-decoration:none}a:hover{color:#0D2547}
+button{font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #1A2436; font-family: 'Plus Jakarta Sans', sans-serif; color: #0F1B2D; display: flex; align-items: center; justify-content: center">
+<div role="dialog" aria-label="Hold and Recall" style="width: 1000px; height: 720px; box-sizing: border-box; background: #FFFFFF; border-radius: 28px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6)">
+<div style="height: 80px; flex-shrink: 0; box-sizing: border-box; padding: 0 28px; border-bottom: 1px solid #E3E8EF; display: flex; align-items: center; justify-content: space-between">
+<h1 style="margin: 0; font-size: 24px; font-weight: 800">Hold &amp; Recall</h1>
+<a href="Sales.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; background: #EEF1F5; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></a>
+</div>
+<div style="flex-grow: 1; min-height: 0; box-sizing: border-box; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; background: #FFF4DE; border: 1px solid #F3DDB0; padding: 16px 20px">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 16px; font-weight: 800; color: #8A5300">Current sale · 5 items · Rs 2,080.00</span><span style="font-size: 13px; color: #8A5300">Hold it to serve another customer</span></div>
+<a href="Sales.dc.html" style="height: 48px; padding: 0 22px; border-radius: 13px; background: #ED6700; color: #FFFFFF; font-size: 15px; font-weight: 800; display: flex; align-items: center">Hold</a>
+</div>
+<div style="flex-grow: 1; min-height: 0; border-radius: 16px; border: 1px solid #E3E8EF; overflow: hidden; display: flex; flex-direction: column">
+<div style="display: grid; grid-template-columns: 1fr 140px 160px; gap: 12px; padding: 12px 20px; background: #F7F9FB; border-bottom: 1px solid #E3E8EF; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: #667085"><span>DATE</span><span style="text-align: center">ITEMS COUNT</span><span style="text-align: right">TOTAL</span></div>
+<sc-for list="{{holds}}" as="h" hint-placeholder-count="3">
+<button type="button" onClick="{{h.pick}}" style="{{h.style}}"><span style="text-align: left; font-size: 15px; font-weight: 700">{{h.date}}</span><span style="text-align: center; font-size: 15px">{{h.count}}</span><span style="text-align: right; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums">{{h.total}}</span></button>
+</sc-for>
+</div>
+<sc-if value="{{asking}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 16px; background: #FDECEA; border: 1px solid #F5C9C4; padding: 14px 18px">
+<span style="font-size: 15px; font-weight: 700; color: #A12A21">Are you okay to clear cart before recalling?</span>
+<span style="display: flex; gap: 8px"><button type="button" onClick="{{cancelAsk}}" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 14px; font-weight: 800">Cancel</button><a href="Sales.dc.html" style="height: 44px; padding: 0 16px; border-radius: 12px; background: #C0362C; color: #FFFFFF; font-size: 14px; font-weight: 800; display: flex; align-items: center">Clear Cart</a></span>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button type="button" onClick="{{recallAll}}" style="height: 56px; border-radius: 15px; border: 1px solid #DCE2EA; background: #FFFFFF; color: #344054; font-size: 15px; font-weight: 800">Recall all hold items</button>
+<button type="button" onClick="{{recall}}" style="{{recallStyle}}">{{recallLabel}}</button>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { sel: -1, asking: false }; }
+renderVals() {
+const s = this.state;
+const data = [['[11 Oct 2026 · 10:20]', 3, 'Rs 1,240.00'], ['[11 Oct 2026 · 09:55]', 1, 'Rs 320.00'], ['[11 Oct 2026 · 09:31]', 6, 'Rs 3,410.00']];
+const holds = data.map(([date, count, total], i) => ({
+date, count: String(count), total, pick: () => this.setState({ sel: i, asking: false }),
+style: 'display: grid; grid-template-columns: 1fr 140px 160px; gap: 12px; align-items: center; min-height: 60px; padding: 0 20px; border: 0; border-bottom: 1px solid #EEF1F5; color: #0F1B2D; background: ' + (i === s.sel ? '#EDF3FC; box-shadow: inset 4px 0 0 #F5A524' : '#FFFFFF')
+}));
+const ready = s.sel >= 0;
+return {
+holds, asking: s.asking,
+recall: () => { if (ready) this.setState({ asking: true }); },
+recallAll: () => this.setState({ asking: true }),
+cancelAsk: () => this.setState({ asking: false }),
+recallLabel: ready ? 'Recall' : 'Please select hold before recalling',
+recallStyle: 'height: 56px; border-radius: 15px; border: 0; font-size: 15px; font-weight: 800; ' + (ready ? 'background: #163A6B; color: #FFFFFF' : 'background: #E3E8EF; color: #667085')
+};
+}
+}
+</script>
+</body>
+</html>
