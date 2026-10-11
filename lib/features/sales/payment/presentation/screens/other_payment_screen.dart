@@ -38,6 +38,9 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
   /// amount, capped below the balance.
   int get _payCents => _partial ? Money.toCents(double.tryParse(_amount) ?? 0) : _due;
 
+  /// The sale already has its first payment.
+  bool get _secondPayment => widget.cart.tenders.isNotEmpty;
+
   bool get _valid => _types != null && _types!.isNotEmpty && _payCents > 0 && (_partial ? _payCents < _due : true);
 
   @override
@@ -124,12 +127,18 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               value: _partial,
               activeTrackColor: AppColors.success,
-              onChanged: (v) => setState(() {
-                _partial = v;
-                _amount = '';
-              }),
+              // Only the first of the two payments can be partial.
+              onChanged: _secondPayment
+                  ? null
+                  : (v) => setState(() {
+                      _partial = v;
+                      _amount = '';
+                    }),
               title: Text('Partial Payment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: c.ink)),
-              subtitle: Text('Pay part of the balance with this type', style: TextStyle(fontSize: 14, color: c.muted)),
+              subtitle: Text(
+                _secondPayment ? 'Already part paid — this payment must complete the sale' : 'Pay part of the balance with this type',
+                style: TextStyle(fontSize: 14, color: c.muted),
+              ),
             ),
           ),
           const Spacer(),

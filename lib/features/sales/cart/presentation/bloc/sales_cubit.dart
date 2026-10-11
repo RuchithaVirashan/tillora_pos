@@ -309,6 +309,15 @@ class SalesCubit extends Cubit<SalesState> {
       );
     }
 
+    // A sale takes at most two payments (Transactions has method1 and
+    // method2), so after a part payment the next one must finish it.
+    if (cart.tenders.isNotEmpty && tender.amountCents < cart.dueCents) {
+      return _notify(
+        'Part payment allows two payments. Pay the remaining ${Money.lkr(Money.fromCents(cart.dueCents))} to complete the sale',
+        error: true,
+      );
+    }
+
     final paid = cart.withTender(tender);
     emit(state.copyWith(cart: paid, entry: ''));
     if (!paid.isPaid) return;

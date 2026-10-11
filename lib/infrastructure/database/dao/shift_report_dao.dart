@@ -42,21 +42,31 @@ class ShiftReportDao {
     int cents(Object? v) => Money.toCents((v as num?) ?? 0);
     final ended = shift?['ShiftEnd'] as String?;
 
-    // A part-paid sale counts towards each payment type it used: cash
-    // (less the change given) and card or another payment type.
+    // A part-paid sale counts towards both payment types it used, one per
+    // slot (method1/method2; ids 0 cash, -1 card, else a payment type).
+    // Change is only ever given from cash.
     final salesByMethod = {for (final r in byMethod) (r['type'] as String?) ?? 'Other': cents(r['total'])};
     if (salesByMethod.remove('PartPay') != null) {
       final parts = await _db.rawQuery(
-        'SELECT t.method2Id, p.payment_name, '
-        'SUM(CAST(t.method1 AS REAL) - t.cus_balance) AS cash, SUM(CAST(t.method2 AS REAL)) AS other '
-        'FROM Transactions t LEFT JOIN paymentType p ON p.id = t.method2Id '
-        "WHERE t.user_id = ? AND t.type = 'PartPay' GROUP BY t.method2Id",
+        'SELECT method1Id, method2Id, method1, method2, cus_balance FROM Transactions '
+        "WHERE user_id = ? AND type = 'PartPay'",
         [id],
       );
+      final typeNames = {
+        for (final r in await _db.query('paymentType', columns: ['id', 'payment_name'])) r['id'] as int: r['payment_name'] as String,
+      };
+      String name(Object? methodId) => switch (methodId) {
+        0 => 'Cash',
+        -1 => 'Card',
+        final int typeId => typeNames[typeId] ?? 'Other',
+        _ => 'Other',
+      };
       void add(String method, int value) => salesByMethod[method] = (salesByMethod[method] ?? 0) + value;
       for (final r in parts) {
-        add('Cash', cents(r['cash']));
-        add(r['method2Id'] == -1 ? 'Card' : (r['payment_name'] as String?) ?? 'Other', cents(r['other']));
+        add(name(r['method1Id']), cents(double.tryParse('${r['method1']}')));
+        add(name(r['method2Id']), cents(double.tryParse('${r['method2']}')));
+        final change = cents(r['cus_balance']);
+        if (change != 0) add('Cash', -change);
       }
     }
     return ShiftSummary(

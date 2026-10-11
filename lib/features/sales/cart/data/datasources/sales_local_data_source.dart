@@ -84,36 +84,26 @@ class SalesLocalDataSource {
 
   /// `type`, `method1/2` and `method1/2Id` for the tenders.
   ///
-  /// One payment type: `type` is that type and `method1` its total.
-  /// Mixed: `type` is `PartPay`, `method1` the cash total (id 0) and
-  /// `method2` everything else (id -1 for card, the payment type id when
-  /// it is a single other type). Every tender is counted, however many.
+  /// A sale has at most two payments, one per slot. Ids: 0 cash, -1 card,
+  /// otherwise the payment type id. Two different types make `PartPay`.
   static Map<String, Object?> _paymentColumns(List<Tender> tenders) {
-    String amount(int cents) => Money.fromCents(cents).toStringAsFixed(2);
+    assert(tenders.length <= 2, 'A sale takes at most two payments');
+    String amount(Tender? t) => t == null ? '0.0' : Money.fromCents(t.amountCents).toStringAsFixed(2);
+    int? id(Tender? t) => switch (t?.method) {
+      null => null,
+      Tender.cashMethod => 0,
+      Tender.cardMethod => -1,
+      _ => t!.typeId,
+    };
+    final first = tenders.elementAtOrNull(0);
+    final second = tenders.elementAtOrNull(1);
     final methods = {for (final t in tenders) t.method};
-    if (methods.length <= 1) {
-      return {
-        'type': methods.firstOrNull ?? Tender.cashMethod,
-        'method1': amount(tenders.fold(0, (s, t) => s + t.amountCents)),
-        'method2': '0.0',
-        'method1Id': tenders.firstOrNull?.typeId,
-        'method2Id': null,
-      };
-    }
-    final cash = tenders.where((t) => t.method == Tender.cashMethod);
-    final other = tenders.where((t) => t.method != Tender.cashMethod).toList();
-    final otherMethods = {for (final t in other) t.method};
-    final otherId = otherMethods.length != 1
-        ? null
-        : otherMethods.single == Tender.cardMethod
-        ? -1
-        : other.first.typeId;
     return {
-      'type': 'PartPay',
-      'method1': amount(cash.fold(0, (s, t) => s + t.amountCents)),
-      'method2': amount(other.fold(0, (s, t) => s + t.amountCents)),
-      'method1Id': 0,
-      'method2Id': otherId,
+      'type': methods.length > 1 ? 'PartPay' : (methods.firstOrNull ?? Tender.cashMethod),
+      'method1': amount(first),
+      'method2': amount(second),
+      'method1Id': id(first),
+      'method2Id': id(second),
     };
   }
 }
