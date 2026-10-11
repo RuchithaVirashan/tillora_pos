@@ -2,12 +2,22 @@
 abstract final class Routes {
   static const home = '/';
   static const login = '/login/:module';
+  static String loginFor(String moduleSlug) => '/login/$moduleSlug';
 
-  // Sales
+  // Sales. Dialog routes open over the till and return a result with pop().
   static const sales = '/sales';
   static const otherPayment = '/sales/other-payment';
   static const transactions = '/sales/transactions';
   static const holdRecall = '/sales/hold-recall';
+  static const voidReason = '/sales/void';
+  static const noSale = '/sales/no-sale';
+  static const priceCheck = '/sales/price-check';
+  static const drawerFloat = '/sales/drawer-float';
+  static const discount = '/sales/discount';
+  static const payout = '/sales/payout';
+  static const weight = '/sales/weight';
+  static const moreFunctions = '/sales/more-functions';
+  static const cashLift = '/sales/more-functions/cash-lift';
   static const shiftEnd = '/sales/shift-end';
 
   // Product management
