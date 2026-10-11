@@ -287,21 +287,26 @@ class SalesCubit extends Cubit<SalesState> {
   // ── Payment ───────────────────────────────────────────────────────────
 
   /// CASH: typed amount if any, else the exact balance.
-  Future<void> payCash() {
-    final typed = double.tryParse(state.entry);
-    final cents = typed != null && typed > 0 ? Money.toCents(typed) : state.cart.dueCents;
-    return pay(Tender.cash(cents));
-  }
+  Future<void> payCash() => pay(Tender.cash(_typedOrDue()));
 
-  /// CARD always takes the exact balance (no cash back on card).
-  Future<void> payCard() => pay(Tender.card(state.cart.dueCents));
+  /// CARD: typed amount for a part payment, else the exact balance.
+  /// A card can't take more than the balance (no cash back on card).
+  Future<void> payCard() => pay(Tender.card(_typedOrDue()));
+
+  int _typedOrDue() {
+    final typed = double.tryParse(state.entry);
+    return typed != null && typed > 0 ? Money.toCents(typed) : state.cart.dueCents;
+  }
 
   Future<void> pay(Tender tender) async {
     final cart = state.cart;
     if (state.saleComplete || cart.isEmpty) return _notify('Scan an item first', error: true);
     if (tender.amountCents <= 0) return;
     if (tender.method != Tender.cashMethod && tender.amountCents > cart.dueCents) {
-      return _notify('Only cash can be more than the balance', error: true);
+      return _notify(
+        '${tender.method} cannot be more than the balance of ${Money.lkr(Money.fromCents(cart.dueCents))}',
+        error: true,
+      );
     }
 
     final paid = cart.withTender(tender);

@@ -41,12 +41,30 @@ class ShiftReportDao {
 
     int cents(Object? v) => Money.toCents((v as num?) ?? 0);
     final ended = shift?['ShiftEnd'] as String?;
+
+    // A part-paid sale counts towards each payment type it used: cash
+    // (less the change given) and card or another payment type.
+    final salesByMethod = {for (final r in byMethod) (r['type'] as String?) ?? 'Other': cents(r['total'])};
+    if (salesByMethod.remove('PartPay') != null) {
+      final parts = await _db.rawQuery(
+        'SELECT t.method2Id, p.payment_name, '
+        'SUM(CAST(t.method1 AS REAL) - t.cus_balance) AS cash, SUM(CAST(t.method2 AS REAL)) AS other '
+        'FROM Transactions t LEFT JOIN paymentType p ON p.id = t.method2Id '
+        "WHERE t.user_id = ? AND t.type = 'PartPay' GROUP BY t.method2Id",
+        [id],
+      );
+      void add(String method, int value) => salesByMethod[method] = (salesByMethod[method] ?? 0) + value;
+      for (final r in parts) {
+        add('Cash', cents(r['cash']));
+        add(r['method2Id'] == -1 ? 'Card' : (r['payment_name'] as String?) ?? 'Other', cents(r['other']));
+      }
+    }
     return ShiftSummary(
       userName: (shift?['userName'] as String?) ?? '',
       startedAt: DbDate.tryParse(shift?['ShiftStarted'] as String?) ?? DateTime.now(),
       endedAt: DbDate.tryParse(ended) ?? DateTime.now(),
       drawerFloatCents: cents(shift?['drawfloat']),
-      salesByMethod: {for (final r in byMethod) (r['type'] as String?) ?? 'Other': cents(r['total'])},
+      salesByMethod: salesByMethod,
       refundsCents: cents(refunds.first['total']),
       cashLiftsCents: cents(lifts.first['total']),
       salesByDepartment: {

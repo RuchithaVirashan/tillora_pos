@@ -28,20 +28,14 @@ class SalesLocalDataSource {
   Future<int> saveSale(Cart cart, {required int logId, required Map<int, String> departments}) {
     return _db.transaction((txn) async {
       final sign = cart.refund ? -1 : 1;
-      final tenders = cart.tenders;
-      final methods = tenders.map((t) => t.method).toSet();
-      final type = methods.length == 1 ? methods.first : 'PartPay';
+      final pay = _paymentColumns(cart.tenders);
 
       final transactionId = await txn.insert('Transactions', {
         'total_payable': Money.fromCents(cart.totalCents),
         'cus_paid_amount': Money.fromCents(cart.paidCents),
         'cus_balance': Money.fromCents(cart.changeCents),
         'transaction_date': DbDate.now(),
-        'type': type,
-        'method1': tenders.isNotEmpty ? Money.fromCents(tenders[0].amountCents).toStringAsFixed(2) : '0.0',
-        'method2': tenders.length > 1 ? Money.fromCents(tenders[1].amountCents).toStringAsFixed(2) : '0.0',
-        'method1Id': tenders.isNotEmpty ? tenders[0].typeId : null,
-        'method2Id': tenders.length > 1 ? tenders[1].typeId : null,
+        ...pay,
         // Holds the shift id; reports group transactions by it.
         'user_id': '$logId',
         'item_count': cart.itemCount,
@@ -86,5 +80,40 @@ class SalesLocalDataSource {
       await batch.commit(noResult: true);
       return transactionId;
     });
+  }
+
+  /// `type`, `method1/2` and `method1/2Id` for the tenders.
+  ///
+  /// One payment type: `type` is that type and `method1` its total.
+  /// Mixed: `type` is `PartPay`, `method1` the cash total (id 0) and
+  /// `method2` everything else (id -1 for card, the payment type id when
+  /// it is a single other type). Every tender is counted, however many.
+  static Map<String, Object?> _paymentColumns(List<Tender> tenders) {
+    String amount(int cents) => Money.fromCents(cents).toStringAsFixed(2);
+    final methods = {for (final t in tenders) t.method};
+    if (methods.length <= 1) {
+      return {
+        'type': methods.firstOrNull ?? Tender.cashMethod,
+        'method1': amount(tenders.fold(0, (s, t) => s + t.amountCents)),
+        'method2': '0.0',
+        'method1Id': tenders.firstOrNull?.typeId,
+        'method2Id': null,
+      };
+    }
+    final cash = tenders.where((t) => t.method == Tender.cashMethod);
+    final other = tenders.where((t) => t.method != Tender.cashMethod).toList();
+    final otherMethods = {for (final t in other) t.method};
+    final otherId = otherMethods.length != 1
+        ? null
+        : otherMethods.single == Tender.cardMethod
+        ? -1
+        : other.first.typeId;
+    return {
+      'type': 'PartPay',
+      'method1': amount(cash.fold(0, (s, t) => s + t.amountCents)),
+      'method2': amount(other.fold(0, (s, t) => s + t.amountCents)),
+      'method1Id': 0,
+      'method2Id': otherId,
+    };
   }
 }
