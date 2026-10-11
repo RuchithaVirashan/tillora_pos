@@ -159,7 +159,28 @@ class SalesCubit extends Cubit<SalesState> {
   }
 
   /// Quick item tiles skip the lookup but still get the age check.
-  void addQuickItem(SellableItem item) => _accept(ScanOutcome(item: item, expired: item.isExpiredOn(DateTime.now())));
+  ///
+  /// An item with no price (a department key) is sold at the price typed on
+  /// the keypad first.
+  void addQuickItem(SellableItem item) {
+    if (item.priceCents > 0) {
+      return _accept(ScanOutcome(item: item, expired: item.isExpiredOn(DateTime.now())));
+    }
+    final typed = double.tryParse(state.entry) ?? 0;
+    if (typed <= 0) return _notify('Type the price, then tap ${item.description}', error: true);
+    final priced = SellableItem(
+      description: item.description,
+      barcode: item.barcode,
+      priceCents: Money.toCents(typed),
+      departmentId: item.departmentId,
+      departmentName: item.departmentName,
+      vat: item.vat,
+      ageLimit: item.ageLimit,
+      source: item.source,
+    );
+    emit(state.copyWith(entry: ''));
+    _accept(ScanOutcome(item: priced));
+  }
 
   void _accept(ScanOutcome outcome) {
     if (outcome.needsAgeCheck && ageCheckEnabled) {

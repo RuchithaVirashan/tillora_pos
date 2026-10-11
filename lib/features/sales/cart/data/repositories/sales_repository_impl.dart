@@ -40,7 +40,7 @@ class SalesRepositoryImpl implements SalesRepository {
     try {
       final departments = await _departmentNames();
       final rows = await _local.quickItems();
-      return Ok([for (final r in rows) _toItem({...r, 'source': 'product'}, departments)]);
+      return Ok([for (final r in rows) _toItem(r, departments)]);
     } catch (e) {
       return Err(DatabaseFailure('Could not load quick items: $e'));
     }
@@ -109,6 +109,7 @@ class SalesRepositoryImpl implements SalesRepository {
       source: switch (r['source']) {
         'lottery' => ItemSource.lottery,
         'news' => ItemSource.news,
+        'manual' => ItemSource.manual,
         _ => ItemSource.product,
       },
     );
