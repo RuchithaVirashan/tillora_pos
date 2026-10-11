@@ -31,26 +31,21 @@ class AppDatabase {
       options: OpenDatabaseOptions(
         version: schemaVersion,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-        onCreate: (db, version) => db.transaction((txn) async {
+        onUpgrade: (db, from, to) async {
+          // Add one migration file per version under infrastructure/database/migrations/.
+        },
+        // Runs on every open, not just onCreate: a file already at version 38
+        // skips onCreate, so missing tables, indexes and first-run data are
+        // added here. Every statement is IF NOT EXISTS, so this is cheap.
+        onOpen: (db) => db.transaction((txn) async {
           final batch = txn.batch();
           for (final sql in [...Schema.tables, ...Schema.indexes]) {
             batch.execute(sql);
           }
           await batch.commit(noResult: true);
-          await DefaultData.seed(txn);
+          final users = await txn.rawQuery('SELECT COUNT(*) AS n FROM userDetails');
+          if (users.first['n'] == 0) await DefaultData.seed(txn);
         }),
-        onUpgrade: (db, from, to) async {
-          // Add one migration file per version under infrastructure/database/migrations/.
-        },
-        // An existing database at version 38 skips onCreate/onUpgrade;
-        // make sure it has the indexes.
-        onOpen: (db) async {
-          final batch = db.batch();
-          for (final sql in Schema.indexes) {
-            batch.execute(sql);
-          }
-          await batch.commit(noResult: true);
-        },
       ),
     );
   }
