@@ -41,8 +41,6 @@ abstract final class Routes {
   static const salesManager = '/back-office/sales-manager';
   static const stockManager = '/back-office/stock';
   static const barcodeProducts = '/back-office/barcode-products';
-  static const lottery = '/back-office/lottery';
-  static const newsMagazines = '/back-office/news-magazines';
   static const labelPrinter = '/back-office/label-printer';
   static const promotions = '/back-office/promotions';
   static const boReports = '/back-office/reports';

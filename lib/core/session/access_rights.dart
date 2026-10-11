@@ -37,7 +37,7 @@ class AccessRights extends Equatable {
     voidLine, voidLineCount, refund, cashLift, productDiscount, saleDiscount, priceUpdate,
     'swapPayTypeAccess', 'departmentManagerAccess', 'userManagerAccess',
     'paymentTypeManagerAccess', 'roleAccessManagerAccess', 'salesManagerAccess',
-    'stockManagerAccess', productManager, 'onlineLotteryAccess', 'newsPaperMagazineAccess',
+    'stockManagerAccess', productManager,
     'labelPrinterAccess', 'promotionManagerAccess', 'manageNonBarcodeProductsAccess',
     'addWeightProductsAccess', 'managePayoutProductAccess', 'adjustStockAccess', priceCheck,
     'liveShiftReportAccess', 'allShiftReportAccess', 'exceptionsAccess', 'quickLabelAccess',

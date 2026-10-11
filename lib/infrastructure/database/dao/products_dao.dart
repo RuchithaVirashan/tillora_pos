@@ -13,7 +13,7 @@ class ProductsDao {
   static final _pColumns = _columns.split(', ').map((c) => 'p.$c').join(', ');
 
   /// Resolves a scanned code to one sellable row, in this order:
-  /// main barcode, secondary barcode (with its own price), lottery, news.
+  /// main barcode, then secondary barcode (with its own price).
   /// One query against `COLLATE NOCASE` indexes.
   Future<Map<String, Object?>?> findByBarcode(String barcode) async {
     final code = barcode.trim();
@@ -27,12 +27,6 @@ SELECT * FROM (
          p.expiryDate, p.caseBarcode, p.pluCode, 'product', 1
     FROM secondaryBarcode s JOIN products p ON p.id = s.prodId
    WHERE s.barcode = ?1 COLLATE NOCASE
-  UNION ALL
-  SELECT id, description, barcode, price, departmentId, NULL, vat, ageRefusal, NULL, NULL, NULL, 'lottery', 2
-    FROM lottery WHERE barcode = ?1 COLLATE NOCASE
-  UNION ALL
-  SELECT id, description, barcode, price, departmentId, stock, vat, ageRefusal, NULL, caseBarcode, pluCode, 'news', 3
-    FROM newsAndMagazines WHERE barcode = ?1 COLLATE NOCASE
 ) ORDER BY rank LIMIT 1''', [code]);
     return rows.isEmpty ? null : rows.first;
   }

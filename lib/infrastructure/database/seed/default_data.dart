@@ -37,7 +37,7 @@ abstract final class DefaultData {
       batch.insert('posMessages', {'parameter': type, 'value': text});
     }
 
-    for (final name in ['Wages', 'Lottery', 'Fuel', 'Bonus', 'Fruit']) {
+    for (final name in ['Wages', 'Fuel', 'Bonus', 'Fruit']) {
       batch.insert('payoutItems', {'PayoutName': name});
     }
 
@@ -127,10 +127,8 @@ abstract final class DefaultData {
     (3, 'Bakery', 0.0, 0),
     (4, 'Produce', 0.0, 0),
     (5, 'Drinks', 0.0, 0),
-    (6, 'Lottery', 0.0, 0),
     (7, 'Tobacco', 0.0, 21),
     (8, 'Alcohol', 0.0, 21),
-    (9, 'Newspapers', 0.0, 0),
     (10, 'Default', 0.0, 0),
   ];
 
@@ -143,8 +141,6 @@ abstract final class DefaultData {
     ('receiptFooter', 'THANK YOU FOR YOUR VISIT!'),
     ('ageRefusal', 'Enabled'),
     ('terminalName', 'POS-01'),
-    ('lotteryDepartment', '6'),
-    ('newsDepartment', '9'),
   ];
 
   static const _posMessages = [
@@ -163,14 +159,13 @@ abstract final class DefaultData {
 
   static const _managerDenied = {
     'userManagerAccess', 'paymentTypeManagerAccess', 'roleAccessManagerAccess',
-    'onlineLotteryAccess', 'newsPaperMagazineAccess',
   };
 
   static const _cashierDenied = {
     AccessRights.backOffice, AccessRights.cashLift, AccessRights.saleDiscount, AccessRights.priceUpdate,
     'departmentManagerAccess', 'userManagerAccess', 'paymentTypeManagerAccess', 'roleAccessManagerAccess',
-    'salesManagerAccess', 'stockManagerAccess', AccessRights.productManager, 'onlineLotteryAccess',
-    'newsPaperMagazineAccess', 'labelPrinterAccess', 'promotionManagerAccess',
+    'salesManagerAccess', 'stockManagerAccess', AccessRights.productManager,
+    'labelPrinterAccess', 'promotionManagerAccess',
     'manageNonBarcodeProductsAccess', 'addWeightProductsAccess', 'managePayoutProductAccess',
     'adjustStockAccess', 'allShiftReportAccess', 'exceptionsAccess', 'quickLabelAccess',
     'restorePromotionAccess', 'expiredItemsAccess', 'stockMovementReportAccess', 'saleReportAccess',

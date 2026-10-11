@@ -39,7 +39,7 @@ class AppDatabase {
         // added here. Every statement is IF NOT EXISTS, so this is cheap.
         onOpen: (db) => db.transaction((txn) async {
           final batch = txn.batch();
-          for (final sql in [...Schema.tables, ...Schema.indexes]) {
+          for (final sql in [...Schema.dropped, ...Schema.tables, ...Schema.indexes]) {
             batch.execute(sql);
           }
           await batch.commit(noResult: true);
