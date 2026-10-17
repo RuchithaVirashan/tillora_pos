@@ -13,6 +13,7 @@ import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/pos_dialog.dart';
 import '../../domain/usecases/set_auto_print.dart';
+import '../widgets/currency_converter_dialog.dart';
 import '../widgets/reset_void_dialog.dart';
 
 /// MoreFunctions.dc.html.
@@ -72,8 +73,6 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
     }
   }
 
-  void _notPorted(String name) => showToast(context, '$name is not ported yet');
-
   Future<void> _cashLift() async {
     final lifted = await context.push<bool>(Routes.cashLift);
     if (lifted == true && mounted) {
@@ -93,8 +92,8 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
       _Fn('Open Calculator', 'Opens the system calculator', Icons.calculate_outlined, const Color(0xFF3B4A60), const Color(0xFFEEF1F5), _calculator),
       _Fn('Auto Print', _autoPrint ? 'On · print after every sale' : 'Off', Icons.print_outlined, const Color(0xFF2952A3), const Color(0xFFE8EEFB),
           _toggleAutoPrint, on: _autoPrint),
-      _Fn('Currency Converter', 'Not ported yet', Icons.currency_exchange_rounded, const Color(0xFF9A5B00), const Color(0xFFFFF3DC),
-          () => _notPorted('Currency Converter')),
+      _Fn('Currency Converter', 'Foreign money to rupees', Icons.currency_exchange_rounded, const Color(0xFF9A5B00), const Color(0xFFFFF3DC),
+          () => showDialog<void>(context: context, builder: (_) => const CurrencyConverterDialog())),
       _Fn('Reset Void Counts', 'Admin approves a fresh count', Icons.restart_alt_rounded, const Color(0xFFB4233C), const Color(0xFFFDECEE),
           () => showDialog<bool>(context: context, builder: (_) => const ResetVoidDialog())),
       _Fn('Training Mode', _training.value ? 'On · practice sales are not saved' : 'Off', Icons.school_outlined, const Color(0xFF5B3FB0), const Color(0xFFEFEAFB),
