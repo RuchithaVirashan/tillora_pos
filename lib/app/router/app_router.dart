@@ -90,7 +90,7 @@ final appRouter = GoRouter(
         _dialog('payout', (_) => const PayoutScreen()),
         _dialog('weight', (_) => const WeightScreen()),
         _dialog('quick-items', (s) => QuickItemsScreen(items: s.extra! as List<SellableItem>)),
-        _dialog('more-functions', (_) => const MoreFunctionsScreen(), routes: [_dialog('cash-lift', (_) => const CashLiftScreen())]),
+        _dialog('more-functions', (s) => MoreFunctionsScreen(saleInProgress: s.extra as bool? ?? false), routes: [_dialog('cash-lift', (_) => const CashLiftScreen())]),
         GoRoute(
           path: 'shift-end',
           pageBuilder: (context, state) => NoTransitionPage(

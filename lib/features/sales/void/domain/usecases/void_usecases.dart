@@ -1,5 +1,6 @@
 import '../../../../../core/errors/failures.dart';
 import '../../../../../core/errors/result.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../../../core/session/access_rights.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../cart/domain/entities/cart.dart';
@@ -33,12 +34,16 @@ class GetVoidOptions {
 
 /// Records the void with its reason. The caller then removes the lines.
 class RecordVoid {
-  const RecordVoid(this._repository);
+  const RecordVoid(this._repository, [this._training]);
 
   final VoidRepository _repository;
+  final TrainingMode? _training;
 
-  Future<Result<void>> call(VoidKind kind, {required String reason, required int logId, required List<CartLine> lines}) =>
-      _repository.record(kind, reason: reason, logId: logId, lines: lines);
+  /// Practice voids are not logged.
+  Future<Result<void>> call(VoidKind kind, {required String reason, required int logId, required List<CartLine> lines}) async {
+    if (_training?.value ?? false) return const Ok(null);
+    return _repository.record(kind, reason: reason, logId: logId, lines: lines);
+  }
 }
 
 (String, String) _flags(VoidKind kind) => kind == VoidKind.line

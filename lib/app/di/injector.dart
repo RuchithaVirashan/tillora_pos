@@ -8,6 +8,7 @@ import '../../core/platform/customer_display.dart';
 import '../../core/platform/platform_info.dart';
 import '../../core/platform/report_output.dart';
 import '../../core/platform/system_tools.dart';
+import '../../core/session/training_mode.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/recent_logins_store.dart';
@@ -176,6 +177,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerLazySingleton<CustomerDisplay>(() => PlatformInfo.isDesktop ? MultiWindowCustomerDisplay() : NoCustomerDisplay())
     ..registerSingleton<SessionHolder>(SessionHolder())
+    ..registerSingleton(TrainingMode())
     ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
     ..registerLazySingleton(() => ProductsDao(db))
     ..registerLazySingleton(() => ShiftDao(db))
@@ -200,7 +202,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   getIt
     ..registerLazySingleton<SalesRepository>(() => SalesRepositoryImpl(SalesLocalDataSource(db, getIt()), getIt(), getIt(), getIt()))
     ..registerFactory(() => ScanItem(getIt()))
-    ..registerFactory(() => CompleteSale(getIt()))
+    ..registerFactory(() => CompleteSale(getIt(), getIt<TrainingMode>()))
     ..registerFactory(() => GetQuickItems(getIt()))
     ..registerFactory(() => GetActivePromotions(getIt()))
     ..registerFactory(() => RecordAgeRefusal(getIt()))
@@ -211,13 +213,13 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   getIt
     ..registerLazySingleton<VoidRepository>(() => VoidRepositoryImpl(getIt()))
     ..registerFactory(() => GetVoidOptions(getIt()))
-    ..registerFactory(() => RecordVoid(getIt()))
+    ..registerFactory(() => RecordVoid(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<NoSaleRepository>(() => NoSaleRepositoryImpl(getIt(), getIt()))
-    ..registerFactory(() => GetNoSaleOptions(getIt()))
-    ..registerFactory(() => OpenDrawerNoSale(getIt()))
+    ..registerFactory(() => GetNoSaleOptions(getIt(), getIt<TrainingMode>()))
+    ..registerFactory(() => OpenDrawerNoSale(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<HoldRepository>(() => HoldRepositoryImpl(db))
     ..registerFactory(() => GetHeldSales(getIt()))
-    ..registerFactory(() => HoldSale(getIt()))
+    ..registerFactory(() => HoldSale(getIt(), getIt<TrainingMode>()))
     ..registerFactory(() => RecallSale(getIt()))
     ..registerLazySingleton<PaymentTypeRepository>(() => PaymentTypeRepositoryImpl(db))
     ..registerFactory(() => GetPaymentTypes(getIt()))
@@ -230,7 +232,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<PayoutRepository>(() => PayoutRepositoryImpl(db))
     ..registerFactory(() => GetPayoutReasons(getIt()))
     ..registerLazySingleton<CashLiftRepository>(() => CashLiftRepositoryImpl(db, getIt()))
-    ..registerFactory(() => LiftCash(getIt()))
+    ..registerFactory(() => LiftCash(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<TransactionsRepository>(() => TransactionsRepositoryImpl(db))
     ..registerFactory(() => GetShiftTransactions(getIt()))
     ..registerFactory(() => GetTransactionLines(getIt()))

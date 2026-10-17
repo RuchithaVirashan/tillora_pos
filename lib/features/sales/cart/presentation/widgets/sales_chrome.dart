@@ -14,10 +14,14 @@ class SalesHeader extends StatelessWidget {
     required this.refund,
     required this.actions,
     this.compact = false,
+    this.training = false,
   });
 
   final String companyName;
   final bool refund;
+
+  /// Training Mode is on: the pill says so.
+  final bool training;
   final SalesActions actions;
   final bool compact;
 
@@ -41,7 +45,7 @@ class SalesHeader extends StatelessWidget {
             ),
           ],
           const Spacer(),
-          _ModePill(refund: refund),
+          _ModePill(refund: refund, training: training),
           const Spacer(),
           if (compact)
             PopupMenuButton<VoidCallback>(
@@ -68,9 +72,10 @@ class SalesHeader extends StatelessWidget {
 }
 
 class _ModePill extends StatelessWidget {
-  const _ModePill({required this.refund});
+  const _ModePill({required this.refund, this.training = false});
 
   final bool refund;
+  final bool training;
 
   @override
   Widget build(BuildContext context) {
@@ -80,16 +85,18 @@ class _ModePill extends StatelessWidget {
         height: 34,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: refund ? AppColors.danger : Colors.white.withValues(alpha: 0.08),
+          color: training ? AppColors.amber : (refund ? AppColors.danger : Colors.white.withValues(alpha: 0.08)),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(radius: 4, backgroundColor: refund ? Colors.white : AppColors.live),
+            CircleAvatar(radius: 4, backgroundColor: training ? AppColors.navy : (refund ? Colors.white : AppColors.live)),
             const SizedBox(width: 8),
-            Text(refund ? 'REFUND' : 'SALES',
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 1.5)),
+            Text(
+              [if (training) 'TRAINING', refund ? 'REFUND' : 'SALES'].join(' · '),
+              style: TextStyle(color: training ? AppColors.navy : Colors.white, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 1.5),
+            ),
           ],
         ),
       ),

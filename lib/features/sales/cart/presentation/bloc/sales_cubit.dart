@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/platform/alert_sounds.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/utils/money.dart';
 import '../../domain/entities/active_promotion.dart';
@@ -369,6 +370,7 @@ class SalesCubit extends Cubit<SalesState> {
     switch (result) {
       case Ok(:final value):
         emit(state.copyWith(busy: false, lastTransactionId: () => value));
+        if (value == TrainingMode.practiceSaleId) return _notify('Practice sale complete. Training Mode does not save sales');
         if (autoPrint()) await _print(value);
       case Err(:final failure):
         // Roll back the tender so the cashier can retry.
@@ -386,6 +388,7 @@ class SalesCubit extends Cubit<SalesState> {
   Future<void> reprintLast() async {
     final id = state.lastTransactionId;
     if (id == null) return _notify('No completed sale to print', error: true);
+    if (id == TrainingMode.practiceSaleId) return _notify('Practice sales have no receipt', error: true);
     await _print(id);
   }
 

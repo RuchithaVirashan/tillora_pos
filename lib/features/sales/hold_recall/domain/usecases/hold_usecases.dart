@@ -1,5 +1,6 @@
 import '../../../../../core/errors/failures.dart';
 import '../../../../../core/errors/result.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../cart/domain/entities/cart.dart';
 import '../entities/held_sale.dart';
 import '../repositories/hold_repository.dart';
@@ -12,10 +13,12 @@ class GetHeldSales {
 }
 
 class HoldSale {
-  const HoldSale(this._repository);
+  const HoldSale(this._repository, [this._training]);
   final HoldRepository _repository;
+  final TrainingMode? _training;
 
   Future<Result<void>> call(Cart cart, {required int logId}) {
+    if (_training?.value ?? false) return Future.value(Err(ValidationFailure(TrainingMode.unavailable('Hold'))));
     if (cart.isEmpty) return Future.value(const Err(ValidationFailure('There is nothing to hold')));
     if (cart.tenders.isNotEmpty) return Future.value(const Err(ValidationFailure('A part-paid sale cannot be held')));
     if (cart.refund) return Future.value(const Err(ValidationFailure('Refunds cannot be held')));

@@ -8,6 +8,7 @@ import '../../../../../core/errors/result.dart';
 import '../../../../../core/platform/customer_display.dart';
 import '../../../../../core/platform/system_tools.dart';
 import '../../../../../core/responsive/breakpoints.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/pos_dialog.dart';
@@ -16,7 +17,11 @@ import '../widgets/reset_void_dialog.dart';
 
 /// MoreFunctions.dc.html.
 class MoreFunctionsScreen extends StatefulWidget {
-  const MoreFunctionsScreen({super.key});
+  const MoreFunctionsScreen({super.key, this.saleInProgress = false});
+
+  /// Training Mode only switches between sales, so a real sale is never
+  /// left unsaved and a practice one never saved.
+  final bool saleInProgress;
 
   @override
   State<MoreFunctionsScreen> createState() => _MoreFunctionsScreenState();
@@ -26,6 +31,23 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
   bool _autoPrint = getIt<TerminalInfoHolder>().value.autoPrint;
   bool _display = getIt<CustomerDisplay>().isOpen;
   final _displaySupported = getIt<CustomerDisplay>().isSupported;
+  final _training = getIt<TrainingMode>();
+
+  Future<void> _toggleTraining() async {
+    if (widget.saleInProgress) return showToast(context, 'Finish or void the current sale first', error: true);
+    final on = !_training.value;
+    final ok = await confirm(
+      context,
+      title: on ? 'Start Training Mode?' : 'Leave Training Mode?',
+      message: on
+          ? 'Sales will not be saved, stock and the drawer are left alone, and No Sale, Cash Lift and Hold are off.'
+          : 'Sales are saved again from the next one.',
+      confirmLabel: on ? 'Start' : 'Leave',
+    );
+    if (!ok || !mounted) return;
+    setState(() => _training.value = on);
+    showToast(context, on ? 'Training Mode on' : 'Training Mode off');
+  }
 
   Future<void> _toggleDisplay() async {
     if (!_displaySupported) return showToast(context, 'No customer display on this device', error: true);
@@ -75,7 +97,8 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
           () => _notPorted('Currency Converter')),
       _Fn('Reset Void Counts', 'Admin approves a fresh count', Icons.restart_alt_rounded, const Color(0xFFB4233C), const Color(0xFFFDECEE),
           () => showDialog<bool>(context: context, builder: (_) => const ResetVoidDialog())),
-      _Fn('Training Mode', 'Not ported yet', Icons.school_outlined, const Color(0xFF5B3FB0), const Color(0xFFEFEAFB), () => _notPorted('Training Mode')),
+      _Fn('Training Mode', _training.value ? 'On · practice sales are not saved' : 'Off', Icons.school_outlined, const Color(0xFF5B3FB0), const Color(0xFFEFEAFB),
+          _toggleTraining, on: _training.value),
       _Fn(
         'Customer Display',
         !_displaySupported ? 'Not available on this device' : (_display ? 'On · second screen showing' : 'Off'),
@@ -124,7 +147,7 @@ class _FnTile extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       button: true,
-      toggled: fn.name == 'Auto Print' || fn.name == 'Customer Display' ? fn.on : null,
+      toggled: fn.name == 'Auto Print' || fn.name == 'Customer Display' || fn.name == 'Training Mode' ? fn.on : null,
       child: Material(
         color: c.surface,
         shape: RoundedRectangleBorder(
