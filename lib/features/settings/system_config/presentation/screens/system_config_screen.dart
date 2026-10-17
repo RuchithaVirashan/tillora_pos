@@ -180,7 +180,7 @@ class _SystemConfigScreenState extends State<SystemConfigScreen> {
     }
 
     return [
-      picker('Receipt Printer', s.receiptPrinter, (v) => _edit((s) => s.copyWith(receiptPrinter: () => v)), 'Receipts and till roll reports print here.'),
+      picker('Receipt Printer', s.receiptPrinter, (v) => _edit((s) => s.copyWith(receiptPrinter: () => v)), 'Receipts and till roll reports print here, and the cash drawer opens through it.'),
       const SizedBox(height: 16),
       LabeledField(
         label: 'Printer Paper Size',
