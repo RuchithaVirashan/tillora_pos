@@ -70,6 +70,7 @@ SELECT p.id, p.description, p.promotionType, p.qty, p.amount, i.productId, i.gro
           // Promotion lines name their promotion and the discount given.
           'promo': line.isPromotion ? jsonEncode({'promoId': line.promotionId}) : '',
           'promo_val': line.isPromotion ? Money.fromCents(-line.amountCents) : 0.0,
+          'productId': item.source == ItemSource.product ? item.productId : null,
         });
         batch.insert('SoldItems', {
           'TranId': transactionId,

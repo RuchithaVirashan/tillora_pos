@@ -46,11 +46,20 @@ class AppDatabase {
             batch.execute(sql);
           }
           await batch.commit(noResult: true);
+          await addMissingColumns(txn);
           final users = await txn.rawQuery('SELECT COUNT(*) AS n FROM userDetails');
           if (users.first['n'] == 0) await DefaultData.seed(txn);
         }),
       ),
     );
+  }
+
+  /// Adds [Schema.addedColumns] missing from an older database.
+  static Future<void> addMissingColumns(DatabaseExecutor db) async {
+    for (final (table, column, type) in Schema.addedColumns) {
+      final columns = await db.rawQuery('PRAGMA table_info($table)');
+      if (!columns.any((c) => c['name'] == column)) await db.execute('ALTER TABLE $table ADD COLUMN $column $type');
+    }
   }
 
   /// A restored backup waiting for the next start.

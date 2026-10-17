@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS TransactionItems (
   cloudSync INTEGER DEFAULT 0,
   Tid INTEGER DEFAULT 1,
   tSync INTEGER DEFAULT 0,
+  productId INTEGER,
   FOREIGN KEY (transaction_id) REFERENCES Transactions(id)
 )''',
     '''
@@ -373,6 +374,14 @@ CREATE TABLE IF NOT EXISTS supplierPromotionItems (
   static const dropped = <String>[
     'DROP TABLE IF EXISTS lottery',
     'DROP TABLE IF EXISTS newsAndMagazines',
+  ];
+
+  /// Columns added after a table was first released, as `(table, column,
+  /// type)`. Existing databases get them on open; new ones already have
+  /// them from [tables].
+  static const addedColumns = <(String, String, String)>[
+    // The product sold on a sale line, so promotions can be re-worked later.
+    ('TransactionItems', 'productId', 'INTEGER'),
   ];
 
   /// Indexes for barcode lookups and per-shift reports.
