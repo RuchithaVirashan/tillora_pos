@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../../../core/utils/db_date.dart';
@@ -17,6 +19,14 @@ class SalesLocalDataSource {
   Future<List<Map<String, Object?>>> quickItems() => _products.quickItems();
 
   Future<List<Map<String, Object?>>> weighedProducts(String query) => _products.weighedProducts(query);
+
+  /// Promotions whose dates include [day] (`yyyy-MM-dd`), one row per
+  /// promotion item.
+  Future<List<Map<String, Object?>>> activePromotionItems(String day) => _db.rawQuery('''
+SELECT p.id, p.description, p.promotionType, p.qty, p.amount, i.productId, i.groupId
+  FROM promotions p JOIN promotionItems i ON i.promotionId = p.id
+ WHERE p.startDate <= ?1 AND p.endDate >= ?1
+ ORDER BY p.id, i.id''', [day]);
 
   Future<Map<int, String>> departmentNames() async {
     final rows = await _db.query('departments', columns: ['id', 'name']);
@@ -57,8 +67,9 @@ class SalesLocalDataSource {
           'amount': amount,
           'dep_id': item.departmentId,
           'vat': item.vat,
-          'promo': '',
-          'promo_val': 0.0,
+          // Promotion lines name their promotion and the discount given.
+          'promo': line.isPromotion ? jsonEncode({'promoId': line.promotionId}) : '',
+          'promo_val': line.isPromotion ? Money.fromCents(-line.amountCents) : 0.0,
         });
         batch.insert('SoldItems', {
           'TranId': transactionId,

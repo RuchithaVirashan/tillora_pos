@@ -12,6 +12,12 @@ class CartLine extends Equatable {
 
   CartLine withQuantity(int quantity) => CartLine(item: item, quantity: quantity);
 
+  /// A discount line added by a running promotion.
+  bool get isPromotion => item.barcode.startsWith(Cart.promotionCodePrefix);
+
+  /// The promotion behind a [isPromotion] line.
+  int? get promotionId => isPromotion ? int.tryParse(item.barcode.substring(Cart.promotionCodePrefix.length)) : null;
+
   /// Same product at the same price merges into one line.
   bool sameAs(SellableItem other) =>
       item.barcode == other.barcode && item.description == other.description && item.priceCents == other.priceCents;
@@ -58,6 +64,9 @@ class Cart extends Equatable {
   static const itemDiscountCode = '888888';
   static const saleDiscountCode = '999999';
   static const _itemDiscountPrefix = 'Item Discount ';
+
+  /// Barcode of a promotion discount line, followed by the promotion id.
+  static const promotionCodePrefix = 'PROMO-';
 
   /// Positive for a sale, negative for a refund.
   int get totalCents {
@@ -150,6 +159,21 @@ class Cart extends Equatable {
   /// Sale total before any sale discount, for the discount dialog.
   int get saleBaseCents =>
       lines.where((l) => l.item.barcode != saleDiscountCode).fold(0, (s, l) => s + l.amountCents);
+
+  /// The line at [index] has an item discount below it.
+  bool hasItemDiscount(int index) => _discountIndexFor(index) != null;
+
+  /// Replaces the promotion lines with [promotions], kept at the top under
+  /// any sale discount. The selected line stays selected.
+  Cart withPromotions(List<CartLine> promotions) {
+    final rest = lines.where((l) => !l.isPromotion).toList();
+    final at = rest.isNotEmpty && rest.first.item.barcode == saleDiscountCode ? 1 : 0;
+    final next = [...rest]..insertAll(at, promotions);
+    if (next.length == lines.length && Iterable.generate(next.length).every((i) => next[i] == lines[i])) return this;
+    final current = selectedLine;
+    final selectedNow = current == null ? -1 : next.indexOf(current);
+    return _copy(lines: next, selected: selectedNow >= 0 ? selectedNow : (next.isEmpty ? -1 : 0));
+  }
 
   int? _discountIndexFor(int index) {
     final d = index + 1;

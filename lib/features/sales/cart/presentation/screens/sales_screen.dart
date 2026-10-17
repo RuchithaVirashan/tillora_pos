@@ -19,6 +19,7 @@ import '../../../void/domain/repositories/void_repository.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
 import '../../domain/usecases/complete_sale.dart';
+import '../../domain/usecases/get_active_promotions.dart';
 import '../../domain/usecases/get_quick_items.dart';
 import '../../domain/usecases/print_receipt.dart';
 import '../../domain/usecases/record_age_refusal.dart';
@@ -44,6 +45,7 @@ class SalesScreen extends StatelessWidget {
         scanItem: getIt<ScanItem>(),
         completeSale: getIt<CompleteSale>(),
         getQuickItems: getIt<GetQuickItems>(),
+        getActivePromotions: getIt<GetActivePromotions>(),
         sounds: getIt<AlertSounds>(),
         printReceipt: getIt<PrintReceipt>(),
         autoPrint: () => getIt<TerminalInfoHolder>().value.autoPrint,
@@ -134,6 +136,7 @@ class _SalesViewState extends State<_SalesView> {
   late final _actions = SalesActions(
     voidLine: () async {
       if (_cart.selectedLine == null || _cubit.state.saleComplete) return _toast('Select a line to void');
+      if (_cart.selectedLine!.isPromotion) return _toast('Promotion discounts follow the basket. Void the promoted items instead');
       final kind = await _open<VoidKind>(Routes.voidReason, extra: VoidRequest(cart: _cart));
       if (kind == VoidKind.line) _cubit.removeSelectedLine();
       if (kind == VoidKind.sale) _cubit.clearSale();
