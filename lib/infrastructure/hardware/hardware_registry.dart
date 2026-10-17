@@ -5,6 +5,7 @@ import 'package:printing/printing.dart';
 
 import '../../core/receipts/receipt.dart';
 import 'receipt_pdf.dart';
+import 'windows_raw_printer.dart';
 
 /// Hardware the till talks to. Each has a desktop driver now and a mobile
 /// driver later (Bluetooth printer, camera scanner) behind the same interface.
@@ -45,7 +46,7 @@ class SystemPrinter {
     final printer = await _pick();
     if (printer != null) {
       final ok = await Printing.directPrintPdf(printer: printer, name: name, onLayout: (_) async => bytes);
-      if (!ok) throw StateError('${printer.name} did not accept $name');
+      if (!ok) throw PrinterException('${printer.name} did not accept $name');
       return;
     }
     await Printing.layoutPdf(name: name, onLayout: (_) async => bytes);
@@ -55,16 +56,22 @@ class SystemPrinter {
     final info = await Printing.info();
     if (!info.canListPrinters || !info.directPrint) return null;
     final printers = await Printing.listPrinters();
+    return await _configuredFrom(printers) ?? printers.where((p) => p.isAvailable && p.isDefault).firstOrNull;
+  }
+
+  /// The printer chosen in System Configuration, when it is installed.
+  /// Never falls back to the default printer.
+  Future<String?> configuredPrinterName() async {
+    if ((await _printerName())?.trim().isEmpty ?? true) return null;
+    final info = await Printing.info();
+    if (!info.canListPrinters) return null;
+    return (await _configuredFrom(await Printing.listPrinters()))?.name;
+  }
+
+  Future<Printer?> _configuredFrom(List<Printer> printers) async {
     final wanted = (await _printerName())?.trim().toLowerCase();
-    if (wanted != null && wanted.isNotEmpty) {
-      for (final p in printers) {
-        if (p.isAvailable && p.name.toLowerCase() == wanted) return p;
-      }
-    }
-    for (final p in printers) {
-      if (p.isAvailable && p.isDefault) return p;
-    }
-    return null;
+    if (wanted == null || wanted.isEmpty) return null;
+    return printers.where((p) => p.isAvailable && p.name.toLowerCase() == wanted).firstOrNull;
   }
 }
 
@@ -78,8 +85,18 @@ class SystemReceiptPrinter implements ReceiptPrinter {
   Future<void> printReceipt(Receipt receipt) async =>
       _printer.printPdf(await ReceiptPdf.build(receipt, paperMm: await _printer.paperWidthMm()), name: 'Receipt ${receipt.number}');
 
-  /// Opening the drawer needs raw ESC/POS output to the receipt printer,
-  /// which the system print service cannot send; not wired yet.
+  /// ESC p: pulse drawer pin 2, then pin 5, for 50 ms on / 500 ms off.
+  /// Drawers are wired to one pin or the other, so both are sent.
+  static final drawerKick = Uint8List.fromList([0x1B, 0x70, 0x00, 0x19, 0xFA, 0x1B, 0x70, 0x01, 0x19, 0xFA]);
+
+  /// The drawer plugs into the receipt printer, which opens it when sent
+  /// [drawerKick] as raw ESC/POS. Only the receipt printer chosen in System
+  /// Configuration gets it: on any other printer the bytes would print.
   @override
-  Future<void> openCashDrawer() async {}
+  Future<void> openCashDrawer() async {
+    if (!WindowsRawPrinter.isSupported) return;
+    final printer = await _printer.configuredPrinterName();
+    if (printer == null) throw PrinterException('Choose the receipt printer in Settings > System Configuration');
+    WindowsRawPrinter.send(printer, drawerKick, job: 'Open cash drawer');
+  }
 }
