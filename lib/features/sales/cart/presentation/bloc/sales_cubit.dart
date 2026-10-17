@@ -5,9 +5,12 @@ import '../../../../../core/errors/result.dart';
 import '../../../../../core/platform/alert_sounds.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/utils/money.dart';
+import '../../domain/entities/active_promotion.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
+import '../../domain/usecases/apply_promotions.dart';
 import '../../domain/usecases/complete_sale.dart';
+import '../../domain/usecases/get_active_promotions.dart';
 import '../../domain/usecases/get_quick_items.dart';
 import '../../domain/usecases/print_receipt.dart';
 import '../../domain/usecases/scan_item.dart';
@@ -92,6 +95,7 @@ class SalesCubit extends Cubit<SalesState> {
     required this.maxQuantity,
     required this.ageCheckEnabled,
     this.cardPayments = true,
+    this._getActivePromotions,
   }) : super(const SalesState());
 
   final ScanItem _scanItem;
@@ -99,6 +103,12 @@ class SalesCubit extends Cubit<SalesState> {
   final GetQuickItems _getQuickItems;
   final AlertSounds _sounds;
   final PrintReceipt _printReceipt;
+
+  /// Null runs the till without promotions.
+  final GetActivePromotions? _getActivePromotions;
+
+  /// Running today; loaded when the till opens.
+  List<ActivePromotion> _promotions = const [];
 
   /// Read on every sale, so turning Auto Print on or off applies at once.
   final bool Function() autoPrint;
@@ -121,6 +131,22 @@ class SalesCubit extends Cubit<SalesState> {
     if (await _getQuickItems(const NoParams()) case Ok(:final value)) {
       emit(state.copyWith(quickItems: value));
     }
+    if (await _getActivePromotions?.call(DateTime.now()) case Ok(:final value)) {
+      _promotions = value;
+      emit(state.copyWith(cart: ApplyPromotions.apply(state.cart, value)));
+    }
+  }
+
+  /// Every cart change re-works the promotion lines, until payment starts.
+  @override
+  void emit(SalesState state) {
+    final previous = this.state.cart;
+    final cart = state.cart;
+    if (identical(cart, previous) || _promotions.isEmpty || cart.tenders.isNotEmpty) return super.emit(state);
+    final priced = ApplyPromotions.apply(cart, _promotions);
+    final before = {for (final l in previous.lines) ?l.promotionId};
+    if (priced.lines.any((l) => l.isPromotion && !before.contains(l.promotionId))) _sounds.play(AlertSound.promotion);
+    super.emit(identical(priced, cart) ? state : state.copyWith(cart: priced));
   }
 
   // ── Keypad ────────────────────────────────────────────────────────────

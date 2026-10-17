@@ -5,6 +5,8 @@ import '../../../../../core/utils/money.dart';
 import '../../../../../infrastructure/database/dao/pos_records_dao.dart';
 import '../../../../../infrastructure/database/dao/receipt_dao.dart';
 import '../../../../../infrastructure/hardware/hardware_registry.dart';
+import '../../../../back_office/promotions/domain/entities/promotion.dart';
+import '../../domain/entities/active_promotion.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/sellable_item.dart';
 import '../../domain/repositories/sales_repository.dart';
@@ -87,6 +89,32 @@ class SalesRepositoryImpl implements SalesRepository {
       return const Ok(null);
     } catch (e) {
       return Err(HardwareFailure('The receipt did not print: $e'));
+    }
+  }
+
+  @override
+  Future<Result<List<ActivePromotion>>> activePromotions(DateTime day) async {
+    try {
+      final key = '${day.year}-${'${day.month}'.padLeft(2, '0')}-${'${day.day}'.padLeft(2, '0')}';
+      final rows = await _local.activePromotionItems(key);
+      final byId = <int, ({Map<String, Object?> row, Map<int, Set<int>> groups})>{};
+      for (final r in rows) {
+        final entry = byId.putIfAbsent(r['id'] as int, () => (row: r, groups: <int, Set<int>>{}));
+        entry.groups.putIfAbsent((r['groupId'] as int?) ?? 1, () => {}).add(r['productId'] as int);
+      }
+      return Ok([
+        for (final MapEntry(key: id, value: (:row, :groups)) in byId.entries)
+          ActivePromotion(
+            id: id,
+            description: row['description'] as String,
+            type: PromoType.fromLabel(row['promotionType'] as String),
+            qty: int.tryParse('${row['qty']}') ?? 1,
+            amountCents: Money.toCents((row['amount'] as num?) ?? 0),
+            groups: groups,
+          ),
+      ]);
+    } catch (e) {
+      return Err(DatabaseFailure('Could not load promotions: $e'));
     }
   }
 

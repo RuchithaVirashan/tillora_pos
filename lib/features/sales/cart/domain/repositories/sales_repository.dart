@@ -1,4 +1,5 @@
 import '../../../../../core/errors/result.dart';
+import '../entities/active_promotion.dart';
 import '../entities/cart.dart';
 import '../entities/sellable_item.dart';
 
@@ -19,6 +20,9 @@ abstract interface class SalesRepository {
 
   /// Prints the receipt for a saved transaction; [reprint] marks it a copy.
   Future<Result<void>> printReceipt(int transactionId, {bool reprint = false});
+
+  /// Promotions running on [day], with their products.
+  Future<Result<List<ActivePromotion>>> activePromotions(DateTime day);
 
   /// Logs a refused age-restricted sale to `posRecords`.
   Future<Result<void>> recordAgeRefusal(SellableItem item, {required int logId});

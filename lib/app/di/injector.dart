@@ -72,6 +72,7 @@ import '../../features/sales/cart/data/datasources/sales_local_data_source.dart'
 import '../../features/sales/cart/data/repositories/sales_repository_impl.dart';
 import '../../features/sales/cart/domain/repositories/sales_repository.dart';
 import '../../features/sales/cart/domain/usecases/complete_sale.dart';
+import '../../features/sales/cart/domain/usecases/get_active_promotions.dart';
 import '../../features/sales/cart/domain/usecases/get_quick_items.dart';
 import '../../features/sales/cart/domain/usecases/print_receipt.dart';
 import '../../features/sales/cart/domain/usecases/record_age_refusal.dart';
@@ -198,6 +199,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => ScanItem(getIt()))
     ..registerFactory(() => CompleteSale(getIt()))
     ..registerFactory(() => GetQuickItems(getIt()))
+    ..registerFactory(() => GetActivePromotions(getIt()))
     ..registerFactory(() => RecordAgeRefusal(getIt()))
     ..registerFactory(() => GetWeighedProducts(getIt()))
     ..registerFactory(() => PrintReceipt(getIt()));
