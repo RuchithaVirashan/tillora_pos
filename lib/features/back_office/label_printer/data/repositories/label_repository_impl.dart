@@ -11,10 +11,13 @@ import '../datasources/label_pdf.dart';
 
 class LabelRepositoryImpl implements LabelRepository {
   /// [rollPrinter] targets the label printer set in System Configuration.
-  LabelRepositoryImpl(this._db, this._rollPrinter);
+  LabelRepositoryImpl(this._db, this._rollPrinter, this._tillPrinter);
 
   final Database _db;
   final SystemPrinter _rollPrinter;
+
+  /// The receipt printer, for labels on the till roll.
+  final SystemPrinter _tillPrinter;
 
   static const _columns = 'p.id, p.barcode, p.description, p.price, p.wasPrice, p.pluCode';
 
@@ -43,11 +46,13 @@ SELECT $_columns FROM products p
 
   @override
   Future<Result<void>> print(List<LabelLine> lines, LabelType type, LabelFormat format) => _guard(failure: HardwareFailure.new, () async {
-    final bytes = await LabelPdf.build(lines, type, format);
+    final bytes = await LabelPdf.build(lines, type, format, paperMm: await _tillPrinter.paperWidthMm());
     final name = '${type.label}s';
     switch (format) {
       case LabelFormat.roll:
         await _rollPrinter.printPdf(bytes, name: name);
+      case LabelFormat.receipt:
+        await _tillPrinter.printPdf(bytes, name: name);
       case LabelFormat.sheet:
         // Sheets go to an office printer, so let staff choose it.
         await Printing.layoutPdf(name: name, onLayout: (_) async => bytes);

@@ -321,7 +321,7 @@ void _registerBackOffice(Database db) {
     ..registerFactory(() => GetSaleReport(getIt()))
     ..registerFactory(() => GetStockMovement(getIt()))
     ..registerFactory(() => GetStockAdjustments(getIt()))
-    ..registerLazySingleton<LabelRepository>(() => LabelRepositoryImpl(db, SystemPrinter(() => getIt<SysConfigDao>().get('labelprinter'))))
+    ..registerLazySingleton<LabelRepository>(() => LabelRepositoryImpl(db, SystemPrinter(() => getIt<SysConfigDao>().get('labelprinter')), getIt()))
     ..registerFactory(() => GetLabelProducts(getIt()))
     ..registerFactory(() => FindLabelProduct(getIt()))
     ..registerFactory(() => PrintLabels(getIt()));

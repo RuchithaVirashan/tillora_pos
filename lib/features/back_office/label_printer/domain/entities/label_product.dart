@@ -17,6 +17,9 @@ enum LabelFormat {
 
   /// One 62 × 29 mm label per page for a QL roll printer.
   roll,
+
+  /// Labels one under another on the till receipt roll.
+  receipt,
 }
 
 class LabelProduct extends Equatable {
