@@ -379,7 +379,7 @@ void _registerSettings(Database db) {
 
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
   const fallback = TerminalInfo.fallback;
-  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay', 'CardPay']);
+  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay', 'CardPay', 'salesTheme']);
   final company = await config.companyName();
   return TerminalInfo(
     companyName: company.isEmpty ? fallback.companyName : company,
@@ -389,5 +389,6 @@ Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
     maxQuantity: int.tryParse(values['maximumQuantity'] ?? '') ?? fallback.maxQuantity,
     customerDisplay: values['customerDisplay']?.toUpperCase() == 'ON',
     cardPayments: (values['CardPay'] ?? 'Enabled') == 'Enabled',
+    nightTheme: values['salesTheme'] == 'Night',
   );
 }

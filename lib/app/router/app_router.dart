@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/config/terminal_info.dart';
 import '../../core/session/user_session.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/pos_dialog.dart';
@@ -73,7 +74,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: Routes.sales,
-      builder: (_, _) => const SalesScreen(),
+      builder: (_, _) => SalesScreen(dark: getIt<TerminalInfoHolder>().value.nightTheme),
       routes: [
         _dialog('void', (s) => VoidReasonScreen(request: s.extra! as VoidRequest)),
         _dialog('no-sale', (_) => const NoSaleScreen()),

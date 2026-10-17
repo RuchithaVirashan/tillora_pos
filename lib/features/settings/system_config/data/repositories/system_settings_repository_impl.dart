@@ -14,7 +14,7 @@ class SystemSettingsRepositoryImpl implements SystemSettingsRepository {
   final SysConfigDao _config;
   final TerminalInfoHolder _terminal;
 
-  static const _keys = ['terminalName', 'maximumQuantity', 'AutoPrint', 'CardPay', 'ageRefusal', 'posprinter', 'labelprinter', 'paperWidth'];
+  static const _keys = ['terminalName', 'maximumQuantity', 'AutoPrint', 'CardPay', 'ageRefusal', 'posprinter', 'labelprinter', 'paperWidth', 'salesTheme'];
 
   @override
   List<int> get paperWidths => SystemPrinter.paperWidths;
@@ -30,6 +30,7 @@ class SystemSettingsRepositoryImpl implements SystemSettingsRepository {
       autoPrint: v['AutoPrint']?.toUpperCase() == 'ON',
       cardPayments: (v['CardPay'] ?? 'Enabled') == 'Enabled',
       ageCheck: (v['ageRefusal'] ?? 'Enabled') == 'Enabled',
+      nightTheme: v['salesTheme'] == 'Night',
       receiptPrinter: printer('posprinter'),
       labelPrinter: printer('labelprinter'),
       paperWidthMm: int.tryParse(v['paperWidth'] ?? '') ?? 80,
@@ -49,6 +50,7 @@ class SystemSettingsRepositoryImpl implements SystemSettingsRepository {
       'posprinter': s.receiptPrinter ?? '',
       'labelprinter': s.labelPrinter ?? '',
       'paperWidth': '${s.paperWidthMm}',
+      'salesTheme': s.nightTheme ? 'Night' : 'Day',
     };
     for (final MapEntry(:key, :value) in values.entries) {
       await _config.set(key, value);
@@ -59,6 +61,7 @@ class SystemSettingsRepositoryImpl implements SystemSettingsRepository {
       autoPrint: s.autoPrint,
       cardPayments: s.cardPayments,
       ageCheckEnabled: s.ageCheck,
+      nightTheme: s.nightTheme,
     );
   });
 
