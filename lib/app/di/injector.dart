@@ -86,6 +86,9 @@ import '../../features/sales/hold_recall/domain/repositories/hold_repository.dar
 import '../../features/sales/hold_recall/domain/usecases/hold_usecases.dart';
 import '../../features/sales/more_functions/data/repositories/till_settings_repository_impl.dart';
 import '../../features/sales/more_functions/domain/repositories/till_settings_repository.dart';
+import '../../features/sales/more_functions/data/repositories/void_count_repository_impl.dart';
+import '../../features/sales/more_functions/domain/repositories/void_count_repository.dart';
+import '../../features/sales/more_functions/domain/usecases/reset_void_counts.dart';
 import '../../features/sales/more_functions/domain/usecases/set_auto_print.dart';
 import '../../features/sales/no_sale/data/repositories/no_sale_repository_impl.dart';
 import '../../features/sales/no_sale/domain/repositories/no_sale_repository.dart';
@@ -235,7 +238,9 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => SwapPayType(getIt()))
     ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt(), getIt()))
     ..registerFactory(() => SetAutoPrint(getIt()))
-    ..registerFactory(() => SetCustomerDisplay(getIt()));
+    ..registerFactory(() => SetCustomerDisplay(getIt()))
+    ..registerLazySingleton<VoidCountRepository>(() => VoidCountRepositoryImpl(getIt()))
+    ..registerFactory(() => ResetVoidCounts(getIt(), getIt()));
 
   _registerProductManagement(db);
   _registerReports(db);

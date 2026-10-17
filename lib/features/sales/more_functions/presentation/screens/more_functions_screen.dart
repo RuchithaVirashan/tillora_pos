@@ -12,6 +12,7 @@ import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/pos_dialog.dart';
 import '../../domain/usecases/set_auto_print.dart';
+import '../widgets/reset_void_dialog.dart';
 
 /// MoreFunctions.dc.html.
 class MoreFunctionsScreen extends StatefulWidget {
@@ -72,8 +73,8 @@ class _MoreFunctionsScreenState extends State<MoreFunctionsScreen> {
           _toggleAutoPrint, on: _autoPrint),
       _Fn('Currency Converter', 'Not ported yet', Icons.currency_exchange_rounded, const Color(0xFF9A5B00), const Color(0xFFFFF3DC),
           () => _notPorted('Currency Converter')),
-      _Fn('Reset Void Counts', 'Not ported yet', Icons.restart_alt_rounded, const Color(0xFFB4233C), const Color(0xFFFDECEE),
-          () => _notPorted('Reset Void Counts')),
+      _Fn('Reset Void Counts', 'Admin approves a fresh count', Icons.restart_alt_rounded, const Color(0xFFB4233C), const Color(0xFFFDECEE),
+          () => showDialog<bool>(context: context, builder: (_) => const ResetVoidDialog())),
       _Fn('Training Mode', 'Not ported yet', Icons.school_outlined, const Color(0xFF5B3FB0), const Color(0xFFEFEAFB), () => _notPorted('Training Mode')),
       _Fn(
         'Customer Display',
