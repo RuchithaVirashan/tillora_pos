@@ -24,6 +24,51 @@ class DisplayLine extends Equatable {
   List<Object?> get props => [name, quantity, priceCents, amountCents];
 }
 
+/// How the left (advert) and right (basket) sides share the display.
+enum DisplaySplit {
+  sixtyForty('60/40', 6, 4),
+  half('50/50', 1, 1),
+  fortySixty('40/60', 2, 3),
+  thirtySeventy('30/70', 3, 7);
+
+  const DisplaySplit(this.label, this.left, this.right);
+  final String label;
+  final int left;
+  final int right;
+
+  static DisplaySplit fromLabel(String? label) => values.where((s) => s.label == label).firstOrNull ?? sixtyForty;
+}
+
+/// Look of the customer display, set in Settings > Second Screen.
+class DisplayStyle extends Equatable {
+  const DisplayStyle({this.adverts = const [], this.advertSeconds = 8, this.fontSize = defaultFontSize, this.split = DisplaySplit.sixtyForty});
+
+  static const defaultFontSize = 20;
+  static const fontSizes = [16, 18, 20, 22, 24, 28, 32];
+
+  /// Image files shown in turn on the left side; empty shows the shop name.
+  final List<String> adverts;
+  final int advertSeconds;
+
+  /// Text size of the basket, 20 being the standard size.
+  final int fontSize;
+  final DisplaySplit split;
+
+  double get textScale => fontSize / defaultFontSize;
+
+  Map<String, Object> toJson() => {'ads': adverts, 'secs': advertSeconds, 'font': fontSize, 'split': split.label};
+
+  factory DisplayStyle.fromJson(Map<String, Object?> j) => DisplayStyle(
+    adverts: [for (final a in (j['ads'] as List?) ?? const []) '$a'],
+    advertSeconds: j['secs'] as int? ?? 8,
+    fontSize: j['font'] as int? ?? defaultFontSize,
+    split: DisplaySplit.fromLabel(j['split'] as String?),
+  );
+
+  @override
+  List<Object?> get props => [adverts, advertSeconds, fontSize, split];
+}
+
 /// Everything the customer display shows at one moment.
 class DisplayFrame extends Equatable {
   const DisplayFrame({
@@ -35,6 +80,7 @@ class DisplayFrame extends Equatable {
     this.changeCents = 0,
     this.refund = false,
     this.complete = false,
+    this.style = const DisplayStyle(),
   });
 
   final String companyName;
@@ -45,8 +91,21 @@ class DisplayFrame extends Equatable {
   final int changeCents;
   final bool refund;
   final bool complete;
+  final DisplayStyle style;
 
   bool get idle => lines.isEmpty;
+
+  DisplayFrame withStyle(DisplayStyle style) => DisplayFrame(
+    companyName: companyName,
+    lines: lines,
+    itemCount: itemCount,
+    totalCents: totalCents,
+    paidCents: paidCents,
+    changeCents: changeCents,
+    refund: refund,
+    complete: complete,
+    style: style,
+  );
 
   Map<String, Object> toJson() => {
     'company': companyName,
@@ -57,6 +116,7 @@ class DisplayFrame extends Equatable {
     'change': changeCents,
     'refund': refund,
     'complete': complete,
+    'style': style.toJson(),
   };
 
   factory DisplayFrame.fromJson(Map<String, Object?> j) => DisplayFrame(
@@ -68,10 +128,11 @@ class DisplayFrame extends Equatable {
     changeCents: j['change'] as int,
     refund: j['refund'] as bool,
     complete: j['complete'] as bool,
+    style: j['style'] is Map ? DisplayStyle.fromJson((j['style'] as Map).cast<String, Object?>()) : const DisplayStyle(),
   );
 
   @override
-  List<Object?> get props => [companyName, lines, itemCount, totalCents, paidCents, changeCents, refund, complete];
+  List<Object?> get props => [companyName, lines, itemCount, totalCents, paidCents, changeCents, refund, complete, style];
 }
 
 /// The second, customer-facing screen. Implemented in
@@ -84,4 +145,7 @@ abstract interface class CustomerDisplay {
 
   /// Shows [frame]; ignored while the display is closed.
   Future<void> show(DisplayFrame frame);
+
+  /// Applies [style] to every frame from now on, redrawing the current one.
+  Future<void> applyStyle(DisplayStyle style);
 }

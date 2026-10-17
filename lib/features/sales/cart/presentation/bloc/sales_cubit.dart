@@ -91,6 +91,7 @@ class SalesCubit extends Cubit<SalesState> {
     required this.logId,
     required this.maxQuantity,
     required this.ageCheckEnabled,
+    this.cardPayments = true,
   }) : super(const SalesState());
 
   final ScanItem _scanItem;
@@ -104,6 +105,9 @@ class SalesCubit extends Cubit<SalesState> {
   final int logId;
   final int maxQuantity;
   final bool ageCheckEnabled;
+
+  /// Off when card payments are turned off in System Configuration.
+  final bool cardPayments;
 
   int _noticeId = 0;
 
@@ -298,7 +302,10 @@ class SalesCubit extends Cubit<SalesState> {
 
   /// CARD: typed amount for a part payment, else the exact balance. As the
   /// second payment it may be more than the balance; the excess is change.
-  Future<void> payCard() => pay(Tender.card(_typedOrDue()));
+  Future<void> payCard() async {
+    if (!cardPayments) return _notify('Card payments are turned off in Settings', error: true);
+    return pay(Tender.card(_typedOrDue()));
+  }
 
   int _typedOrDue() {
     final typed = double.tryParse(state.entry);

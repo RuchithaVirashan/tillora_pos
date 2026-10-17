@@ -113,12 +113,40 @@ import '../../features/staff_activity/domain/usecases/get_staff_activity.dart';
 import '../../features/suppliers/data/repositories/supplier_repository_impl.dart';
 import '../../features/suppliers/domain/repositories/supplier_repository.dart';
 import '../../features/suppliers/domain/usecases/supplier_usecases.dart';
+import '../../features/settings/backup_restore/data/repositories/backup_repository_impl.dart';
+import '../../features/settings/backup_restore/domain/repositories/backup_repository.dart';
+import '../../features/settings/backup_restore/domain/usecases/backup_usecases.dart';
+import '../../features/settings/database_maintenance/data/repositories/maintenance_repository_impl.dart';
+import '../../features/settings/database_maintenance/domain/repositories/maintenance_repository.dart';
+import '../../features/settings/database_maintenance/domain/usecases/maintenance_usecases.dart';
+import '../../features/settings/extract_products/data/repositories/product_extract_repository_impl.dart';
+import '../../features/settings/extract_products/domain/repositories/product_extract_repository.dart';
+import '../../features/settings/extract_products/domain/usecases/extract_products.dart';
+import '../../features/settings/inventory/data/repositories/stock_reset_repository_impl.dart';
+import '../../features/settings/inventory/domain/repositories/stock_reset_repository.dart';
+import '../../features/settings/inventory/domain/usecases/stock_reset_usecases.dart';
+import '../../features/settings/organization/data/repositories/company_repository_impl.dart';
+import '../../features/settings/organization/domain/repositories/company_repository.dart';
+import '../../features/settings/organization/domain/usecases/company_usecases.dart';
+import '../../features/settings/pos_messages/data/repositories/pos_message_repository_impl.dart';
+import '../../features/settings/pos_messages/domain/repositories/pos_message_repository.dart';
+import '../../features/settings/pos_messages/domain/usecases/pos_message_usecases.dart';
+import '../../features/settings/receipt/data/repositories/receipt_settings_repository_impl.dart';
+import '../../features/settings/receipt/domain/repositories/receipt_settings_repository.dart';
+import '../../features/settings/receipt/domain/usecases/receipt_settings_usecases.dart';
+import '../../features/settings/second_screen/data/repositories/display_settings_repository_impl.dart';
+import '../../features/settings/second_screen/domain/repositories/display_settings_repository.dart';
+import '../../features/settings/second_screen/domain/usecases/display_settings_usecases.dart';
+import '../../features/settings/system_config/data/repositories/system_settings_repository_impl.dart';
+import '../../features/settings/system_config/domain/repositories/system_settings_repository.dart';
+import '../../features/settings/system_config/domain/usecases/system_settings_usecases.dart';
 import '../../infrastructure/database/app_database.dart';
 import '../../infrastructure/database/dao/pos_records_dao.dart';
 import '../../infrastructure/database/dao/products_dao.dart';
 import '../../infrastructure/database/dao/receipt_dao.dart';
 import '../../infrastructure/database/dao/shift_dao.dart';
 import '../../infrastructure/database/dao/shift_report_dao.dart';
+import '../../infrastructure/database/dao/display_config_dao.dart';
 import '../../infrastructure/database/dao/sys_config_dao.dart';
 import '../../infrastructure/hardware/audio_alert_sounds.dart';
 import '../../infrastructure/hardware/hardware_registry.dart';
@@ -137,7 +165,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   getIt
     ..registerSingleton<AppDatabase>(database)
     // The till printer (sysConfig posprinter), shared by receipts and reports.
-    ..registerLazySingleton(() => SystemPrinter(() => getIt<SysConfigDao>().get('posprinter')))
+    ..registerLazySingleton(() => SystemPrinter(() => getIt<SysConfigDao>().get('posprinter'), () => getIt<SysConfigDao>().get('paperWidth')))
     ..registerLazySingleton(() => HardwareRegistry(receiptPrinter: SystemReceiptPrinter(getIt())))
     ..registerLazySingleton<ReportOutput>(() => FileReportOutput(getIt()))
     ..registerLazySingleton<AlertSounds>(AudioAlertSounds.new)
@@ -149,10 +177,13 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton(() => ShiftDao(db))
     ..registerLazySingleton(() => PosRecordsDao(db))
     ..registerLazySingleton(() => SysConfigDao(db))
+    ..registerLazySingleton(() => DisplayConfigDao(db))
     ..registerLazySingleton(() => ShiftReportDao(db, getIt()))
     ..registerLazySingleton(() => ReceiptDao(db, getIt()));
 
   getIt.registerSingleton(TerminalInfoHolder(await _loadTerminalInfo(getIt<SysConfigDao>())));
+  // The display window draws every frame with these adverts, font and split.
+  await getIt<CustomerDisplay>().applyStyle(await getIt<DisplayConfigDao>().style());
 
   // Auth
   getIt
@@ -207,6 +238,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   _registerProductManagement(db);
   _registerReports(db);
   _registerBackOffice(db);
+  _registerSettings(db);
 
   getIt
     ..registerLazySingleton<SupplierRepository>(() => SupplierRepositoryImpl(db))
@@ -306,9 +338,46 @@ void _registerReports(Database db) {
     ..registerFactory(() => GetExpiredItems(getIt()));
 }
 
+void _registerSettings(Database db) {
+  getIt
+    ..registerLazySingleton<CompanyRepository>(() => CompanyRepositoryImpl(db, getIt()))
+    ..registerFactory(() => GetCompanyDetails(getIt()))
+    ..registerFactory(() => SaveCompanyDetails(getIt()))
+    ..registerLazySingleton<ReceiptSettingsRepository>(() => ReceiptSettingsRepositoryImpl(getIt()))
+    ..registerFactory(() => GetReceiptSettings(getIt()))
+    ..registerFactory(() => SaveReceiptText(getIt()))
+    ..registerFactory(() => SetReceiptLogo(getIt()))
+    ..registerFactory(() => RemoveReceiptLogo(getIt()))
+    ..registerLazySingleton<PosMessageRepository>(() => PosMessageRepositoryImpl(db))
+    ..registerFactory(() => GetPosMessages(getIt()))
+    ..registerFactory(() => GetPosMessageCounts(getIt()))
+    ..registerFactory(() => SavePosMessage(getIt()))
+    ..registerFactory(() => DeletePosMessage(getIt()))
+    ..registerLazySingleton<SystemSettingsRepository>(() => SystemSettingsRepositoryImpl(getIt(), getIt()))
+    ..registerFactory(() => GetSystemSettings(getIt()))
+    ..registerFactory(() => SaveSystemSettings(getIt()))
+    ..registerFactory(() => GetInstalledPrinters(getIt()))
+    ..registerLazySingleton<DisplaySettingsRepository>(() => DisplaySettingsRepositoryImpl(getIt(), getIt(), getIt()))
+    ..registerFactory(() => GetDisplaySettings(getIt()))
+    ..registerFactory(() => SaveDisplayStyle(getIt()))
+    ..registerFactory(() => AddAdvert(getIt()))
+    ..registerFactory(() => RemoveAdverts(getIt()))
+    ..registerLazySingleton<StockResetRepository>(() => StockResetRepositoryImpl(db))
+    ..registerFactory(() => GetStockSummary(getIt()))
+    ..registerFactory(() => ResetStock(getIt()))
+    ..registerLazySingleton<BackupRepository>(() => BackupRepositoryImpl(db))
+    ..registerFactory(() => BackupDatabase(getIt()))
+    ..registerFactory(() => RestoreDatabase(getIt()))
+    ..registerLazySingleton<MaintenanceRepository>(() => MaintenanceRepositoryImpl(db))
+    ..registerFactory(() => InspectDatabase(getIt()))
+    ..registerFactory(() => RepairDatabase(getIt()))
+    ..registerLazySingleton<ProductExtractRepository>(ProductExtractRepositoryImpl.new)
+    ..registerFactory(() => ExtractProducts(getIt()));
+}
+
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
   const fallback = TerminalInfo.fallback;
-  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay']);
+  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay', 'CardPay']);
   final company = await config.companyName();
   return TerminalInfo(
     companyName: company.isEmpty ? fallback.companyName : company,
@@ -317,5 +386,6 @@ Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
     ageCheckEnabled: (values['ageRefusal'] ?? 'Enabled') == 'Enabled',
     maxQuantity: int.tryParse(values['maximumQuantity'] ?? '') ?? fallback.maxQuantity,
     customerDisplay: values['customerDisplay']?.toUpperCase() == 'ON',
+    cardPayments: (values['CardPay'] ?? 'Enabled') == 'Enabled',
   );
 }

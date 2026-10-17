@@ -25,6 +25,16 @@ import '../../features/reports/exceptions/presentation/screens/exceptions_screen
 import '../../features/reports/expired_items/presentation/screens/expired_items_screen.dart';
 import '../../features/reports/quick_report/presentation/screens/quick_report_screen.dart';
 import '../../features/reports/shift_report/presentation/screens/shift_report_screen.dart';
+import '../../features/settings/backup_restore/presentation/screens/backup_restore_screen.dart';
+import '../../features/settings/database_maintenance/presentation/screens/database_maintenance_screen.dart';
+import '../../features/settings/extract_products/presentation/screens/extract_products_screen.dart';
+import '../../features/settings/inventory/presentation/screens/inventory_settings_screen.dart';
+import '../../features/settings/menu/presentation/screens/settings_screen.dart';
+import '../../features/settings/organization/presentation/screens/organization_screen.dart';
+import '../../features/settings/pos_messages/presentation/screens/pos_messages_screen.dart';
+import '../../features/settings/receipt/presentation/screens/receipt_settings_screen.dart';
+import '../../features/settings/second_screen/presentation/screens/second_screen_settings_screen.dart';
+import '../../features/settings/system_config/presentation/screens/system_config_screen.dart';
 import '../di/injector.dart';
 import 'routes.dart';
 
@@ -167,10 +177,13 @@ final backOfficeRoutes = <RouteBase>[
   GoRoute(path: Routes.departments, builder: (context, _) => DepartmentsScreen(onBack: () => context.go(Routes.backOffice))),
   GoRoute(
     path: Routes.users,
-    builder: (context, _) => UsersScreen(onBack: () => context.go(Routes.backOffice), onOpenRoleAccess: () => context.go(Routes.roleAccess)),
+    builder: (context, state) {
+      final from = _openedFrom(state);
+      return UsersScreen(onBack: () => context.go(from), onOpenRoleAccess: () => context.go(_fromSettings(Routes.roleAccess, from)));
+    },
   ),
   GoRoute(path: Routes.paymentTypes, builder: (context, _) => PaymentTypesScreen(onBack: () => context.go(Routes.backOffice))),
-  GoRoute(path: Routes.roleAccess, builder: (context, _) => RoleAccessScreen(onBack: () => context.go(Routes.backOffice))),
+  GoRoute(path: Routes.roleAccess, builder: (context, state) => RoleAccessScreen(onBack: () => context.go(_openedFrom(state)))),
   GoRoute(
     path: Routes.barcodeProducts,
     builder: (context, state) {
@@ -206,4 +219,52 @@ final backOfficeRoutes = <RouteBase>[
     },
   ),
   GoRoute(path: Routes.labelPrinter, builder: (context, _) => LabelPrinterScreen(onBack: () => context.go(Routes.backOffice))),
+];
+
+/// User Profile and Role Management also open from Settings; `?from=settings`
+/// sends Back there instead of to Back Office.
+String _openedFrom(GoRouterState state) => state.uri.queryParameters['from'] == 'settings' ? Routes.settings : Routes.backOffice;
+
+String _fromSettings(String route, String from) => from == Routes.settings ? '$route?from=settings' : route;
+
+const _settingsTiles = <SettingsTile>[
+  SettingsTile('Setup Organization', 'Company name, address, VAT number', Icons.apartment_rounded, Color(0xFF2952A3), Color(0xFFE8EEFB), Routes.organization),
+  SettingsTile('Second Screen', 'Customer display, adverts, font, split', Icons.desktop_windows_outlined, Color(0xFF0B6E6E), Color(0xFFDFF3F3), Routes.secondScreen),
+  SettingsTile('Inventory', 'Stock reset', Icons.inventory_2_outlined, Color(0xFF0B7A55), Color(0xFFE3F5EE), Routes.inventory),
+  SettingsTile('Receipt', 'Logo, header and footer', Icons.receipt_long_outlined, Color(0xFF9A5B00), Color(0xFFFFF3DC), Routes.receipt),
+  SettingsTile('User Profile', 'Manage users', Icons.person_outline_rounded, Color(0xFF5B3FB0), Color(0xFFEFEAFB), '${Routes.users}?from=settings'),
+  SettingsTile('Role Management', 'User access control', Icons.lock_outline_rounded, Color(0xFFB4233C), Color(0xFFFDECEE), '${Routes.roleAccess}?from=settings'),
+  SettingsTile('POS Record Messages', 'Reasons for voids, no sale and age refusal', Icons.chat_bubble_outline_rounded, Color(0xFF2952A3), Color(0xFFE8EEFB), Routes.posMessages),
+  SettingsTile('System Configuration', 'Till, printers, options', Icons.settings_outlined, Color(0xFF3B4A60), Color(0xFFEEF1F5), Routes.systemConfig),
+  SettingsTile('Backup & Restore', 'Backup or restore the local database', Icons.download_rounded, Color(0xFF0B7A55), Color(0xFFE3F5EE), Routes.backupRestore),
+  SettingsTile('Update Local Database', 'Database checks and fixes', Icons.storage_rounded, Color(0xFF9A5B00), Color(0xFFFFF3DC), Routes.databaseMaintenance),
+  SettingsTile('Extract Product Data', 'Export products to CSV', Icons.file_download_outlined, Color(0xFF0B6E6E), Color(0xFFDFF3F3), Routes.extractProducts),
+];
+
+final settingsRoutes = <RouteBase>[
+  GoRoute(
+    path: Routes.settings,
+    builder: (context, _) => SettingsScreen(tiles: _settingsTiles, onOpen: (route) => context.go(route), onClose: () => _leaveModule(context)),
+  ),
+  GoRoute(path: Routes.organization, builder: (context, _) => OrganizationScreen(onBack: () => context.go(Routes.settings))),
+  GoRoute(path: Routes.secondScreen, builder: (context, _) => SecondScreenSettingsScreen(onBack: () => context.go(Routes.settings))),
+  GoRoute(
+    path: Routes.inventory,
+    builder: (context, _) => InventorySettingsScreen(onBack: () => context.go(Routes.settings), onOpenBackup: () => context.go(Routes.backupRestore)),
+  ),
+  GoRoute(path: Routes.receipt, builder: (context, _) => ReceiptSettingsScreen(onBack: () => context.go(Routes.settings))),
+  GoRoute(path: Routes.posMessages, builder: (context, _) => PosMessagesScreen(onBack: () => context.go(Routes.settings))),
+  GoRoute(
+    path: Routes.systemConfig,
+    builder: (context, _) => SystemConfigScreen(
+      onBack: () => context.go(Routes.settings),
+      onOpenRoleAccess: () => context.go('${Routes.roleAccess}?from=settings'),
+    ),
+  ),
+  GoRoute(path: Routes.backupRestore, builder: (context, _) => BackupRestoreScreen(onBack: () => context.go(Routes.settings))),
+  GoRoute(
+    path: Routes.databaseMaintenance,
+    builder: (context, _) => DatabaseMaintenanceScreen(onBack: () => context.go(Routes.settings), onOpenBackup: () => context.go(Routes.backupRestore)),
+  ),
+  GoRoute(path: Routes.extractProducts, builder: (context, _) => ExtractProductsScreen(onBack: () => context.go(Routes.settings))),
 ];

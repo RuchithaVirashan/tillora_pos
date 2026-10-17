@@ -32,6 +32,7 @@ abstract final class CustomerDisplayWindow {
 class MultiWindowCustomerDisplay implements CustomerDisplay {
   WindowController? _window;
   DisplayFrame? _last;
+  DisplayStyle _style = const DisplayStyle();
   bool _open = false;
   bool _listening = false;
 
@@ -65,11 +66,18 @@ class MultiWindowCustomerDisplay implements CustomerDisplay {
   }
 
   @override
+  Future<void> applyStyle(DisplayStyle style) async {
+    _style = style;
+    final last = _last;
+    if (last != null) await show(last);
+  }
+
+  @override
   Future<void> show(DisplayFrame frame) async {
-    _last = frame;
+    _last = frame.withStyle(_style);
     if (!_open) return;
     try {
-      await CustomerDisplayWindow.channel.invokeMethod(CustomerDisplayWindow.frame, frame.toJson());
+      await CustomerDisplayWindow.channel.invokeMethod(CustomerDisplayWindow.frame, _last!.toJson());
     } on WindowChannelException catch (e) {
       // The display window is still starting; it asks for the frame itself.
       debugPrint('Customer display not ready: ${e.code}');
@@ -100,4 +108,7 @@ class NoCustomerDisplay implements CustomerDisplay {
 
   @override
   Future<void> show(DisplayFrame frame) async {}
+
+  @override
+  Future<void> applyStyle(DisplayStyle style) async {}
 }

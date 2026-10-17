@@ -29,7 +29,6 @@ import '../../features/sales/void/domain/repositories/void_repository.dart';
 import '../../features/sales/void/presentation/screens/void_reason_screen.dart';
 import '../di/injector.dart';
 import 'module_routes.dart';
-import 'not_ported_screen.dart';
 import 'routes.dart';
 
 /// Where each login module goes once the user is signed in.
@@ -47,11 +46,6 @@ GoRoute _dialog(String path, Widget Function(GoRouterState state) build, {List<R
   routes: routes,
 );
 
-/// Screens designed in the canvas but not built yet.
-const _notPorted = <(String, String, String)>[
-  (Routes.settings, 'Settings', 'Settings.dc.html'),
-];
-
 final appRouter = GoRouter(
   initialLocation: Routes.home,
   // Checked on every navigation; signing out then navigating needs no refresh.
@@ -59,6 +53,8 @@ final appRouter = GoRouter(
     final session = getIt<SessionHolder>().value;
     final path = state.matchedLocation;
     if (path.startsWith(Routes.sales) && session?.logId == null) return Routes.loginFor(LoginModule.sales.slug);
+    // Settings is for admins only, whichever module they signed in from.
+    if (path.startsWith(Routes.settings) && session?.roleId != Roles.admin) return Routes.loginFor(LoginModule.settings.slug);
     if (session == null) {
       if (path.startsWith(Routes.productManagement)) return Routes.loginFor(LoginModule.products.slug);
       if (path.startsWith(Routes.quickReport)) return Routes.loginFor(LoginModule.reports.slug);
@@ -116,7 +112,6 @@ final appRouter = GoRouter(
     ...productRoutes,
     ...reportRoutes,
     ...backOfficeRoutes,
-    for (final (path, title, design) in _notPorted)
-      GoRoute(path: path, builder: (_, _) => NotPortedScreen(title: title, design: design)),
+    ...settingsRoutes,
   ],
 );
