@@ -17,6 +17,9 @@ class PosRecordsDao {
   static const voidSale = 'voidsale';
   static const ageRefusal = 'agerefusal';
 
+  /// Marks where the shift's void and no sale counts start again.
+  static const voidReset = 'voidreset';
+
   Future<List<String>> reasons(String type) async {
     final rows = await _db.query('posMessages', columns: ['value'], where: 'parameter = ?', whereArgs: [type], orderBy: 'mid');
     return [for (final r in rows) r['value'] as String];
@@ -37,11 +40,17 @@ class PosRecordsDao {
   });
 
   /// How many of [type] this shift has used, for the role's daily limit.
+  /// Records before the shift's latest [voidReset] no longer count; they
+  /// stay in the log.
   Future<int> countForShift(String type, int logId) async {
-    final rows = await _db.rawQuery(
-      'SELECT COUNT(*) AS n FROM posRecords WHERE Rec_Type = ? AND LogId = ?',
-      [type, logId],
-    );
+    final rows = await _db.rawQuery('''
+SELECT COUNT(*) AS n FROM posRecords
+ WHERE Rec_Type = ?1 AND LogId = ?2
+   AND Rec_Id > COALESCE((SELECT MAX(Rec_Id) FROM posRecords WHERE Rec_Type = ?3 AND LogId = ?2), 0)''', [type, logId, voidReset]);
     return rows.first['n'] as int;
   }
+
+  /// Starts the shift's void and no sale counts again from zero.
+  Future<void> resetCounts({required int logId, required String approvedBy}) =>
+      record(type: voidReset, reason: 'Counts reset, approved by $approvedBy', logId: logId);
 }

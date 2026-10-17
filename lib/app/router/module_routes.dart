@@ -20,6 +20,7 @@ import '../../features/product_management/hub/presentation/screens/product_manag
 import '../../features/product_management/non_barcode/presentation/widgets/non_barcode_panel.dart';
 import '../../features/product_management/payout_items/presentation/widgets/payout_items_panel.dart';
 import '../../features/product_management/price_change/presentation/widgets/price_change_panel.dart';
+import '../../features/product_management/quick_label/presentation/widgets/quick_label_panel.dart';
 import '../../features/product_management/weight_items/presentation/widgets/weight_items_panel.dart';
 import '../../features/reports/exceptions/presentation/screens/exceptions_screen.dart';
 import '../../features/reports/expired_items/presentation/screens/expired_items_screen.dart';
@@ -98,16 +99,18 @@ const _productTools = <ProductTool>[
   ProductTool(
     name: 'Quick Label',
     title: 'Quick Label',
-    note: 'Label printing is not set up yet.',
+    note: 'Print a shelf label for one product',
     icon: Icons.label_outline_rounded,
     ink: Color(0xFF0B6E6E),
     fill: Color(0xFFDFF3F3),
     accessFlag: 'quickLabelAccess',
+    builder: _quickLabel,
   ),
 ];
 
 Widget _nonBarcode(BuildContext _) => const NonBarcodePanel();
 Widget _weight(BuildContext _) => const WeightItemsPanel();
+Widget _quickLabel(BuildContext _) => const QuickLabelPanel();
 Widget _payout(BuildContext _) => const PayoutItemsPanel();
 Widget _adjustStock(BuildContext _) => const AdjustStockPanel();
 Widget _priceChange(BuildContext _) => const PriceChangePanel();

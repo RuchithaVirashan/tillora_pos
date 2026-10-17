@@ -17,7 +17,8 @@ abstract final class LabelPdf {
   /// Brother QL 62 mm continuous roll, cut at 29 mm.
   static const _rollLabel = (width: 62.0, height: 29.0);
 
-  static Future<Uint8List> build(List<LabelLine> lines, LabelType type, LabelFormat format) {
+  /// [paperMm] is the till roll width, for [LabelFormat.receipt].
+  static Future<Uint8List> build(List<LabelLine> lines, LabelType type, LabelFormat format, {double paperMm = 80}) {
     final labels = [for (final l in lines) for (var i = 0; i < l.count; i++) l.product];
     final doc = pw.Document(title: '${type.label}s');
     switch (format) {
@@ -26,6 +27,23 @@ abstract final class LabelPdf {
         for (final p in labels) {
           doc.addPage(pw.Page(pageFormat: page, margin: pw.EdgeInsets.zero, build: (_) => _label(p, type, _rollLabel)));
         }
+      case LabelFormat.receipt:
+        final width = paperMm - 8;
+        doc.addPage(
+          // A roll page has no fixed height, so all labels go on one page.
+          pw.Page(
+            pageFormat: PdfPageFormat(paperMm * PdfPageFormat.mm, double.infinity, marginLeft: 4 * PdfPageFormat.mm, marginRight: 4 * PdfPageFormat.mm),
+            build: (_) => pw.Column(
+              children: [
+                for (final p in labels)
+                  pw.Container(
+                    decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(width: 0.5, style: pw.BorderStyle.dashed))),
+                    child: _label(p, type, (width: width, height: _rollLabel.height)),
+                  ),
+              ],
+            ),
+          ),
+        );
       case LabelFormat.sheet:
         const perPage = _sheetColumns * _sheetRows;
         // Centre the grid on the page.

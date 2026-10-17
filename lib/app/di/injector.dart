@@ -8,6 +8,7 @@ import '../../core/platform/customer_display.dart';
 import '../../core/platform/platform_info.dart';
 import '../../core/platform/report_output.dart';
 import '../../core/platform/system_tools.dart';
+import '../../core/session/training_mode.dart';
 import '../../core/session/user_session.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
 import '../../features/auth/data/datasources/recent_logins_store.dart';
@@ -86,6 +87,12 @@ import '../../features/sales/hold_recall/domain/repositories/hold_repository.dar
 import '../../features/sales/hold_recall/domain/usecases/hold_usecases.dart';
 import '../../features/sales/more_functions/data/repositories/till_settings_repository_impl.dart';
 import '../../features/sales/more_functions/domain/repositories/till_settings_repository.dart';
+import '../../features/sales/more_functions/data/repositories/exchange_rate_repository_impl.dart';
+import '../../features/sales/more_functions/data/repositories/void_count_repository_impl.dart';
+import '../../features/sales/more_functions/domain/repositories/exchange_rate_repository.dart';
+import '../../features/sales/more_functions/domain/repositories/void_count_repository.dart';
+import '../../features/sales/more_functions/domain/usecases/exchange_rate_usecases.dart';
+import '../../features/sales/more_functions/domain/usecases/reset_void_counts.dart';
 import '../../features/sales/more_functions/domain/usecases/set_auto_print.dart';
 import '../../features/sales/no_sale/data/repositories/no_sale_repository_impl.dart';
 import '../../features/sales/no_sale/domain/repositories/no_sale_repository.dart';
@@ -115,8 +122,11 @@ import '../../features/suppliers/data/repositories/supplier_repository_impl.dart
 import '../../features/suppliers/domain/repositories/supplier_repository.dart';
 import '../../features/suppliers/domain/usecases/supplier_usecases.dart';
 import '../../features/settings/backup_restore/data/repositories/backup_repository_impl.dart';
+import '../../features/settings/backup_restore/data/repositories/data_import_repository_impl.dart';
 import '../../features/settings/backup_restore/domain/repositories/backup_repository.dart';
+import '../../features/settings/backup_restore/domain/repositories/data_import_repository.dart';
 import '../../features/settings/backup_restore/domain/usecases/backup_usecases.dart';
+import '../../features/settings/backup_restore/domain/usecases/import_data.dart';
 import '../../features/settings/database_maintenance/data/repositories/maintenance_repository_impl.dart';
 import '../../features/settings/database_maintenance/domain/repositories/maintenance_repository.dart';
 import '../../features/settings/database_maintenance/domain/usecases/maintenance_usecases.dart';
@@ -173,6 +183,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<SystemTools>(OsSystemTools.new)
     ..registerLazySingleton<CustomerDisplay>(() => PlatformInfo.isDesktop ? MultiWindowCustomerDisplay() : NoCustomerDisplay())
     ..registerSingleton<SessionHolder>(SessionHolder())
+    ..registerSingleton(TrainingMode())
     ..registerSingleton<SharedPreferences>(await SharedPreferences.getInstance())
     ..registerLazySingleton(() => ProductsDao(db))
     ..registerLazySingleton(() => ShiftDao(db))
@@ -197,7 +208,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   getIt
     ..registerLazySingleton<SalesRepository>(() => SalesRepositoryImpl(SalesLocalDataSource(db, getIt()), getIt(), getIt(), getIt()))
     ..registerFactory(() => ScanItem(getIt()))
-    ..registerFactory(() => CompleteSale(getIt()))
+    ..registerFactory(() => CompleteSale(getIt(), getIt<TrainingMode>()))
     ..registerFactory(() => GetQuickItems(getIt()))
     ..registerFactory(() => GetActivePromotions(getIt()))
     ..registerFactory(() => RecordAgeRefusal(getIt()))
@@ -208,13 +219,13 @@ Future<void> configureDependencies({required AppDatabase database}) async {
   getIt
     ..registerLazySingleton<VoidRepository>(() => VoidRepositoryImpl(getIt()))
     ..registerFactory(() => GetVoidOptions(getIt()))
-    ..registerFactory(() => RecordVoid(getIt()))
+    ..registerFactory(() => RecordVoid(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<NoSaleRepository>(() => NoSaleRepositoryImpl(getIt(), getIt()))
-    ..registerFactory(() => GetNoSaleOptions(getIt()))
-    ..registerFactory(() => OpenDrawerNoSale(getIt()))
+    ..registerFactory(() => GetNoSaleOptions(getIt(), getIt<TrainingMode>()))
+    ..registerFactory(() => OpenDrawerNoSale(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<HoldRepository>(() => HoldRepositoryImpl(db))
     ..registerFactory(() => GetHeldSales(getIt()))
-    ..registerFactory(() => HoldSale(getIt()))
+    ..registerFactory(() => HoldSale(getIt(), getIt<TrainingMode>()))
     ..registerFactory(() => RecallSale(getIt()))
     ..registerLazySingleton<PaymentTypeRepository>(() => PaymentTypeRepositoryImpl(db))
     ..registerFactory(() => GetPaymentTypes(getIt()))
@@ -227,7 +238,7 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerLazySingleton<PayoutRepository>(() => PayoutRepositoryImpl(db))
     ..registerFactory(() => GetPayoutReasons(getIt()))
     ..registerLazySingleton<CashLiftRepository>(() => CashLiftRepositoryImpl(db, getIt()))
-    ..registerFactory(() => LiftCash(getIt()))
+    ..registerFactory(() => LiftCash(getIt(), getIt<TrainingMode>()))
     ..registerLazySingleton<TransactionsRepository>(() => TransactionsRepositoryImpl(db))
     ..registerFactory(() => GetShiftTransactions(getIt()))
     ..registerFactory(() => GetTransactionLines(getIt()))
@@ -235,7 +246,13 @@ Future<void> configureDependencies({required AppDatabase database}) async {
     ..registerFactory(() => SwapPayType(getIt()))
     ..registerLazySingleton<TillSettingsRepository>(() => TillSettingsRepositoryImpl(getIt(), getIt(), getIt()))
     ..registerFactory(() => SetAutoPrint(getIt()))
-    ..registerFactory(() => SetCustomerDisplay(getIt()));
+    ..registerFactory(() => SetCustomerDisplay(getIt()))
+    ..registerLazySingleton<VoidCountRepository>(() => VoidCountRepositoryImpl(getIt()))
+    ..registerFactory(() => ResetVoidCounts(getIt(), getIt()))
+    ..registerLazySingleton<ExchangeRateRepository>(() => ExchangeRateRepositoryImpl(getIt()))
+    ..registerFactory(() => GetExchangeRates(getIt()))
+    ..registerFactory(() => SetExchangeRate(getIt()))
+    ..registerFactory(() => RemoveExchangeRate(getIt()));
 
   _registerProductManagement(db);
   _registerReports(db);
@@ -321,7 +338,7 @@ void _registerBackOffice(Database db) {
     ..registerFactory(() => GetSaleReport(getIt()))
     ..registerFactory(() => GetStockMovement(getIt()))
     ..registerFactory(() => GetStockAdjustments(getIt()))
-    ..registerLazySingleton<LabelRepository>(() => LabelRepositoryImpl(db, SystemPrinter(() => getIt<SysConfigDao>().get('labelprinter'))))
+    ..registerLazySingleton<LabelRepository>(() => LabelRepositoryImpl(db, SystemPrinter(() => getIt<SysConfigDao>().get('labelprinter')), getIt()))
     ..registerFactory(() => GetLabelProducts(getIt()))
     ..registerFactory(() => FindLabelProduct(getIt()))
     ..registerFactory(() => PrintLabels(getIt()));
@@ -370,6 +387,8 @@ void _registerSettings(Database db) {
     ..registerLazySingleton<BackupRepository>(() => BackupRepositoryImpl(db))
     ..registerFactory(() => BackupDatabase(getIt()))
     ..registerFactory(() => RestoreDatabase(getIt()))
+    ..registerLazySingleton<DataImportRepository>(() => DataImportRepositoryImpl(db))
+    ..registerFactory(() => ImportData(getIt()))
     ..registerLazySingleton<MaintenanceRepository>(() => MaintenanceRepositoryImpl(db))
     ..registerFactory(() => InspectDatabase(getIt()))
     ..registerFactory(() => RepairDatabase(getIt()))
@@ -379,7 +398,7 @@ void _registerSettings(Database db) {
 
 Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
   const fallback = TerminalInfo.fallback;
-  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay', 'CardPay']);
+  final values = await config.getMany(['terminalName', 'AutoPrint', 'ageRefusal', 'maximumQuantity', 'customerDisplay', 'CardPay', 'salesTheme']);
   final company = await config.companyName();
   return TerminalInfo(
     companyName: company.isEmpty ? fallback.companyName : company,
@@ -389,5 +408,6 @@ Future<TerminalInfo> _loadTerminalInfo(SysConfigDao config) async {
     maxQuantity: int.tryParse(values['maximumQuantity'] ?? '') ?? fallback.maxQuantity,
     customerDisplay: values['customerDisplay']?.toUpperCase() == 'ON',
     cardPayments: (values['CardPay'] ?? 'Enabled') == 'Enabled',
+    nightTheme: values['salesTheme'] == 'Night',
   );
 }

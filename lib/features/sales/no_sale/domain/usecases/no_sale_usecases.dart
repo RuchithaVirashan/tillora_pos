@@ -1,6 +1,7 @@
 import '../../../../../core/errors/failures.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/session/access_rights.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../../../core/session/user_session.dart';
 import '../repositories/no_sale_repository.dart';
 
@@ -12,11 +13,13 @@ class NoSaleOptions {
 }
 
 class GetNoSaleOptions {
-  const GetNoSaleOptions(this._repository);
+  const GetNoSaleOptions(this._repository, [this._training]);
 
   final NoSaleRepository _repository;
+  final TrainingMode? _training;
 
   Future<Result<NoSaleOptions>> call(UserSession session) async {
+    if (_training?.value ?? false) return Err(ValidationFailure(TrainingMode.unavailable('No Sale')));
     if (!session.access.can(AccessRights.noSale)) return const Err(PermissionFailure('You do not have no sale access'));
     final reasons = await _repository.reasons();
     final used = await _repository.usedThisShift(session.logId ?? 0);
@@ -28,10 +31,13 @@ class GetNoSaleOptions {
 }
 
 class OpenDrawerNoSale {
-  const OpenDrawerNoSale(this._repository);
+  const OpenDrawerNoSale(this._repository, [this._training]);
 
   final NoSaleRepository _repository;
+  final TrainingMode? _training;
 
-  Future<Result<void>> call({required String reason, required int logId}) =>
-      _repository.openDrawer(reason: reason, logId: logId);
+  Future<Result<void>> call({required String reason, required int logId}) async {
+    if (_training?.value ?? false) return Err(ValidationFailure(TrainingMode.unavailable('No Sale')));
+    return _repository.openDrawer(reason: reason, logId: logId);
+  }
 }

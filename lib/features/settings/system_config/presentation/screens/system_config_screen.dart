@@ -221,6 +221,12 @@ class _SystemConfigScreenState extends State<SystemConfigScreen> {
       value: s.ageCheck,
       onChanged: (v) => _edit((s) => s.copyWith(ageCheck: v)),
     ),
+    SettingSwitch(
+      label: 'Night Theme for Sales',
+      note: 'A dark sales screen, easier on the eyes in dim shops',
+      value: s.nightTheme,
+      onChanged: (v) => _edit((s) => s.copyWith(nightTheme: v)),
+    ),
   ];
 
   List<Widget> _currency(BuildContext context) {

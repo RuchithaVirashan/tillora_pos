@@ -12,6 +12,7 @@ class TerminalInfo extends Equatable {
     required this.maxQuantity,
     this.customerDisplay = false,
     this.cardPayments = true,
+    this.nightTheme = false,
   });
 
   final String companyName;
@@ -25,6 +26,9 @@ class TerminalInfo extends Equatable {
 
   /// The CARD key takes payments.
   final bool cardPayments;
+
+  /// Sales uses the dark night palette.
+  final bool nightTheme;
 
   static const fallback = TerminalInfo(
     companyName: 'Tillora',
@@ -42,6 +46,7 @@ class TerminalInfo extends Equatable {
     int? maxQuantity,
     bool? customerDisplay,
     bool? cardPayments,
+    bool? nightTheme,
   }) => TerminalInfo(
     companyName: companyName ?? this.companyName,
     terminalName: terminalName ?? this.terminalName,
@@ -50,10 +55,11 @@ class TerminalInfo extends Equatable {
     maxQuantity: maxQuantity ?? this.maxQuantity,
     customerDisplay: customerDisplay ?? this.customerDisplay,
     cardPayments: cardPayments ?? this.cardPayments,
+    nightTheme: nightTheme ?? this.nightTheme,
   );
 
   @override
-  List<Object?> get props => [companyName, terminalName, autoPrint, ageCheckEnabled, maxQuantity, customerDisplay, cardPayments];
+  List<Object?> get props => [companyName, terminalName, autoPrint, ageCheckEnabled, maxQuantity, customerDisplay, cardPayments, nightTheme];
 }
 
 class TerminalInfoHolder extends ValueNotifier<TerminalInfo> {

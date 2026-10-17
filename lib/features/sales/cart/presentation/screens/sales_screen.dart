@@ -9,6 +9,7 @@ import '../../../../../core/config/terminal_info.dart';
 import '../../../../../core/platform/alert_sounds.dart';
 import '../../../../../core/platform/customer_display.dart';
 import '../../../../../core/responsive/adaptive_layout.dart';
+import '../../../../../core/session/training_mode.dart';
 import '../../../../../core/session/user_session.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
@@ -169,7 +170,7 @@ class _SalesViewState extends State<_SalesView> {
       _open<bool>(Routes.noSale);
     },
     transactions: () => _open<void>(Routes.transactions),
-    menu: () => _open<void>(Routes.moreFunctions),
+    menu: () => _open<void>(Routes.moreFunctions, extra: _inProgress),
     weight: () async {
       final item = await _open<SellableItem>(Routes.weight);
       if (item != null) _cubit.addWeighed(item);
@@ -267,9 +268,12 @@ class _SalesViewState extends State<_SalesView> {
               final refund = state.cart.refund;
               return Column(
                 children: [
-                  AdaptiveLayout(
-                    desktop: (_) => SalesHeader(companyName: widget.info.companyName, refund: refund, actions: _actions),
-                    mobile: (_) => SalesHeader(companyName: widget.info.companyName, refund: refund, actions: _actions, compact: true),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: getIt<TrainingMode>(),
+                    builder: (context, training, _) => AdaptiveLayout(
+                      desktop: (_) => SalesHeader(companyName: widget.info.companyName, refund: refund, training: training, actions: _actions),
+                      mobile: (_) => SalesHeader(companyName: widget.info.companyName, refund: refund, training: training, actions: _actions, compact: true),
+                    ),
                   ),
                   if (refund) const RefundBanner(),
                   Expanded(
