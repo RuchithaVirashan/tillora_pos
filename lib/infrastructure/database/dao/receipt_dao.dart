@@ -32,7 +32,7 @@ class ReceiptDao {
       whereArgs: [transactionId],
       orderBy: 'id',
     );
-    final config = await _config.getMany(['receiptHeader', 'receiptFooter', 'terminalName']);
+    final config = await _config.getMany(['receiptHeader', 'receiptFooter', 'terminalName', 'receiptLogo']);
     final company = await _config.companyName();
     final typeNames = await PaymentSlots(_db).typeNames();
 
@@ -62,6 +62,7 @@ class ReceiptDao {
       totalCents: Money.toCents(t['total_payable'] as num),
       payments: PaymentSlots.payments(t, typeNames),
       changeCents: PaymentSlots.changeCents(t),
+      logoPath: config['receiptLogo'],
     );
   }
 

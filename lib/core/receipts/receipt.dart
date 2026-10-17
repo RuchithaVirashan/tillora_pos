@@ -31,6 +31,7 @@ class Receipt extends Equatable {
     required this.payments,
     required this.changeCents,
     this.reprint = false,
+    this.logoPath,
   });
 
   final int transactionId;
@@ -54,6 +55,9 @@ class Receipt extends Equatable {
   /// Printed again from Transactions; marked as a copy.
   final bool reprint;
 
+  /// Image printed above the header, set in Receipt settings.
+  final String? logoPath;
+
   bool get isRefund => totalCents < 0;
 
   String get number => '#${transactionId.toString().padLeft(6, '0')}';
@@ -71,6 +75,7 @@ class Receipt extends Equatable {
     payments: payments,
     changeCents: changeCents,
     reprint: true,
+    logoPath: logoPath,
   );
 
   @override

@@ -50,6 +50,7 @@ class SalesScreen extends StatelessWidget {
         logId: session.logId ?? 0,
         maxQuantity: info.maxQuantity,
         ageCheckEnabled: info.ageCheckEnabled,
+        cardPayments: info.cardPayments,
       )..load(),
       child: Theme(
         data: dark ? AppTheme.dark : Theme.of(context),

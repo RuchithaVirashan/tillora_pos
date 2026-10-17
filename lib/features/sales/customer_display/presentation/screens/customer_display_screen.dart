@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -21,10 +24,17 @@ class CustomerDisplayScreen extends StatelessWidget {
         builder: (context, frame, _) {
           final f = frame ?? const DisplayFrame(companyName: '');
           final wide = MediaQuery.sizeOf(context).width >= 900;
-          final left = _BrandPanel(frame: f);
-          final right = _SalePanel(frame: f);
+          final style = f.style;
+          final left = style.adverts.isEmpty ? _BrandPanel(frame: f) : _AdvertPanel(images: style.adverts, seconds: style.advertSeconds);
+          final right = MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(style.textScale)),
+            child: _SalePanel(frame: f),
+          );
           return wide
-              ? Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [Expanded(flex: 6, child: left), Expanded(flex: 4, child: right)])
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [Expanded(flex: style.split.left, child: left), Expanded(flex: style.split.right, child: right)],
+                )
               : Column(children: [SizedBox(height: 180, child: left), Expanded(child: right)]);
         },
       ),
@@ -228,4 +238,63 @@ class _Figure extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Advert images shown in turn, [seconds] each, with a fade.
+class _AdvertPanel extends StatefulWidget {
+  const _AdvertPanel({required this.images, required this.seconds});
+
+  final List<String> images;
+  final int seconds;
+
+  @override
+  State<_AdvertPanel> createState() => _AdvertPanelState();
+}
+
+class _AdvertPanelState extends State<_AdvertPanel> {
+  Timer? _timer;
+  int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  @override
+  void didUpdateWidget(_AdvertPanel old) {
+    super.didUpdateWidget(old);
+    if (old.seconds != widget.seconds || !listEquals(old.images, widget.images)) {
+      _index = 0;
+      _start();
+    }
+  }
+
+  void _start() {
+    _timer?.cancel();
+    if (widget.images.length < 2) return;
+    _timer = Timer.periodic(Duration(seconds: widget.seconds.clamp(2, 600)), (_) => setState(() => _index = (_index + 1) % widget.images.length));
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final path = widget.images[_index % widget.images.length];
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      child: Image.file(
+        File(path),
+        key: ValueKey(path),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (_, _, _) => const SizedBox.expand(),
+      ),
+    );
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart' as mobile;
@@ -26,6 +28,7 @@ class AppDatabase {
       factory = mobile.databaseFactory;
     }
     final dir = await getApplicationSupportDirectory();
+    await _applyPendingRestore(dir.path);
     db = await factory.openDatabase(
       p.join(dir.path, fileName),
       options: OpenDatabaseOptions(
@@ -48,5 +51,46 @@ class AppDatabase {
         }),
       ),
     );
+  }
+
+  /// A restored backup waiting for the next start.
+  static const pendingRestoreName = '$fileName.restore';
+
+  /// The database as it was before the last restore.
+  static const beforeRestoreName = '$fileName.before-restore';
+
+  static Future<String> directory() async => (await getApplicationSupportDirectory()).path;
+
+  /// Swaps in a backup staged by Backup & Restore. The database cannot be
+  /// replaced while open, so this runs before opening it.
+  static Future<void> _applyPendingRestore(String dir) async {
+    final pending = File(p.join(dir, pendingRestoreName));
+    if (!await pending.exists()) return;
+    final current = File(p.join(dir, fileName));
+    if (await current.exists()) await current.copy(p.join(dir, beforeRestoreName));
+    await pending.copy(current.path);
+    await pending.delete();
+  }
+
+  /// Why [path] cannot be restored, or null when it is a Tillora database.
+  static Future<String?> checkBackup(String path) async {
+    final DatabaseFactory factory = PlatformInfo.isDesktop ? databaseFactoryFfi : mobile.databaseFactory;
+    if (PlatformInfo.isDesktop) sqfliteFfiInit();
+    Database? backup;
+    try {
+      backup = await factory.openDatabase(path, options: OpenDatabaseOptions(readOnly: true, singleInstance: false));
+      final tables = {
+        for (final r in await backup.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'")) r['name'] as String,
+      };
+      final missing = ['products', 'Transactions', 'userDetails'].where((t) => !tables.contains(t)).toList();
+      if (missing.isNotEmpty) return 'This is not a Tillora backup (no ${missing.join(', ')} table)';
+      final check = await backup.rawQuery('PRAGMA quick_check');
+      if (check.first.values.first != 'ok') return 'The backup file is damaged';
+      return null;
+    } catch (e) {
+      return '$e'.contains('not a database') ? 'That file is not a database' : 'Could not open the backup file';
+    } finally {
+      await backup?.close();
+    }
   }
 }

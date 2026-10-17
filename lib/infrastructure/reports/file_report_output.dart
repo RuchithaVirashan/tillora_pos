@@ -12,7 +12,7 @@ class FileReportOutput implements ReportOutput {
   final SystemPrinter _printer;
 
   @override
-  Future<void> printRoll(ReportDocument doc) async => _printer.printPdf(await ReportPdf.roll(doc), name: doc.title);
+  Future<void> printRoll(ReportDocument doc) async => _printer.printPdf(await ReportPdf.roll(doc, paperMm: await _printer.paperWidthMm()), name: doc.title);
 
   @override
   Future<List<String>> export(ReportDocument doc, Set<ExportFormat> formats) async {

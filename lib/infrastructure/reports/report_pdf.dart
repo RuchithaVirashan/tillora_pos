@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../core/reports/report_document.dart';
+import '../hardware/hardware_registry.dart';
 
 /// Lays out a [ReportDocument] as an A4 file or on an 80 mm roll.
 abstract final class ReportPdf {
@@ -99,7 +100,7 @@ abstract final class ReportPdf {
   }
 
   /// 80 mm roll for the till printer. Tables print one record per block.
-  static Future<Uint8List> roll(ReportDocument doc) {
+  static Future<Uint8List> roll(ReportDocument doc, {double paperMm = 80}) {
     final pdf = pw.Document(title: doc.title, author: 'Tillora POS');
     const base = pw.TextStyle(fontSize: 8.5);
     final bold = base.copyWith(fontWeight: pw.FontWeight.bold);
@@ -115,7 +116,7 @@ abstract final class ReportPdf {
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.roll80.copyWith(marginLeft: 4 * PdfPageFormat.mm, marginRight: 4 * PdfPageFormat.mm),
+        pageFormat: SystemPrinter.roll(paperMm),
         build: (_) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
@@ -5,8 +6,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../core/receipts/receipt.dart';
+import 'hardware_registry.dart';
 
-/// Lays out a [Receipt] on an 80 mm roll.
+/// Lays out a [Receipt] on a till roll, 80 mm unless set otherwise.
 abstract final class ReceiptPdf {
   static final _money = NumberFormat('#,##0.00', 'en_US');
   static final _date = DateFormat('dd/MM/yyyy HH:mm');
@@ -14,7 +16,8 @@ abstract final class ReceiptPdf {
   /// Plain ASCII so the built-in PDF fonts can print it.
   static String rs(int cents) => '${cents < 0 ? '-' : ''}Rs ${_money.format(cents.abs() / 100)}';
 
-  static Future<Uint8List> build(Receipt r) {
+  static Future<Uint8List> build(Receipt r, {double paperMm = 80}) async {
+    final logo = await _logo(r.logoPath);
     final doc = pw.Document(title: 'Receipt ${r.number}', author: 'Tillora POS');
     const base = pw.TextStyle(fontSize: 8.5);
     final bold = base.copyWith(fontWeight: pw.FontWeight.bold);
@@ -35,10 +38,14 @@ abstract final class ReceiptPdf {
 
     doc.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.roll80.copyWith(marginLeft: 4 * PdfPageFormat.mm, marginRight: 4 * PdfPageFormat.mm),
+        pageFormat: SystemPrinter.roll(paperMm),
         build: (_) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
+            if (logo != null) ...[
+              pw.Center(child: pw.Image(logo, height: 18 * PdfPageFormat.mm, fit: pw.BoxFit.contain)),
+              pw.SizedBox(height: 4),
+            ],
             for (final (i, line) in r.header.indexed)
               pw.Text(line, textAlign: pw.TextAlign.center, style: i == 0 ? bold.copyWith(fontSize: 11) : base),
             if (r.reprint || r.isRefund) ...[
@@ -85,5 +92,16 @@ abstract final class ReceiptPdf {
       ),
     );
     return doc.save();
+  }
+
+  /// The receipt logo, or null when unset or unreadable.
+  static Future<pw.MemoryImage?> _logo(String? path) async {
+    if (path == null || path.isEmpty) return null;
+    try {
+      final file = File(path);
+      return await file.exists() ? pw.MemoryImage(await file.readAsBytes()) : null;
+    } catch (_) {
+      return null;
+    }
   }
 }
