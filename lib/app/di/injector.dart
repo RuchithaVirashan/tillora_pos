@@ -122,8 +122,11 @@ import '../../features/suppliers/data/repositories/supplier_repository_impl.dart
 import '../../features/suppliers/domain/repositories/supplier_repository.dart';
 import '../../features/suppliers/domain/usecases/supplier_usecases.dart';
 import '../../features/settings/backup_restore/data/repositories/backup_repository_impl.dart';
+import '../../features/settings/backup_restore/data/repositories/data_import_repository_impl.dart';
 import '../../features/settings/backup_restore/domain/repositories/backup_repository.dart';
+import '../../features/settings/backup_restore/domain/repositories/data_import_repository.dart';
 import '../../features/settings/backup_restore/domain/usecases/backup_usecases.dart';
+import '../../features/settings/backup_restore/domain/usecases/import_data.dart';
 import '../../features/settings/database_maintenance/data/repositories/maintenance_repository_impl.dart';
 import '../../features/settings/database_maintenance/domain/repositories/maintenance_repository.dart';
 import '../../features/settings/database_maintenance/domain/usecases/maintenance_usecases.dart';
@@ -384,6 +387,8 @@ void _registerSettings(Database db) {
     ..registerLazySingleton<BackupRepository>(() => BackupRepositoryImpl(db))
     ..registerFactory(() => BackupDatabase(getIt()))
     ..registerFactory(() => RestoreDatabase(getIt()))
+    ..registerLazySingleton<DataImportRepository>(() => DataImportRepositoryImpl(db))
+    ..registerFactory(() => ImportData(getIt()))
     ..registerLazySingleton<MaintenanceRepository>(() => MaintenanceRepositoryImpl(db))
     ..registerFactory(() => InspectDatabase(getIt()))
     ..registerFactory(() => RepairDatabase(getIt()))
