@@ -297,12 +297,12 @@ class _KindPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: refund ? AppColors.dangerTint : AppColors.successTint,
+        color: refund ? context.colors.voidFill : context.colors.noteFill,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         refund ? 'Refund' : 'Sale',
-        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: refund ? AppColors.dangerInk : AppColors.successInk),
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: refund ? context.colors.voidInk : context.colors.noteInk),
       ),
     ),
   );

@@ -85,8 +85,8 @@ class SettingsScreen extends StatelessWidget {
                           Container(
                             width: 48,
                             height: 48,
-                            decoration: BoxDecoration(color: t.fill, borderRadius: BorderRadius.circular(14)),
-                            child: Icon(t.icon, color: t.ink),
+                            decoration: BoxDecoration(color: context.tone(t.ink, t.fill).fill, borderRadius: BorderRadius.circular(14)),
+                            child: Icon(t.icon, color: context.tone(t.ink, t.fill).ink),
                           ),
                           const SizedBox(width: 14),
                           Expanded(

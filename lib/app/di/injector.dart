@@ -127,9 +127,6 @@ import '../../features/settings/backup_restore/domain/repositories/backup_reposi
 import '../../features/settings/backup_restore/domain/repositories/data_import_repository.dart';
 import '../../features/settings/backup_restore/domain/usecases/backup_usecases.dart';
 import '../../features/settings/backup_restore/domain/usecases/import_data.dart';
-import '../../features/settings/database_maintenance/data/repositories/maintenance_repository_impl.dart';
-import '../../features/settings/database_maintenance/domain/repositories/maintenance_repository.dart';
-import '../../features/settings/database_maintenance/domain/usecases/maintenance_usecases.dart';
 import '../../features/settings/extract_products/data/repositories/product_extract_repository_impl.dart';
 import '../../features/settings/extract_products/domain/repositories/product_extract_repository.dart';
 import '../../features/settings/extract_products/domain/usecases/extract_products.dart';
@@ -389,9 +386,6 @@ void _registerSettings(Database db) {
     ..registerFactory(() => RestoreDatabase(getIt()))
     ..registerLazySingleton<DataImportRepository>(() => DataImportRepositoryImpl(db))
     ..registerFactory(() => ImportData(getIt()))
-    ..registerLazySingleton<MaintenanceRepository>(() => MaintenanceRepositoryImpl(db))
-    ..registerFactory(() => InspectDatabase(getIt()))
-    ..registerFactory(() => RepairDatabase(getIt()))
     ..registerLazySingleton<ProductExtractRepository>(ProductExtractRepositoryImpl.new)
     ..registerFactory(() => ExtractProducts(getIt()));
 }

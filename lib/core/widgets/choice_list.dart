@@ -63,7 +63,7 @@ class ChoiceList extends StatelessWidget {
                   height: 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: on ? accent : const Color(0xFFC3CCD8), width: on ? 6 : 2),
+                    border: Border.all(color: on ? accent : ink.withValues(alpha: 0.3), width: on ? 6 : 2),
                   ),
                 ),
                 const SizedBox(width: 12),

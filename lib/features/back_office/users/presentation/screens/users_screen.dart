@@ -4,7 +4,6 @@ import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/session/user_session.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/crud_layout.dart';
 import '../../../../../core/widgets/feedback.dart';
@@ -173,10 +172,10 @@ class _UsersScreenState extends State<UsersScreen> {
                 children: [
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: fill,
+                    backgroundColor: context.tone(ink, fill).fill,
                     child: Text(
                       u.userName.length <= 2 ? u.userName.toUpperCase() : u.userName.substring(0, 2).toUpperCase(),
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: ink),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: context.tone(ink, fill).ink),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -195,8 +194,8 @@ class _UsersScreenState extends State<UsersScreen> {
                       height: 24,
                       padding: const EdgeInsets.symmetric(horizontal: 9),
                       alignment: Alignment.center,
-                      decoration: BoxDecoration(color: AppColors.successTint, borderRadius: BorderRadius.circular(999)),
-                      child: const Text('ON SHIFT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.successInk)),
+                      decoration: BoxDecoration(color: context.colors.noteFill, borderRadius: BorderRadius.circular(999)),
+                      child: Text('ON SHIFT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: context.colors.noteInk)),
                     ),
                 ],
               ),

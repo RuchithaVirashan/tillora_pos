@@ -142,8 +142,8 @@ class _Tile extends StatelessWidget {
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: BoxDecoration(color: tool.fill, borderRadius: BorderRadius.circular(14)),
-                  child: Icon(tool.icon, color: tool.ink),
+                  decoration: BoxDecoration(color: context.tone(tool.ink, tool.fill).fill, borderRadius: BorderRadius.circular(14)),
+                  child: Icon(tool.icon, color: context.tone(tool.ink, tool.fill).ink),
                 ),
                 Text(tool.name, maxLines: 2, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: c.ink)),
               ],

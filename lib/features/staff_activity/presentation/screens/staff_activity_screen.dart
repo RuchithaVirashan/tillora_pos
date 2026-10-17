@@ -102,10 +102,10 @@ class _StaffActivityScreenState extends State<StaffActivityScreen> {
                                     children: [
                                       CircleAvatar(
                                         radius: 20,
-                                        backgroundColor: fill,
+                                        backgroundColor: context.tone(ink, fill).fill,
                                         child: Text(
                                           r.userName.length <= 2 ? r.userName.toUpperCase() : r.userName.substring(0, 2).toUpperCase(),
-                                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: ink),
+                                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: context.tone(ink, fill).ink),
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -147,7 +147,7 @@ class _StatusPill extends StatelessWidget {
     height: 30,
     padding: const EdgeInsets.symmetric(horizontal: 12),
     decoration: BoxDecoration(
-      color: onShift ? AppColors.successTint : const Color(0xFFEEF1F5),
+      color: onShift ? context.colors.noteFill : context.colors.surfaceMuted,
       borderRadius: BorderRadius.circular(999),
     ),
     child: Row(
@@ -157,7 +157,7 @@ class _StatusPill extends StatelessWidget {
         const SizedBox(width: 7),
         Text(
           onShift ? 'Running' : 'Stopped',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: onShift ? AppColors.successInk : const Color(0xFF475467)),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: onShift ? context.colors.noteInk : const Color(0xFF475467)),
         ),
       ],
     ),

@@ -52,8 +52,8 @@ class HomeTile extends StatelessWidget {
               Container(
                 width: 52,
                 height: 52,
-                decoration: BoxDecoration(color: data.tint.fill, borderRadius: BorderRadius.circular(14)),
-                child: Icon(data.icon, color: data.tint.ink, size: 26),
+                decoration: BoxDecoration(color: context.tone(data.tint.ink, data.tint.fill).fill, borderRadius: BorderRadius.circular(14)),
+                child: Icon(data.icon, color: context.tone(data.tint.ink, data.tint.fill).ink, size: 26),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

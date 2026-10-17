@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/module_scaffold.dart';
@@ -175,7 +174,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _heading(context, Icons.download_rounded, AppColors.successInk, AppColors.successTint, 'Backup local database'),
+        _heading(context, Icons.download_rounded, context.colors.noteInk, context.colors.noteFill, 'Backup local database'),
         const SizedBox(height: 18),
         Text(
           'Select backup destination',
@@ -187,10 +186,10 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppColors.successTint, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: context.colors.noteFill, borderRadius: BorderRadius.circular(12)),
             child: Text(
               'Database backup completed successfully\n$_savedTo',
-              style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.successInk),
+              style: TextStyle(fontWeight: FontWeight.w700, color: context.colors.noteInk),
             ),
           ),
         ],
@@ -204,7 +203,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _heading(context, Icons.restore_rounded, AppColors.warningInk, AppColors.warningTint, 'Restore local database'),
+        _heading(context, Icons.restore_rounded, context.colors.holdInk, context.colors.holdFill, 'Restore local database'),
         const SizedBox(height: 14),
         SegmentedButton<bool>(
           showSelectedIcon: false,

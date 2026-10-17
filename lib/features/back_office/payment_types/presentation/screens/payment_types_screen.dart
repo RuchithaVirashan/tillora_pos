@@ -166,10 +166,10 @@ class _PaymentTypesScreenState extends State<PaymentTypesScreen> {
                         height: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 9),
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(color: t.enabled ? AppColors.successTint : c.background, borderRadius: BorderRadius.circular(999)),
+                        decoration: BoxDecoration(color: t.enabled ? context.colors.noteFill : c.background, borderRadius: BorderRadius.circular(999)),
                         child: Text(
                           t.enabled ? 'Enabled' : 'Disabled',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: t.enabled ? AppColors.successInk : c.inkSecondary),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: t.enabled ? context.colors.noteInk : c.inkSecondary),
                         ),
                       ),
                     ],

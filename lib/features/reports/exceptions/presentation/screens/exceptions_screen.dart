@@ -161,7 +161,7 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
               ChoiceChip(
                 label: Text(t.label, style: const TextStyle(fontWeight: FontWeight.w800)),
                 selected: t == _type,
-                selectedColor: AppColors.dangerTint,
+                selectedColor: context.colors.voidFill,
                 onSelected: (_) => setState(() => _type = t),
               ),
           ],
@@ -236,7 +236,7 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                       final on = i == _selected;
                       final body = TextStyle(fontSize: 14, color: c.ink);
                       return Material(
-                        color: on ? AppColors.dangerTint : c.surface,
+                        color: on ? context.colors.voidFill : c.surface,
                         child: InkWell(
                           onTap: () => setState(() => _selected = i),
                           child: Container(
@@ -248,11 +248,11 @@ class _ExceptionsScreenState extends State<ExceptionsScreen> {
                               ),
                             ),
                             child: cols([
-                              Text('#${r.id.toString().padLeft(6, '0')}', style: body.copyWith(fontWeight: FontWeight.w800, color: on ? AppColors.dangerInk : c.ink)),
-                              Text(_date.format(r.at), style: body.copyWith(color: on ? AppColors.dangerInk : c.ink)),
-                              Text(r.userName, overflow: TextOverflow.ellipsis, style: body.copyWith(color: on ? AppColors.dangerInk : c.ink)),
-                              Text(r.reason, overflow: TextOverflow.ellipsis, style: body.copyWith(color: on ? AppColors.dangerInk : c.ink)),
-                              Text(_rs(r.amountCents), style: body.copyWith(fontWeight: FontWeight.w800, color: on ? AppColors.dangerInk : c.ink)),
+                              Text('#${r.id.toString().padLeft(6, '0')}', style: body.copyWith(fontWeight: FontWeight.w800, color: on ? context.colors.voidInk : c.ink)),
+                              Text(_date.format(r.at), style: body.copyWith(color: on ? context.colors.voidInk : c.ink)),
+                              Text(r.userName, overflow: TextOverflow.ellipsis, style: body.copyWith(color: on ? context.colors.voidInk : c.ink)),
+                              Text(r.reason, overflow: TextOverflow.ellipsis, style: body.copyWith(color: on ? context.colors.voidInk : c.ink)),
+                              Text(_rs(r.amountCents), style: body.copyWith(fontWeight: FontWeight.w800, color: on ? context.colors.voidInk : c.ink)),
                             ]),
                           ),
                         ),

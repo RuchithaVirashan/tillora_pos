@@ -149,8 +149,11 @@ class _SuppliersScreenState extends State<SuppliersScreen> {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: const Color(0xFFDFF3F3),
-                    child: Text(s.initials, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0B6E6E))),
+                    backgroundColor: context.tone(const Color(0xFF0B6E6E), const Color(0xFFDFF3F3)).fill,
+                    child: Text(
+                      s.initials,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: context.tone(const Color(0xFF0B6E6E), const Color(0xFFDFF3F3)).ink),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
