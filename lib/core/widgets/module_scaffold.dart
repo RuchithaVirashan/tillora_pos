@@ -208,3 +208,44 @@ class DateField extends StatelessWidget {
     );
   }
 }
+
+/// Underlined tabs under the module header. Scrolls sideways when the
+/// labels do not fit.
+class ModuleTabs extends StatelessWidget {
+  const ModuleTabs({super.key, required this.labels, required this.selected, required this.onSelect});
+
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      color: c.surface,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final (i, label) in labels.indexed)
+              Semantics(
+                selected: i == selected,
+                button: true,
+                child: InkWell(
+                  onTap: () => onSelect(i),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: i == selected ? AppColors.amber : Colors.transparent, width: 3)),
+                    ),
+                    child: Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: i == selected ? c.ink : c.muted)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

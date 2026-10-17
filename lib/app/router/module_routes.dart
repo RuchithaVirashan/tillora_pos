@@ -6,8 +6,13 @@ import '../../core/session/user_session.dart';
 import '../../features/back_office/barcode_products/presentation/screens/barcode_products_screen.dart';
 import '../../features/back_office/dashboard/presentation/screens/back_office_screen.dart';
 import '../../features/back_office/departments/presentation/screens/departments_screen.dart';
+import '../../features/back_office/label_printer/presentation/screens/label_printer_screen.dart';
 import '../../features/back_office/payment_types/presentation/screens/payment_types_screen.dart';
+import '../../features/back_office/promotions/presentation/screens/promotions_screen.dart';
+import '../../features/back_office/reports/domain/entities/back_office_report.dart';
+import '../../features/back_office/reports/presentation/screens/back_office_reports_screen.dart';
 import '../../features/back_office/role_access/presentation/screens/role_access_screen.dart';
+import '../../features/back_office/sales_manager/presentation/screens/sales_manager_screen.dart';
 import '../../features/back_office/stock_manager/presentation/screens/stock_manager_screen.dart';
 import '../../features/back_office/users/presentation/screens/users_screen.dart';
 import '../../features/product_management/adjust_stock/presentation/widgets/adjust_stock_panel.dart';
@@ -21,7 +26,6 @@ import '../../features/reports/expired_items/presentation/screens/expired_items_
 import '../../features/reports/quick_report/presentation/screens/quick_report_screen.dart';
 import '../../features/reports/shift_report/presentation/screens/shift_report_screen.dart';
 import '../di/injector.dart';
-import 'not_ported_screen.dart';
 import 'routes.dart';
 
 /// Leaving a module signs the user out, as logging in was for that module.
@@ -149,21 +153,13 @@ const _backOfficeGroups = <BackOfficeGroup>[
   ]),
   BackOfficeGroup('PROMOTION', Color(0xFF9A5B00), Color(0xFFFFF3DC), [
     BackOfficeTile('Promotion Manager', Icons.star_outline_rounded, Routes.promotions, 'promotionManagerAccess'),
-    BackOfficeTile('Restore Promotions', Icons.restore_rounded, Routes.promotions, 'restorePromotionAccess'),
+    BackOfficeTile('Restore Promotions', Icons.restore_rounded, '${Routes.promotions}?tab=restore', 'restorePromotionAccess'),
   ]),
   BackOfficeGroup('REPORT', Color(0xFF5B3FB0), Color(0xFFEFEAFB), [
-    BackOfficeTile('Stock Movement', Icons.bar_chart_rounded, Routes.boReports, 'stockMovementReportAccess'),
-    BackOfficeTile('Sale', Icons.show_chart_rounded, Routes.boReports, 'saleReportAccess'),
-    BackOfficeTile('Stock Adjustment', Icons.tune_rounded, Routes.boReports, 'stockAdjustmentReportAccess'),
+    BackOfficeTile('Stock Movement', Icons.bar_chart_rounded, '${Routes.boReports}?tab=movement', 'stockMovementReportAccess'),
+    BackOfficeTile('Sale', Icons.show_chart_rounded, '${Routes.boReports}?tab=sale', 'saleReportAccess'),
+    BackOfficeTile('Stock Adjustment', Icons.tune_rounded, '${Routes.boReports}?tab=adjustment', 'stockAdjustmentReportAccess'),
   ]),
-];
-
-/// Back Office screens not built yet, with the design each follows.
-const _backOfficeNotPorted = <(String, String, String)>[
-  (Routes.salesManager, 'Sales Manager', 'BOSalesManager.dc.html'),
-  (Routes.labelPrinter, 'Label Printer', 'BOLabelPrinter.dc.html'),
-  (Routes.promotions, 'Promotion Manager', 'BOPromotions.dc.html'),
-  (Routes.boReports, 'Back Office Reports', 'BOReports.dc.html'),
 ];
 
 final backOfficeRoutes = <RouteBase>[
@@ -194,6 +190,20 @@ final backOfficeRoutes = <RouteBase>[
       onAmendProduct: (id) => context.go('${Routes.barcodeProducts}?edit=$id'),
     ),
   ),
-  for (final (path, title, design) in _backOfficeNotPorted)
-    GoRoute(path: path, builder: (_, _) => NotPortedScreen(title: title, design: design)),
+  GoRoute(path: Routes.salesManager, builder: (context, _) => SalesManagerScreen(onBack: () => context.go(Routes.backOffice))),
+  GoRoute(
+    path: Routes.boReports,
+    builder: (context, state) {
+      final report = BackOfficeReport.values.asNameMap()[state.uri.queryParameters['tab']] ?? BackOfficeReport.sale;
+      return BackOfficeReportsScreen(key: ValueKey(report), initial: report, onBack: () => context.go(Routes.backOffice));
+    },
+  ),
+  GoRoute(
+    path: Routes.promotions,
+    builder: (context, state) {
+      final restore = state.uri.queryParameters['tab'] == 'restore';
+      return PromotionsScreen(key: ValueKey(restore), restore: restore, onBack: () => context.go(Routes.backOffice));
+    },
+  ),
+  GoRoute(path: Routes.labelPrinter, builder: (context, _) => LabelPrinterScreen(onBack: () => context.go(Routes.backOffice))),
 ];

@@ -132,36 +132,10 @@ class _BarcodeProductsScreenState extends State<BarcodeProductsScreen> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _tabs(context),
+                ModuleTabs(labels: const ['Manage Barcode Products', 'Stock in'], selected: _tab, onSelect: (i) => setState(() => _tab = i)),
                 Expanded(child: _tab == 0 ? _manage(context) : const StockInPanel()),
               ],
             ),
-    );
-  }
-
-  Widget _tabs(BuildContext context) {
-    final c = context.colors;
-    return Container(
-      color: c.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            for (final (i, label) in ['Manage Barcode Products', 'Stock in'].indexed)
-              InkWell(
-                onTap: () => setState(() => _tab = i),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: _tab == i ? AppColors.amber : Colors.transparent, width: 3)),
-                  ),
-                  child: Text(label, style: TextStyle(fontWeight: FontWeight.w800, color: _tab == i ? c.ink : c.muted)),
-                ),
-              ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -20,12 +20,24 @@ import '../../features/back_office/barcode_products/domain/usecases/barcode_prod
 import '../../features/back_office/departments/data/repositories/department_repository_impl.dart';
 import '../../features/back_office/departments/domain/repositories/department_repository.dart';
 import '../../features/back_office/departments/domain/usecases/department_usecases.dart';
+import '../../features/back_office/label_printer/data/repositories/label_repository_impl.dart';
+import '../../features/back_office/label_printer/domain/repositories/label_repository.dart';
+import '../../features/back_office/label_printer/domain/usecases/label_usecases.dart';
 import '../../features/back_office/payment_types/data/repositories/payment_type_admin_repository_impl.dart';
 import '../../features/back_office/payment_types/domain/repositories/payment_type_admin_repository.dart';
 import '../../features/back_office/payment_types/domain/usecases/payment_type_admin_usecases.dart';
+import '../../features/back_office/promotions/data/repositories/promotion_repository_impl.dart';
+import '../../features/back_office/promotions/domain/repositories/promotion_repository.dart';
+import '../../features/back_office/promotions/domain/usecases/promotion_usecases.dart';
+import '../../features/back_office/reports/data/repositories/back_office_report_repository_impl.dart';
+import '../../features/back_office/reports/domain/repositories/back_office_report_repository.dart';
+import '../../features/back_office/reports/domain/usecases/back_office_report_usecases.dart';
 import '../../features/back_office/role_access/data/repositories/role_access_repository_impl.dart';
 import '../../features/back_office/role_access/domain/repositories/role_access_repository.dart';
 import '../../features/back_office/role_access/domain/usecases/role_access_usecases.dart';
+import '../../features/back_office/sales_manager/data/repositories/sales_manager_repository_impl.dart';
+import '../../features/back_office/sales_manager/domain/repositories/sales_manager_repository.dart';
+import '../../features/back_office/sales_manager/domain/usecases/sales_manager_usecases.dart';
 import '../../features/back_office/stock_manager/data/repositories/stock_manager_repository_impl.dart';
 import '../../features/back_office/stock_manager/domain/repositories/stock_manager_repository.dart';
 import '../../features/back_office/stock_manager/domain/usecases/stock_manager_usecases.dart';
@@ -258,7 +270,27 @@ void _registerBackOffice(Database db) {
     ..registerFactory(() => ReceiveStock(getIt()))
     ..registerLazySingleton<StockManagerRepository>(() => StockManagerRepositoryImpl(db))
     ..registerFactory(() => GetStock(getIt()))
-    ..registerFactory(() => AdjustProductStock(getIt()));
+    ..registerFactory(() => AdjustProductStock(getIt()))
+    ..registerLazySingleton<PromotionRepository>(() => PromotionRepositoryImpl(db))
+    ..registerFactory(() => GetPromotions(getIt()))
+    ..registerFactory(() => GetPromotion(getIt()))
+    ..registerFactory(() => FindPromoProduct(getIt()))
+    ..registerFactory(() => SavePromotion(getIt()))
+    ..registerFactory(() => DeletePromotion(getIt()))
+    ..registerFactory(() => RestorePromotions(getIt(), getIt()))
+    ..registerLazySingleton<SalesManagerRepository>(() => SalesManagerRepositoryImpl(db))
+    ..registerFactory(() => GetClosedShifts(getIt()))
+    ..registerFactory(() => GetSaleLines(getIt()))
+    ..registerFactory(() => RemoveSaleLines(getIt()))
+    ..registerFactory(() => AlterSaleLine(getIt()))
+    ..registerLazySingleton<BackOfficeReportRepository>(() => BackOfficeReportRepositoryImpl(db))
+    ..registerFactory(() => GetSaleReport(getIt()))
+    ..registerFactory(() => GetStockMovement(getIt()))
+    ..registerFactory(() => GetStockAdjustments(getIt()))
+    ..registerLazySingleton<LabelRepository>(() => LabelRepositoryImpl(db, SystemPrinter(() => getIt<SysConfigDao>().get('labelprinter'))))
+    ..registerFactory(() => GetLabelProducts(getIt()))
+    ..registerFactory(() => FindLabelProduct(getIt()))
+    ..registerFactory(() => PrintLabels(getIt()));
 }
 
 void _registerReports(Database db) {
