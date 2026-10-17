@@ -105,9 +105,9 @@ class _HoldRecallScreenState extends State<HoldRecallScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
-                color: AppColors.warningTint,
+                color: context.colors.holdFill,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.warningLine),
+                border: Border.all(color: context.colors.holdLine),
               ),
               child: Row(
                 children: [
@@ -119,9 +119,9 @@ class _HoldRecallScreenState extends State<HoldRecallScreen> {
                           cart.isEmpty
                               ? 'No sale in progress'
                               : 'Current sale · ${cart.itemCount} items · ${Money.lkr(Money.fromCents(cart.totalCents))}',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.warningInk),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.holdInk),
                         ),
-                        const Text('Hold it to serve another customer', style: TextStyle(fontSize: 13, color: AppColors.warningInk)),
+                        Text('Hold it to serve another customer', style: TextStyle(fontSize: 13, color: context.colors.holdInk)),
                       ],
                     ),
                   ),
@@ -151,15 +151,15 @@ class _HoldRecallScreenState extends State<HoldRecallScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.dangerTint,
+                  color: context.colors.voidFill,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.dangerLine),
+                  border: Border.all(color: context.colors.voidLine),
                 ),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text('Are you okay to clear cart before recalling?',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.dangerInk)),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.voidInk)),
                     ),
                     PosButton(label: 'Cancel', height: 44, style: PosButtonStyle.secondary, onPressed: () => setState(() => _pendingRecall = null)),
                     const SizedBox(width: 8),

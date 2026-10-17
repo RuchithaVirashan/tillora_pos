@@ -27,7 +27,6 @@ import '../../features/reports/expired_items/presentation/screens/expired_items_
 import '../../features/reports/quick_report/presentation/screens/quick_report_screen.dart';
 import '../../features/reports/shift_report/presentation/screens/shift_report_screen.dart';
 import '../../features/settings/backup_restore/presentation/screens/backup_restore_screen.dart';
-import '../../features/settings/database_maintenance/presentation/screens/database_maintenance_screen.dart';
 import '../../features/settings/extract_products/presentation/screens/extract_products_screen.dart';
 import '../../features/settings/inventory/presentation/screens/inventory_settings_screen.dart';
 import '../../features/settings/menu/presentation/screens/settings_screen.dart';
@@ -240,7 +239,6 @@ const _settingsTiles = <SettingsTile>[
   SettingsTile('POS Record Messages', 'Reasons for voids, no sale and age refusal', Icons.chat_bubble_outline_rounded, Color(0xFF2952A3), Color(0xFFE8EEFB), Routes.posMessages),
   SettingsTile('System Configuration', 'Till, printers, options', Icons.settings_outlined, Color(0xFF3B4A60), Color(0xFFEEF1F5), Routes.systemConfig),
   SettingsTile('Backup & Restore', 'Backup or restore the local database', Icons.download_rounded, Color(0xFF0B7A55), Color(0xFFE3F5EE), Routes.backupRestore),
-  SettingsTile('Update Local Database', 'Database checks and fixes', Icons.storage_rounded, Color(0xFF9A5B00), Color(0xFFFFF3DC), Routes.databaseMaintenance),
   SettingsTile('Extract Product Data', 'Export products to CSV', Icons.file_download_outlined, Color(0xFF0B6E6E), Color(0xFFDFF3F3), Routes.extractProducts),
 ];
 
@@ -265,9 +263,5 @@ final settingsRoutes = <RouteBase>[
     ),
   ),
   GoRoute(path: Routes.backupRestore, builder: (context, _) => BackupRestoreScreen(onBack: () => context.go(Routes.settings))),
-  GoRoute(
-    path: Routes.databaseMaintenance,
-    builder: (context, _) => DatabaseMaintenanceScreen(onBack: () => context.go(Routes.settings), onOpenBackup: () => context.go(Routes.backupRestore)),
-  ),
   GoRoute(path: Routes.extractProducts, builder: (context, _) => ExtractProductsScreen(onBack: () => context.go(Routes.settings))),
 ];

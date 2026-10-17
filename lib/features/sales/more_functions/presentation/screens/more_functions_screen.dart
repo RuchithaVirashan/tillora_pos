@@ -165,8 +165,8 @@ class _FnTile extends StatelessWidget {
                 Container(
                   width: 56,
                   height: 56,
-                  decoration: BoxDecoration(color: fn.fill, borderRadius: BorderRadius.circular(16)),
-                  child: Icon(fn.icon, color: fn.ink, size: 26),
+                  decoration: BoxDecoration(color: context.tone(fn.ink, fn.fill).fill, borderRadius: BorderRadius.circular(16)),
+                  child: Icon(fn.icon, color: context.tone(fn.ink, fn.fill).ink, size: 26),
                 ),
                 const Spacer(),
                 Text(fn.name, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: c.ink)),

@@ -55,7 +55,7 @@ class _ResetVoidDialogState extends State<ResetVoidDialog> {
       subtitle: 'Please login for reset void counts',
       icon: Icons.restart_alt_rounded,
       iconColor: AppColors.danger,
-      iconFill: AppColors.dangerTint,
+      iconFill: context.colors.voidFill,
       width: 460,
       child: AutofillGroup(
         child: Column(

@@ -159,7 +159,7 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
             Container(
               margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              decoration: BoxDecoration(color: AppColors.warningTint, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: context.colors.holdFill, borderRadius: BorderRadius.circular(16)),
               child: Text(
                 _partial && _payCents >= _due
                     ? 'A partial payment must be less than the balance.'
@@ -170,7 +170,7 @@ class _OtherPaymentScreenState extends State<OtherPaymentScreen> {
                     : _changeCents > 0
                     ? 'Are you sure you want to pay with $amount in $name? Give ${Money.lkr(Money.fromCents(_changeCents))} change in cash.'
                     : 'Are you sure you want to pay with $amount in $name?',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.warningInk),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.holdInk),
               ),
             ),
         ],

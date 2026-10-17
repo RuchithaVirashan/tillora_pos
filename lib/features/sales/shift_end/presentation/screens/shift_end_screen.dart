@@ -140,13 +140,13 @@ class _CompletedPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     height: 30,
     padding: const EdgeInsets.symmetric(horizontal: 12),
-    decoration: BoxDecoration(color: AppColors.successTint, borderRadius: BorderRadius.circular(999)),
-    child: const Row(
+    decoration: BoxDecoration(color: context.colors.noteFill, borderRadius: BorderRadius.circular(999)),
+    child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(radius: 3.5, backgroundColor: AppColors.success),
         SizedBox(width: 6),
-        Text('Processing Completed', style: TextStyle(color: AppColors.successInk, fontSize: 13, fontWeight: FontWeight.w800)),
+        Text('Processing Completed', style: TextStyle(color: context.colors.noteInk, fontSize: 13, fontWeight: FontWeight.w800)),
       ],
     ),
   );

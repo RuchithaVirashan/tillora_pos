@@ -86,7 +86,7 @@ class _InventorySettingsScreenState extends State<InventorySettingsScreen> {
                   Container(
                     width: 52,
                     height: 52,
-                    decoration: BoxDecoration(color: AppColors.dangerTint, borderRadius: BorderRadius.circular(15)),
+                    decoration: BoxDecoration(color: context.colors.voidFill, borderRadius: BorderRadius.circular(15)),
                     child: const Icon(Icons.inventory_2_outlined, color: AppColors.danger),
                   ),
                   const SizedBox(height: 14),
@@ -106,8 +106,8 @@ class _InventorySettingsScreenState extends State<InventorySettingsScreen> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: AppColors.warningTint, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.warningLine)),
-                    child: const Text('Take a backup first in Backup & Restore.', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.warningInk)),
+                    decoration: BoxDecoration(color: context.colors.holdFill, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.colors.holdLine)),
+                    child: Text('Take a backup first in Backup & Restore.', style: TextStyle(fontWeight: FontWeight.w700, color: context.colors.holdInk)),
                   ),
                   const SizedBox(height: 18),
                   Row(

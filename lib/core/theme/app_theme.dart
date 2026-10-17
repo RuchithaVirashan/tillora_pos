@@ -48,6 +48,14 @@ abstract final class AppTheme {
           borderSide: BorderSide(color: c.primary, width: 2),
         ),
       ),
+      // Unticked boxes stay hollow in both themes, so they never read as ticked.
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? c.primary : Colors.transparent),
+        checkColor: const WidgetStatePropertyAll(Colors.white),
+        side: WidgetStateBorderSide.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? BorderSide.none : BorderSide(color: c.muted, width: 2),
+        ),
+      ),
       extensions: [AppColorsExtension(c)],
     );
   }
@@ -66,4 +74,13 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
 
 extension AppColorsContext on BuildContext {
   AppColors get colors => Theme.of(this).extension<AppColorsExtension>()!.colors;
+}
+
+extension ToneContext on BuildContext {
+  /// A pastel chip (light [fill] behind a strong [ink]) toned for the
+  /// current theme: on dark screens the fill becomes a soft tint of [ink]
+  /// and the ink lightens, so icons stay readable.
+  ({Color ink, Color fill}) tone(Color ink, Color fill) => Theme.of(this).brightness == Brightness.dark
+      ? (ink: Color.lerp(ink, const Color(0xFFFFFFFF), 0.45)!, fill: ink.withValues(alpha: 0.24))
+      : (ink: ink, fill: fill);
 }

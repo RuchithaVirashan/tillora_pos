@@ -67,7 +67,7 @@ class _AdjustStockDialogState extends State<AdjustStockDialog> {
       subtitle: e.description,
       icon: Icons.tune_rounded,
       iconColor: const Color(0xFF0B7A55),
-      iconFill: AppColors.successTint,
+      iconFill: context.colors.noteFill,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

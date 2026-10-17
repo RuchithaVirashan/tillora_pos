@@ -124,7 +124,7 @@ Future<bool> confirm(
         title: title,
         icon: icon,
         iconColor: destructive ? AppColors.danger : c.primary,
-        iconFill: destructive ? AppColors.dangerTint : c.selection,
+        iconFill: destructive ? context.colors.voidFill : c.selection,
         width: 480,
         onClose: () => Navigator.pop(context, false),
         child: Column(

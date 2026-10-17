@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/feedback.dart';
 import '../../../../../core/widgets/module_scaffold.dart';
@@ -115,8 +114,8 @@ class _ExtractProductsScreenState extends State<ExtractProductsScreen> {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: AppColors.successTint, borderRadius: BorderRadius.circular(12)),
-                      child: Text('CSV file saved at $_savedTo', style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.successInk)),
+                      decoration: BoxDecoration(color: context.colors.noteFill, borderRadius: BorderRadius.circular(12)),
+                      child: Text('CSV file saved at $_savedTo', style: TextStyle(fontWeight: FontWeight.w700, color: context.colors.noteInk)),
                     ),
                   ],
                   const SizedBox(height: 18),

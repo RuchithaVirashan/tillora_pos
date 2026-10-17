@@ -190,15 +190,18 @@ class _RoleAccessScreenState extends State<RoleAccessScreen> {
           const SizedBox(height: 16),
           Expanded(
             child: LayoutBuilder(
-              builder: (context, box) => GridView.count(
-                crossAxisCount: box.maxWidth > 700 ? 2 : 1,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: box.maxWidth > 700 ? 7 : 6,
-                children: [
-                  for (final (label, flag) in items)
-                    _AccessTile(label: label, on: access.can(flag), onChanged: (v) => _set(flag, v ? '1' : '0')),
-                ],
+              builder: (context, box) => GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: box.maxWidth > 700 ? 2 : 1,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  mainAxisExtent: 60,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, i) {
+                  final (label, flag) = items[i];
+                  return _AccessTile(label: label, on: access.can(flag), onChanged: (v) => _set(flag, v ? '1' : '0'));
+                },
               ),
             ),
           ),
@@ -227,8 +230,8 @@ class _AccessTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Material(
-      color: on ? const Color(0xFFF2FAF6) : c.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13), side: BorderSide(color: on ? const Color(0xFFC5E8D7) : c.line)),
+      color: on ? c.noteFill : c.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13), side: BorderSide(color: on ? c.noteLine : c.line)),
       child: CheckboxListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
         controlAffinity: ListTileControlAffinity.leading,

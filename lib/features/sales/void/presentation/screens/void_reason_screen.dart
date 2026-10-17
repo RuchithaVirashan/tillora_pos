@@ -95,9 +95,9 @@ class _VoidReasonScreenState extends State<VoidReasonScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.dangerTint,
+                color: context.colors.voidFill,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.dangerLine),
+                border: Border.all(color: context.colors.voidLine),
               ),
               child: Row(
                 children: [
@@ -107,7 +107,7 @@ class _VoidReasonScreenState extends State<VoidReasonScreen> {
                       children: [
                         Text(
                           widget.request.labelFor(_kind),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.dangerInk),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.colors.voidInk),
                         ),
                         if (options != null)
                           Text('$_name count left: ${options.remaining}',
@@ -117,7 +117,7 @@ class _VoidReasonScreenState extends State<VoidReasonScreen> {
                   ),
                   Text(
                     Money.lkr(Money.fromCents(widget.request.amountFor(_kind))),
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.dangerInk),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: context.colors.voidInk),
                   ),
                 ],
               ),
@@ -138,7 +138,7 @@ class _VoidReasonScreenState extends State<VoidReasonScreen> {
                 selected: _selected,
                 onSelected: (i) => setState(() => _selected = i),
                 accent: AppColors.danger,
-                accentFill: AppColors.dangerTint,
+                accentFill: context.colors.voidFill,
                 semanticLabel: 'Reason',
               ),
             ],
@@ -197,7 +197,7 @@ class _KindTabs extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: on ? AppColors.dangerInk : (enabled ? c.inkSecondary : c.line),
+                    color: on ? context.colors.voidInk : (enabled ? c.inkSecondary : c.line),
                   )),
             ),
           ),

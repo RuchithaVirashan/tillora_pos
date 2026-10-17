@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/session/user_session.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/utils/money.dart';
 import '../../../../../core/widgets/amount_display.dart';
@@ -47,7 +46,7 @@ class _CashLiftScreenState extends State<CashLiftScreen> {
       title: 'Cash Lift',
       icon: Icons.savings_outlined,
       iconColor: const Color(0xFF0B7A55),
-      iconFill: AppColors.successTint,
+      iconFill: context.colors.noteFill,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,10 +58,10 @@ class _CashLiftScreenState extends State<CashLiftScreen> {
             if (_cents > 0)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                decoration: BoxDecoration(color: AppColors.warningTint, borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: context.colors.holdFill, borderRadius: BorderRadius.circular(16)),
                 child: Text(
                   'Are you sure you want to lift $text from cash?',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.warningInk),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: context.colors.holdInk),
                 ),
               )
             else

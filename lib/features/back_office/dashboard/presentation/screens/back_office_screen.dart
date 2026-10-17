@@ -107,8 +107,8 @@ class _Group extends StatelessWidget {
                           Container(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(color: group.fill, borderRadius: BorderRadius.circular(13)),
-                            child: Icon(t.icon, color: group.ink),
+                            decoration: BoxDecoration(color: context.tone(group.ink, group.fill).fill, borderRadius: BorderRadius.circular(13)),
+                            child: Icon(t.icon, color: context.tone(group.ink, group.fill).ink),
                           ),
                           Text(t.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: c.ink)),
                         ],

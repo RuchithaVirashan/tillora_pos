@@ -54,6 +54,5 @@ abstract final class Routes {
   static const inventory = '/settings/inventory';
   static const posMessages = '/settings/pos-messages';
   static const backupRestore = '/settings/backup-restore';
-  static const databaseMaintenance = '/settings/database';
   static const extractProducts = '/settings/extract-products';
 }

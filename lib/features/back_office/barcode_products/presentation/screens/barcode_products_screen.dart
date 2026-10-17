@@ -289,7 +289,7 @@ class _PromoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-    decoration: BoxDecoration(color: AppColors.warningTint, borderRadius: BorderRadius.circular(6), border: Border.all(color: AppColors.warningLine)),
-    child: const Text('IN PROMO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: AppColors.warningInk)),
+    decoration: BoxDecoration(color: context.colors.holdFill, borderRadius: BorderRadius.circular(6), border: Border.all(color: context.colors.holdLine)),
+    child: Text('IN PROMO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: context.colors.holdInk)),
   );
 }

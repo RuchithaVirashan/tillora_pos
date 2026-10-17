@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../responsive/breakpoints.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 import 'module_scaffold.dart';
 import 'pos_button.dart';
@@ -102,13 +101,13 @@ class DeleteConfirm extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.dangerTint,
+        color: context.colors.voidFill,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.dangerLine),
+        border: Border.all(color: context.colors.voidLine),
       ),
       child: Row(
         children: [
-          Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.dangerInk))),
+          Expanded(child: Text(text, style: TextStyle(fontWeight: FontWeight.w700, color: context.colors.voidInk))),
           PosButton(label: 'No', height: 42, style: PosButtonStyle.secondary, onPressed: onCancel),
           if (onDelete != null) ...[
             const SizedBox(width: 8),

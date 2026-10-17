@@ -15,7 +15,7 @@ class PosDialog extends StatelessWidget {
     this.subtitle,
     this.icon,
     this.iconColor = AppColors.danger,
-    this.iconFill = AppColors.dangerTint,
+    this.iconFill,
     this.width = 520,
     this.height,
     this.padding = const EdgeInsets.all(30),
@@ -28,7 +28,8 @@ class PosDialog extends StatelessWidget {
   final String? subtitle;
   final IconData? icon;
   final Color iconColor;
-  final Color iconFill;
+  /// Defaults to the danger tint of the current theme.
+  final Color? iconFill;
   final double width;
   final double? height;
   final EdgeInsets padding;
@@ -51,8 +52,8 @@ class PosDialog extends StatelessWidget {
           Container(
             width: 52,
             height: 52,
-            decoration: BoxDecoration(color: iconFill, borderRadius: BorderRadius.circular(15)),
-            child: Icon(icon, color: iconColor, size: 26),
+            decoration: BoxDecoration(color: context.tone(iconColor, iconFill ?? c.voidFill).fill, borderRadius: BorderRadius.circular(15)),
+            child: Icon(icon, color: context.tone(iconColor, iconFill ?? c.voidFill).ink, size: 26),
           ),
           const SizedBox(width: 14),
         ],

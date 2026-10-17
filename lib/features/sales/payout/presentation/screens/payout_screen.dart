@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../../app/di/injector.dart';
 import '../../../../../core/errors/result.dart';
 import '../../../../../core/responsive/breakpoints.dart';
-import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/utils/money.dart';
 import '../../../../../core/widgets/amount_display.dart';
@@ -57,8 +56,8 @@ class _PayoutScreenState extends State<PayoutScreen> {
       title: 'Payout',
       subtitle: 'Cash paid out of the drawer',
       icon: Icons.outbox_outlined,
-      iconColor: AppColors.warningInk,
-      iconFill: AppColors.warningTint,
+      iconColor: context.colors.holdInk,
+      iconFill: context.colors.holdFill,
       width: 980,
       child: SingleChildScrollView(
         child: phone
